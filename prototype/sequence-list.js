@@ -132,7 +132,7 @@
       ],
       notes: [
         'Selection banner (A): header checkbox selects the page (25); "Select all 30" selects every sequence matching the list, up to 100. Over 100: "First 100 of N sequences are selected. You can act on up to 100 at a time."',
-        'Bulk bar (B): Pause and Resume are labelled and blue on hover; "Delete" (no count) is the only red action, after a divider. In the proposed view it opens the impact dialog (F), with no undo: "This can\'t be undone." The Today view keeps its typed "delete" confirmation unchanged.',
+        'Bulk bar (B): Pause and Resume are labelled and blue on hover; "Delete" (no count) is the only red action, after a divider. In the proposed view it opens the impact dialog (F), with no undo: "This can\'t be undone." Today\'s typed "delete" stays inside F (product decision 23 Oct 2026), under the breakdown: the red primary stays disabled until it matches, and initial focus goes to the field. The Today view keeps its own typed modal unchanged.',
         'Counts in titles are what the action changes: "Pause 22 sequences?" when 8 of the 30 selected are already paused. The note under the breakdown names the rest.',
         'Resume never offers a sequence whose email account is disconnected: it is named in the note and stays paused, instead of failing afterwards in the "Action Stats" modal.',
         'The row switch goes through the same dialog, naming the one sequence. One sequence needs no lookup if the list payload carries its in-progress and next-hour counts; otherwise it shows the same counting state.',
@@ -389,7 +389,7 @@
           { key: 'subs', label: 'Subsequences deleted with them', value: subs },
         ],
         consequence: `${one ? 'Its' : 'Their'} steps, prospects' progress and stats are deleted. This can't be undone.`,
-        primaryLabel: one ? 'Delete sequence' : `Delete ${nS(N)}`,
+        primaryLabel: one ? 'Delete sequence' : `Delete ${nS(N)}`, typeToConfirm: 'delete',
         failMessage: { title: `We couldn't delete ${one ? 'this sequence' : 'these sequences'} because ${one ? 'it was' : 'one of them was'} already deleted by a teammate.`, body: 'Refresh the page and try again.' },
         onConfirm: () => {
           sel.forEach((x) => hidden.add(x.id));
@@ -478,6 +478,7 @@
       'toast': () => { applySel0('12'); render(); const d = openPause(selectedList()); after(() => d.confirm(), bd); },
       'undone': () => { applySel0('12'); render(); const d = openPause(selectedList()); after(() => { d.confirm(); after(() => document.querySelector('.message-undo').click(), (window.SL_SD != null ? window.SL_SD : 900) + 600); }, bd); },
       'delete': () => { applySel0('3'); render(); openDelete(selectedList()); },
+      'delete-typed': () => { applySel0('3'); render(); const d = openDelete(selectedList()); after(() => d.type('delete'), (window.SL_BD != null ? window.SL_BD : 500) + 100); },
       'today': () => { S.view = 'today'; shell.setControl('view', 'today'); applySel0('12'); render(); },
       'today-modal': () => { S.view = 'today'; shell.setControl('view', 'today'); applySel0('12'); render(); todayBulk('pause', selectedList()); },
       'today-resume': () => { S.view = 'today'; shell.setControl('view', 'today'); pick(pausedIds); todayBulk('resume', selectedList()); },

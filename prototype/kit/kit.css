@@ -231,3 +231,8 @@ body { font-family: Inter, sans-serif; background: #fff; color: var(--nx-text); 
 /* motion: production entry animations play once; prefers-reduced-motion respected */
 .nx-settled, .nx-settled * { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .nx-modal-root *, .nx-toasts * { animation: none !important; transition: none !important; } }
+
+/* F: typed confirmation field (production bs-input; only the label is new) */
+.nx-typed { margin-top: 16px; }
+.nx-typed-label { margin-top: 0; margin-bottom: 8px; }
+.nx-typed .bs-input-affix-wrapper { width: 100%; }

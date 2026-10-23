@@ -82,7 +82,7 @@
     devNotes: {
       intro: 'Spec rows 6 and 7. Pattern F only: no undo, because a deleted step and a removed sender cannot be put back exactly as they were. Breakdown counts come from the backend when the dialog opens (one call per dialog); the dialog opens at once with the step or account named in the title.',
       rows: [
-        { n: 6, surface: 'Sequence > Steps', action: 'Delete step', patterns: 'F', breakdown: 'Prospects on this step now; emails scheduled from it in the next 24 hours (LinkedIn: tasks due); variants deleted with it (only when more than 1). Consequence names where those prospects go next: the next step on its delay, or out of the sequence if it was the last step. No prospects and nothing scheduled: one sentence.', undo: 'No. Typed "delete" confirmation removed (22 Oct 2026)',
+        { n: 6, surface: 'Sequence > Steps', action: 'Delete step', patterns: 'F', breakdown: 'Prospects on this step now; emails scheduled from it in the next 24 hours (LinkedIn: tasks due); variants deleted with it (only when more than 1). Consequence names where those prospects go next: the next step on its delay, or out of the sequence if it was the last step. No prospects and nothing scheduled: one sentence.', undo: 'No. Typed "delete" kept inside the dialog (23 Oct 2026)',
           code: [{ label: 'sequence-single-step-header.tsx L174-182 (trash icon)', url: SC + 'sequence-single-step-header/sequence-single-step-header.tsx#L174-L182' }, { label: 'sequence-single-step-list.tsx L912-918 (submit handler)', url: SC + 'sequence-single-step-list/sequence-single-step-list.tsx#L912-L918' }, { label: 'sequence-single-step-list.tsx L1620-1626 (modal mount)', url: SC + 'sequence-single-step-list/sequence-single-step-list.tsx#L1620-L1626' }, { label: 'delete-step-modal.tsx L6-12 (copy)', url: C + 'shared/modals/delete-step-modal/delete-step-modal.tsx#L6-L12' }, { label: 'delete-modal.tsx (typed "delete", "Yes")', url: C + 'shared/modals/delete-modal/delete-modal.tsx' }] },
         { n: 7, surface: 'Sequence > Settings', action: 'Remove email account from sequence', patterns: 'F', breakdown: 'Account named in the title; prospects whose next email was due from it; scheduled from it in the next 24 hours; follow-up emails that move to the other accounts (or stop, when it is the only account); prospects it already emailed (reply and bounce tracking). Accounts with nothing sent yet go through the same dialog. Assumption to confirm: tracking for emails it already sent stops.', undo: 'No',
           code: [{ label: 'sequence-email-accounts-list.tsx L51-61 (dialog only if isAnySequenceMailSent)', url: SET + 'sequence-email-accounts-list/sequence-email-accounts-list.tsx#L51-L61' }, { label: 'sequence-email-account-column.tsx L25-32 (X icon, "Remove email")', url: SET + 'sequence-email-accounts-list/helper/sequence-email-account-column.tsx#L25-L32' }, { label: 'remove-email-warning-modal.tsx L16-38 (account not named)', url: SET + 'remove-email-warning-modal/remove-email-warning-modal.tsx#L16-L38' }, { label: 'edge sequence.service.ts disconnectEmailAccount (pauses the sequence when no connected account is left)', url: EDGE + 'sequence/services/sequence.service.ts#L4438-L4545' }] },
@@ -91,7 +91,7 @@
         'Dev to confirm with the scheduler: prospects on a deleted step move to the next step on its delay (edge deleteStep hands this to schedulerService.stepDeleted), and a removed sender\'s queued follow-ups move to the remaining senders (sequenceEmailAccountRemoved). The dialog copy states both as the required outcome.',
         'Verified in edge: removing the last connected email account pauses the sequence and its subsequences (SequencePauseReason.EmailAccountRemoved). The "Only 1" scenario shows it; the header switch turns off after removal.',
         'Today an account that has sent nothing is removed on the X click with no dialog. Proposed: every removal goes through the dialog; the X becomes a trash icon (spec B: a remove action never uses an X).',
-        'The typed "delete" input and the "Yes" button are gone. Red primary carries the step number: "Delete step 2". Initial focus on Cancel.',
+        'Today\'s typed "delete" stays (product decision 23 Oct 2026), now inside the impact dialog under the breakdown; "Yes" becomes "Delete step 2". Initial focus goes to the typed field; the red primary stays disabled until it matches.',
         'No undo toast. Success toasts name what changed. Failure keeps the dialog open with what happened and what to do.',
         'Today view does not model server failures: production closes its modal and shows the server message in an error toast.',
       ],
@@ -175,7 +175,7 @@
       title: `Delete step ${step.number} (${stepName(step)})?`, tone: 'danger',
       rows, sentence,
       consequence: `${where}The step's content and stats are deleted. This can't be undone.`,
-      primaryLabel: `Delete step ${step.number}`,
+      primaryLabel: `Delete step ${step.number}`, typeToConfirm: 'delete',
       failMessage: { title: `We couldn't delete step ${step.number} because this sequence's steps were changed in another tab.`, body: 'Refresh the page to see the latest steps, then try again.' },
       onConfirm: () => { const num = step.number; commit(); nxToast({ message: `Deleted step ${num} from ${QSEQ}` }); },
     }));
@@ -236,6 +236,7 @@
       'today-remove': () => { today(); goto('settings'); removeAccount(1); },
       'today-remove-instant': () => { today(); goto('settings'); removeAccount(3); },
       'dlg-step': () => { goto('steps'); deleteStep(102); },
+      'dlg-step-typed': () => { goto('steps'); const d = deleteStep(102); setTimeout(() => d.type('delete'), (window.SS_BD || 0) + 600); },
       'dlg-step-empty': () => { goto('steps'); deleteStep(104); },
       'dlg-step-linkedin': () => { goto('steps'); deleteStep(103); },
       'dlg-step-first': () => { goto('steps'); deleteStep(101); },

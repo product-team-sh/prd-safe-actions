@@ -420,7 +420,7 @@
     const scrollTo = (id) => { const el = root.querySelector('#' + id); const sc = root.querySelector('.admin-settings'); if (el && sc) sc.scrollTop += el.getBoundingClientRect().top - sc.getBoundingClientRect().top; }; // card's top edge sits on the scroller's top edge
     const toggleClick = (key) => { const i = root.querySelector(`[data-ab-toggle="${key}"]`); i.click(); };
     const typePw = (v) => setTimeout(() => { const i = document.querySelector('.nx-dialog input[type="password"]'); if (i) { i.value = v; i.dispatchEvent(new Event('input')); } }, 30);
-    const confirmTop = (delay) => setTimeout(() => { const b = [...document.querySelectorAll('.nx-dialog .shd-button')].pop(); if (b) b.click(); }, delay || 60);
+    const confirmTop = (delay) => setTimeout(() => { const dl = [...document.querySelectorAll('.nx-dialog')].pop(); const t = dl && dl.querySelector('.nx-typed input'); if (t) { t.value = t.getAttribute('aria-label').replace('Confirm by typing ', ''); t.dispatchEvent(new Event('input')); } const b = [...document.querySelectorAll('.nx-dialog .shd-button')].pop(); if (b) b.click(); }, delay || 60);
     const provider = (delay) => setTimeout(() => { const b = document.querySelector('.nx-dialog .nx-provider-btn'); if (b) b.click(); }, delay || 40);
     const steps = {
       'admin': () => scrollTo('team-management'),

@@ -34,9 +34,14 @@
  *   extra: { render(el), value() },   // optional extra controls (e.g. pause duration), value passed to onConfirm
  *   icon,                             // title icon URL; default trash for danger, info circle for primary.
  *                                     // kit/img has unsubscribe-ban.svg and info-circle-red.svg for red actions that are not deletes
+ *   typeToConfirm,                    // typed confirmation, built into nxDialog: ON for every tone 'danger' dialog (all patterns).
+ *                                     // Word = first word of primaryLabel, lowercased, fixed at open. Label "Confirm by typing <b>word</b>".
+ *                                     // string = other word; false = off. Primary enabled only when the word matches (trim, case-insensitive)
+ *                                     // AND every other condition holds. Enter submits when valid; initial focus on the field; a failed action keeps it.
+ *                                     // ctrl.confirm() (screenshot runners) types the word first. Blue dialogs never get it.
  *   breakdownDelay, submitDelay,      // ms overrides (screenshots)
  *   onConfirm(value), onCancel()
- * }) -> { el, close(), confirm() }
+ * }) -> { el, close(), confirm(), type(value) }   type(value) fills the typed field (screenshots)
  *   Keyboard: Esc and overlay click = Cancel. Initial focus: Cancel for danger, primary for blue.
  *   Submitting: spinner, further clicks ignored. Failure keeps the dialog open with the error.
  *
@@ -295,6 +300,22 @@
     let closed = false;
     const errBox = h(`<div class="nx-error nx-new" role="alert" hidden><img src="${IMG('alert-triangle-red.svg')}" alt=""><div></div></div>`);
 
+    // typed confirmation: every danger dialog, word = first word of the primary label, fixed at open
+    let word = null;
+    if (o.tone === 'danger' && o.typeToConfirm !== false) {
+      word = typeof o.typeToConfirm === 'string' ? o.typeToConfirm : String(o.primaryLabel || '').replace(/<[^>]*>/g, '').trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9-]/g, '');
+      if (!word) word = null;
+    }
+    let typed = null;
+    if (word) {
+      const tw = h(`<div class="nx-typed"><p class="nx-typed-label nx-new bs-mb-10">Confirm by typing <b class="red-txt-5">${esc(word)}</b></p><span class="bs-input-affix-wrapper bs-input-affix-wrapper-md input-default"><input name="confirm" autocomplete="off" class="bs-input-md bs-input" aria-label="Confirm by typing ${esc(word)}"></span></div>`);
+      typed = tw.querySelector('input');
+      body.appendChild(tw);
+    }
+    const typedOk = () => !typed || typed.value.trim().toLowerCase() === word;
+    let baseDisabled = false;
+    const applyDisabled = () => { primaryBtn.disabled = baseDisabled || !typedOk(); };
+
     const ctrl = {
       el: root, body, primaryBtn, cancelBtn, secondaryBtn, footer,
       get busy() { return busy; },
@@ -302,7 +323,8 @@
         if (label != null) primaryBtn.querySelector('.nx-plabel').innerHTML = label;
         if (tone) { o.tone = tone; }
         primaryBtn.className = 'shd-button ' + (o.tone === 'danger' ? 'shd-button--danger' : 'shd-button--primary') + (o.primaryNew ? ' nx-new' : '');
-        if (disabled != null) primaryBtn.disabled = !!disabled;
+        if (disabled != null) baseDisabled = !!disabled;
+        applyDisabled();
       },
       setBusy(on) {
         busy = !!on;
@@ -331,7 +353,9 @@
         if (reason === 'cancel' && o.onCancel) o.onCancel();
         if (lastFocus && lastFocus.isConnected) try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* */ }
       },
-      confirm() { primaryBtn.click(); },
+      type(v) { if (typed) { typed.value = v; applyDisabled(); } },
+      // programmatic confirm (screenshot states, tests): types the word first
+      confirm() { if (typed && !typedOk()) ctrl.type(word); primaryBtn.click(); },
     };
     ctrl.setPrimary({ label: o.primaryLabel, disabled: o.primaryDisabled });
 
@@ -365,7 +389,13 @@
     backdrop.classList.add('show');
     modal.classList.add('show');
     setTimeout(() => settle(root), 320);
-    (o.tone === 'danger' ? cancelBtn : primaryBtn).focus({ preventScroll: true });
+    if (typed) {
+      typed.addEventListener('input', applyDisabled);
+      typed.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); if (!busy && !primaryBtn.disabled) primaryBtn.click(); } });
+      const sb = ctrl.setBusy;
+      ctrl.setBusy = (on) => { sb(on); typed.disabled = !!on; };
+    }
+    (typed ? typed : o.tone === 'danger' ? cancelBtn : primaryBtn).focus({ preventScroll: true });
     return ctrl;
   }
 
@@ -391,6 +421,7 @@
     if (o.consequence) wrap.appendChild(h(`<p class="nx-consequence">${o.consequence}</p>`));
 
     const ctrl = nxDialog({
+      typeToConfirm: o.typeToConfirm,
       title: o.title, tone: o.tone, body: wrap, primaryLabel: o.primaryLabel, icon: o.icon, wide: o.wide,
       onCancel: o.onCancel,
       onPrimary(c) {
@@ -422,7 +453,7 @@
         }
       }, delay);
     }
-    return { el: ctrl.el, close: () => ctrl.close('cancel'), confirm: () => ctrl.confirm(), ctrl };
+    return { el: ctrl.el, close: () => ctrl.close('cancel'), confirm: () => ctrl.confirm(), type: (v) => ctrl.type(v), ctrl };
   }
 
   /* ───────────────────────── H: undo toast ───────────────────────── */
@@ -673,7 +704,7 @@
       wrap.appendChild(field);
     }
     const ctrl = nxDialog({
-      title: o.title, tone: o.tone, body: wrap, primaryLabel: o.primaryLabel, primaryDisabled: true, icon: o.icon || (o.tone === 'danger' ? IMG('info-circle-red.svg') : null),
+      title: o.title, tone: o.tone, typeToConfirm: o.typeToConfirm, body: wrap, primaryLabel: o.primaryLabel, primaryDisabled: true, icon: o.icon || (o.tone === 'danger' ? IMG('info-circle-red.svg') : null),
       onCancel: o.onCancel,
       onPrimary(c) {
         c.setError(null); c.setBusy(true);
@@ -769,7 +800,7 @@
     }
     if (o.consequence) body.appendChild(h(`<p class="nx-consequence">${o.consequence}</p>`));
     const ctrl = nxDialog({
-      title: o.title, tone: o.tone, body, primaryLabel: o.primaryLabel, icon: o.icon || (o.tone === 'danger' ? IMG('info-circle-red.svg') : null),
+      title: o.title, tone: o.tone, typeToConfirm: o.typeToConfirm, body, primaryLabel: o.primaryLabel, icon: o.icon || (o.tone === 'danger' ? IMG('info-circle-red.svg') : null),
       primaryDisabled: need > 0, onCancel: o.onCancel,
       onPrimary(c) {
         c.setError(null); c.setBusy(true);

@@ -7,7 +7,7 @@ Companion to the clickable prototype in [prototype/](prototype/index.html). Sour
 | Layer | In | Out |
 |---|---|---|
 | Before the click | **A** selection states its real scope, **B** risky actions get words and distance, **C** one explained "Change status" menu | |
-| At the click | **F** impact dialog on every risky action, from one item to 25,000 | Tiered rule, plain dialog, type-to-confirm |
+| At the click | **F** impact dialog on every risky action, from one item to 25,000. Every red F dialog also asks the user to type the action's verb, extending today's typed "delete" (23 Oct 2026) | Tiered rule, plain dialog, typing on blue dialogs |
 | After the click | **H** 10-second undo, backed by a delayed, cancellable job | 30-day restore, activity record |
 | Guard the account | **K** prove it is you, **L** total cost before any spend, **M** plan changes name what stops | |
 
@@ -76,7 +76,8 @@ States every dialog must cover:
 | Submitting | Primary shows a spinner and ignores further clicks |
 | Action fails | Dialog stays open with what happened, why, and what to do ("We couldn't remove these prospects because the sequence was deleted. Refresh the page.") |
 | Selection is everything | Title says "all": "Remove all 2,340 prospects from …?" and the consequence adds "This empties the sequence." |
-| Keyboard | Esc and clicking outside = Cancel. Initial focus on Cancel for red dialogs, on the primary for blue |
+| Typed verb | Red dialogs only: "Confirm by typing <verb>" under the consequence, verb = first word of the red button (remove, delete, unsubscribe, import). Primary enabled only when it matches and every other condition holds |
+| Keyboard | Esc and clicking outside = Cancel. Initial focus on the typed field for red dialogs, on the primary for blue |
 
 ## H. 10-second undo
 
@@ -132,7 +133,7 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 | 3 | Sequence > Prospects | Mark as replied, Mark as finished | A C F H | By status | Yes | sequence-prospects.html |
 | 4 | Sequence > Prospects | Pause, Resume | A C F H | Pause: in progress, scheduled within the hour. Resume: paused, will send today | Yes | sequence-prospects.html |
 | 5 | Sequence list | Bulk pause / resume (up to 100) | A B F H | Sequences named (first 3 + "and N more"), active prospects affected, subsequences | Yes | sequence-list.html |
-| 6 | Sequence > Steps | Delete step | F | Prospects currently on this step, emails scheduled from it, where those prospects go next | No | sequence-steps.html |
+| 6 | Sequence > Steps | Delete step (keeps today's typed "delete" inside F) | F | Prospects currently on this step, emails scheduled from it, where those prospects go next | No | sequence-steps.html |
 | 7 | Sequence > Settings | Remove email account from sequence | F | Account named, prospects whose next email was due from it, follow-ups that stop | No | sequence-steps.html |
 | 8 | Unified Inbox | Bulk delete conversation | A B F H | Conversations, of which from active sequence prospects | Yes | unified-inbox.html |
 | 9 | Unified Inbox | Bulk unsubscribe | A B F H | Prospects, of which in active sequences | Yes | unified-inbox.html |
@@ -163,7 +164,7 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 | 34 | Admin settings | Account-wide integration events | F | Users whose events start flowing | No | admin-billing.html |
 | 35 | Profile | Delete account (Google/Microsoft users) | F + K | Everything erased | No | admin-billing.html |
 | 36 | Billing | Remove slots / seats, downgrade | M | See M | No | admin-billing.html |
-| 37 | Sequence list | Delete sequences (bulk up to 100, and the row menu) | B F | Sequences named (first 3 + "and N more"), prospects in progress, emails scheduled in the next hour, subsequences deleted with them. Replaces the typed "delete" modal | No | sequence-list.html |
+| 37 | Sequence list | Delete sequences (bulk up to 100, and the row menu) | B F | Sequences named (first 3 + "and N more"), prospects in progress, emails scheduled in the next hour, subsequences deleted with them. Keeps today's typed "delete" inside F | No | sequence-list.html |
 
 ## Backend asks
 
@@ -176,7 +177,7 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 
 ## Not in scope
 
-Restore after the 10 seconds, an activity record, typed confirmation, the separate bugs listed in the audit, Lead Finder v1 (`/leads`), Dialer, public API.
+Restore after the 10 seconds, an activity record, typing on blue dialogs, the separate bugs listed in the audit, Lead Finder v1 (`/leads`), Dialer, public API.
 
 ## Counter-case
 
@@ -185,4 +186,4 @@ Restore after the 10 seconds, an activity record, typed confirmation, the separa
 | "A dialog on every action is fatigue" | Every dialog says something specific (counts, names, knock-on); generic "Are you sure?" is what trains click-through. Undo means most people never need to read it twice |
 | "Undo alone would not have saved the reported customer" | True: they noticed after 4 minutes. A, B and F are what would have stopped the click. Restore stays out of scope by decision |
 | "Counts cost a backend call per dialog" | Only for bulk; single-item dialogs need no lookup |
-| "No typed confirmation for emptying a sequence of 25,000" | Decision taken; F's "all" title and "This empties the sequence" line carry that case |
+| "Typing on every red dialog slows daily clean-up" | Only where data is lost; reversible changes stay one click plus undo. Cancel rate and time-in-dialog are measured per surface |
