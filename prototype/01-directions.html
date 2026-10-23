@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safe actions: directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F9FAFB; --surface:#FFFFFF; --text:#1F2937; --text-2:#6B7280; --text-3:#9CA3AF;
+  --border:#E5E7EB; --border-2:#D1D5DB;
+  --blue:#1D4ED8; --blue-800:#1E40AF; --blue-50:#EFF6FF; --blue-100:#DBEAFE;
+  --red:#DC2626; --red-700:#B91C1C; --red-50:#FEF2F2; --red-100:#FEE2E2;
+  --green:#15803D; --green-50:#F0FDF4;
+  --amber-50:#FFFBEB; --amber:#B45309;
+  --gray-50:#F9FAFB; --gray-100:#F3F4F6;
+  --shadow:0 1px 4px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 24px rgba(17,24,39,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 24px 64px}
+
+/* Hero: the incident */
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:32px;align-items:start;margin-bottom:40px}
+.hero h1{font-size:32px;line-height:40px;font-weight:700;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+.hero p{margin:0 0 12px;color:var(--text-2);font-size:16px;line-height:24px;max-width:56ch}
+.incident{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 24px}
+.incident h2{font-size:14px;font-weight:600;margin:0 0 16px;color:var(--text-2)}
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl:before{content:"";position:absolute;left:52px;top:6px;bottom:6px;width:1px;background:var(--border)}
+.tl li{display:grid;grid-template-columns:44px 16px 1fr;gap:8px;align-items:start;padding:6px 0}
+.tl time{font-size:12px;color:var(--text-2);font-variant-numeric:tabular-nums;padding-top:1px}
+.tl .dot{width:9px;height:9px;border-radius:50%;background:var(--border-2);margin:6px 0 0 4px;position:relative;z-index:1}
+.tl .dot.bad{background:var(--red)}
+.tl b{font-weight:600}
+
+/* Recommendation */
+.rec{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:48px}
+.rec h2{font-size:20px;line-height:24px;margin:0 0 4px}
+.rec .sub{color:var(--text-2);margin:0 0 20px}
+.stack{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.layer{padding:16px;border-right:1px solid var(--border)}
+.layer:last-child{border-right:0}
+.layer h3{font-size:14px;font-weight:600;margin:0 0 4px}
+.layer .when{font-size:12px;color:var(--text-2);margin:0 0 10px}
+.layer ul{margin:0;padding-left:16px;color:var(--text)}
+.layer li{margin:0 0 4px}
+.layer .refs{margin-top:10px;font-size:12px;color:var(--text-2)}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;font-size:12px;font-weight:500;background:var(--gray-100);color:var(--text-2);white-space:nowrap}
+.tag.be{background:var(--amber-50);color:var(--amber)}
+.tag.ui{background:var(--gray-100);color:var(--text-2)}
+.tag.rec-tag{background:var(--blue-50);color:var(--blue)}
+
+/* Bands */
+.band{margin-bottom:48px}
+.band-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.band-head h2{font-size:24px;line-height:32px;margin:0}
+.band-head p{margin:0;color:var(--text-2)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.dir{background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;min-width:0}
+.dir-head{display:flex;gap:10px;align-items:flex-start;padding:16px 16px 12px}
+.letter{flex:none;width:24px;height:24px;border-radius:4px;background:var(--gray-100);color:var(--text);font-weight:600;font-size:12px;display:grid;place-items:center}
+.dir-head h3{font-size:16px;line-height:24px;margin:0;font-weight:600}
+.dir-head .tags{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.dir.wide{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+.dir.wide .dir-head{grid-column:1/-1}
+.dir.wide .stage{margin:0 0 16px 16px}
+.stage{margin:0 16px;background:var(--gray-50);border:1px solid var(--border);border-radius:6px;padding:12px;min-height:168px;display:flex;flex-direction:column;justify-content:center;gap:8px;overflow:hidden}
+.dir-body{padding:12px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.dir-body p{margin:0}
+.dir-body .why{color:var(--text-2);font-size:12px;line-height:18px}
+.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border-top:1px solid var(--border);padding-top:10px;margin-top:auto}
+.meter span{display:block;font-size:12px;color:var(--text-2)}
+.meter b{font-size:12px;font-weight:600}
+.meter b.lo{color:var(--red-700)}
+
+/* Mini production UI */
+.bar{display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 6px;flex-wrap:wrap}
+.ib{width:28px;height:28px;border-radius:4px;display:grid;place-items:center;color:var(--text-2)}
+.ib svg{width:16px;height:16px}
+.ib.hot{background:var(--gray-100);color:var(--text);outline:1px solid var(--border-2)}
+.sep{width:1px;height:18px;background:var(--border);margin:0 4px}
+.btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:4px;font-size:12px;font-weight:500;border:1px solid var(--border-2);background:var(--surface);color:var(--text);white-space:nowrap}
+.btn svg{width:14px;height:14px}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn.danger-ghost{border-color:transparent;color:var(--red-700);background:transparent}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--text-2)}
+.btn[aria-disabled=true]{opacity:.35}
+.banner{background:var(--blue-50);border-radius:4px;padding:6px 10px;font-size:12px;line-height:18px;color:var(--text)}
+.banner a{font-weight:600;text-decoration:none}
+.modal{background:var(--surface);border-radius:8px;box-shadow:var(--shadow-lg);border:1px solid var(--border);padding:14px;font-size:12px;line-height:18px}
+.modal h4{font-size:14px;line-height:20px;margin:0 0 6px;font-weight:600}
+.modal p{margin:0 0 8px;color:var(--text-2)}
+.modal .row{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}
+.modal ul{margin:0 0 4px;padding-left:16px;color:var(--text)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin:4px 0 6px}
+.kv span:nth-child(even){font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.input{height:28px;border:1px solid var(--border-2);border-radius:6px;padding:0 8px;font-size:12px;display:flex;align-items:center;color:var(--text-3);background:var(--surface)}
+.toast{display:flex;align-items:center;gap:10px;background:#1F2937;color:#fff;border-radius:6px;padding:8px 12px;font-size:12px;box-shadow:var(--shadow-lg)}
+.toast a{color:#93C5FD;font-weight:600;text-decoration:none;margin-left:auto}
+.toast .ring{width:16px;height:16px;border-radius:50%;border:2px solid #4B5563;border-top-color:#93C5FD;flex:none}
+.menu{background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:var(--shadow-lg);padding:4px;font-size:12px}
+.menu div{padding:5px 8px;border-radius:4px;display:flex;justify-content:space-between;gap:12px}
+.menu div small{color:var(--text-2)}
+.menu .hr{height:1px;background:var(--border);padding:0;margin:4px 0}
+.menu .d{color:var(--red-700)}
+.list{background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:12px}
+.list div{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid var(--border);gap:8px}
+.list div:last-child{border-bottom:0}
+.list small{color:var(--text-2)}
+.tabs{display:flex;gap:14px;font-size:12px;border-bottom:1px solid var(--border);padding:0 2px}
+.tabs span{padding:4px 0 6px;color:var(--text-2)}
+.tabs span.on{color:var(--blue);box-shadow:inset 0 -2px 0 var(--blue);font-weight:500}
+.chk{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--text-3);display:inline-block;vertical-align:-2px;margin-right:6px}
+.chk.on{background:var(--blue);border-color:var(--blue)}
+
+/* Compare table */
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:14px}
+th{background:var(--gray-50);color:var(--text-2);font-size:12px;font-weight:500;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n{white-space:nowrap}
+.table-scroll{overflow-x:auto;border-radius:8px}
+.dropped{margin-top:16px;color:var(--text-2)}
+.dropped li{margin-bottom:4px}
+.ask{margin-top:40px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 24px}
+.ask h2{font-size:16px;margin:0 0 4px}
+.ask p{margin:0;color:var(--text-2)}
+
+@media (max-width:1000px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .stack{grid-template-columns:repeat(2,1fr)}
+  .layer:nth-child(2){border-right:0}
+  .layer:nth-child(-n+2){border-bottom:1px solid var(--border)}
+  .hero{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .dir.wide{display:flex}
+  .dir.wide .stage{margin:0 16px}
+  .wrap{padding:24px 16px 48px}
+  .grid,.stack{grid-template-columns:1fr}
+  .layer{border-right:0;border-bottom:1px solid var(--border)}
+  .layer:last-child{border-bottom:0}
+  .hero h1{font-size:24px;line-height:32px}
+  .meters{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-reply" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17 4 12l5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 22V4s1-1 4-1 5 2 8 2 4-1 4-1v11s-1 1-4 1-5-2-8-2-4 1-4 1"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 11h6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  </defs>
+</svg>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div>
+      <h1>Seven prospects, one click, no way back</h1>
+      <p>Thirteen ways to stop that happening, grouped by when they act: before the click, at the click, and after it. Each one is drawn on the real Sequence &gt; Prospects bulk bar, the worst case from the <a href="../confirmation-audit.md">audit</a>, and scored on how it would carry to the other 34 places.</p>
+      <p>My recommendation is the layered set just below. The thirteen directions follow, then a comparison table.</p>
+    </div>
+    <div class="incident" aria-label="What happened to the reported customer">
+      <h2>What happened to the reported customer, 7 Oct</h2>
+      <ol class="tl">
+        <li><time>13:18</time><span class="dot"></span><span>Sequence gets its first prospects. It reaches 7.</span></li>
+        <li><time>14:08</time><span class="dot bad"></span><span>Header checkbox ticks <b>all 7</b> (the page holds 25). "Select all" link is hidden because 7 of 7 is already all. One click on an unlabelled <b>X</b>.</span></li>
+        <li><time>14:08</time><span class="dot bad"></span><span>All 7 removed. Their events, drafts and notes in this sequence are deleted for good.</span></li>
+        <li><time>14:12</time><span class="dot"></span><span>Customer screenshots "Prospects 0" and files the bug.</span></li>
+        <li><time>8 Oct</time><span class="dot"></span><span>They add 109 new prospects. The 7 are never re-added.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="rec" aria-labelledby="rec-h">
+    <h2 id="rec-h">Recommendation: four layers, each cheap where it can be</h2>
+    <p class="sub">No single pattern fits 35 places. A dialog on everything trains people to click through; undo on everything is a backend project per action. So each layer does one job.</p>
+    <div class="stack">
+      <div class="layer">
+        <h3>1. Make the risk visible</h3>
+        <p class="when">Every bulk bar, before anything is clicked</p>
+        <ul>
+          <li>Selection says its true scope: "All 7 prospects in this sequence"</li>
+          <li>Risky actions get words, sit apart, and carry the count</li>
+        </ul>
+        <p class="refs">Directions A, B, C <span class="tag ui">UI only</span></p>
+      </div>
+      <div class="layer">
+        <h3>2. Ask in proportion</h3>
+        <p class="when">At the click, only when it matters</p>
+        <ul>
+          <li>Small and undoable: no dialog, undo toast</li>
+          <li>Bulk or permanent: dialog with count and what happens</li>
+          <li>Whole sequence, 1,000+, or account-wide: type to confirm</li>
+        </ul>
+        <p class="refs">Direction D (the rule) using E, F, G <span class="tag ui">UI only</span></p>
+      </div>
+      <div class="layer">
+        <h3>3. Let people take it back</h3>
+        <p class="when">Seconds to days after</p>
+        <ul>
+          <li>Undo for 10 seconds on bulk sequence and inbox changes</li>
+          <li>Restore removed prospects for 30 days, if data backs it</li>
+        </ul>
+        <p class="refs">Directions H, I <span class="tag be">Backend</span></p>
+      </div>
+      <div class="layer">
+        <h3>4. Guard the account</h3>
+        <p class="when">Security and money</p>
+        <ul>
+          <li>Re-enter password or code to switch off MFA or SSO</li>
+          <li>Total credits shown before any spend</li>
+          <li>Plan changes name which mailboxes stop</li>
+          <li>Every bulk action leaves a record with who and when</li>
+        </ul>
+        <p class="refs">Directions J, K, L, M <span class="tag be">Small backend</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE -->
+  <section class="band" aria-labelledby="b1">
+    <div class="band-head"><h2 id="b1">Before the click</h2><p>Stop the wrong click from being easy</p></div>
+    <div class="grid">
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">A</span><div><h3>Say what is really selected</h3><div class="tags"><span class="tag ui">UI only</span></div></div></div>
+        <div class="stage">
+          <div class="banner"><span class="chk on"></span><b>All 7 prospects in this sequence are selected.</b> <a href="#">Clear selection</a></div>
+          <div class="banner" style="background:var(--surface);border:1px dashed var(--border-2)">Today: "7 Prospects are selected. Clear selection"</div>
+        </div>
+        <div class="dir-body">
+          <p>When the selection covers everyone, the banner says "All" and names the sequence. The page-only case says "25 of 2,340 on this page".</p>
+          <p class="why">Feedforward (#52): the user sees the blast radius before acting. Framing (#23): "all 7 in this sequence" reads very differently from "7 selected".</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b>Medium</b></div><div class="meter"><span>Friction</span><b class="hi">None</b></div><div class="meter"><span>Reach</span><b>14 places</b></div><div class="meter"><span>Build</span><b class="hi">Small</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">B</span><div><h3>Risky actions get words and distance</h3><div class="tags"><span class="tag ui">UI only</span></div></div></div>
+        <div class="stage">
+          <div class="bar">
+            <span class="btn ghost"><svg><use href="#i-send"/></svg>Add to sequence</span>
+            <span class="btn ghost"><svg><use href="#i-tag"/></svg>Tags</span>
+            <span class="btn ghost">Change status <svg><use href="#i-down"/></svg></span>
+            <span class="sep"></span>
+            <span class="btn danger-ghost"><svg><use href="#i-minus"/></svg>Remove 7</span>
+          </div>
+          <div class="bar" style="opacity:.6">
+            <span class="ib"><svg><use href="#i-send"/></svg></span><span class="ib"><svg><use href="#i-tag"/></svg></span><span class="ib hot"><svg><use href="#i-x"/></svg></span><span class="ib"><svg><use href="#i-reply"/></svg></span><span class="ib"><svg><use href="#i-ban"/></svg></span><span class="ib"><svg><use href="#i-flag"/></svg></span><span class="ib"><svg><use href="#i-pause"/></svg></span><span class="ib"><svg><use href="#i-play"/></svg></span>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Top: proposed. Bottom: today, eight look-alike icons with the X in the middle. Remove gets a label, the count, its own icon and a gap from safe actions.</p>
+          <p class="why">Signifiers (#18): an X means "close" everywhere else. Law of Proximity (#24): destructive next to benign gets read as one group. Von Restorff (#12) is used once, for the one risky button.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">High</b></div><div class="meter"><span>Friction</span><b class="hi">None</b></div><div class="meter"><span>Reach</span><b>6 bars</b></div><div class="meter"><span>Build</span><b class="hi">Small</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">C</span><div><h3>One "Change status" menu that explains</h3><div class="tags"><span class="tag ui">UI only</span></div></div></div>
+        <div class="stage">
+          <div class="menu" style="max-width:300px">
+            <div><span>Pause</span><small>Stops sending until you resume</small></div>
+            <div><span>Resume</span><small>Picks up from the current step</small></div>
+            <div class="hr"></div>
+            <div><span>Mark as replied</span><small>Stops the sequence for them</small></div>
+            <div><span>Mark as finished</span><small>Stops the sequence for them</small></div>
+            <div class="d"><span>Unsubscribe</span><small>Never email them again</small></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Five status icons become one menu. Each option says what it does, in one line. Unsubscribe, the only permanent one, sits last in red.</p>
+          <p class="why">Recognition over recall (#101): no tooltip-hunting. Hick's Law (#1): one entry point instead of five. Serial Position (#106): the permanent action goes last, where it is deliberate.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b>Medium</b></div><div class="meter"><span>Friction</span><b>One more click</b></div><div class="meter"><span>Reach</span><b>2 bars</b></div><div class="meter"><span>Build</span><b class="hi">Small</b></div></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- AT -->
+  <section class="band" aria-labelledby="b2">
+    <div class="band-head"><h2 id="b2">At the click</h2><p>Ask, but only as hard as the action deserves</p></div>
+    <div class="grid">
+
+      <article class="dir wide">
+        <div class="dir-head"><span class="letter">D</span><div><h3>Friction that scales with the damage</h3><div class="tags"><span class="tag ui">UI only</span></div></div></div>
+        <div class="stage">
+          <div class="list">
+            <div><span>1 prospect, can be undone</span><small>Undo toast</small></div>
+            <div><span>2 to 999, or permanent</span><small>Dialog with count</small></div>
+            <div><span>Has replies or sends soon</span><small>Dialog with breakdown</small></div>
+            <div><span>Whole sequence or 1,000+</span><small>Type the number</small></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Not a screen but the rule that picks between E, F, G and undo, so the 35 places behave the same way. Thresholds are a starting point to tune with data.</p>
+          <p class="why">Banner Blindness (#16): a prompt that appears every time gets ignored. Weber's Law (#71): friction should grow with the size of the change.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">High</b></div><div class="meter"><span>Friction</span><b class="hi">Low on average</b></div><div class="meter"><span>Reach</span><b>All 35</b></div><div class="meter"><span>Build</span><b>Small</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">E</span><div><h3>Count and consequence dialog</h3><div class="tags"><span class="tag ui">UI only</span></div></div></div>
+        <div class="stage">
+          <div class="modal">
+            <h4>Remove 7 prospects from "SaaS founders, Oct"?</h4>
+            <p>They stop getting emails from this sequence right away. Their progress and email history in this sequence are deleted. You can add them again later, but they start from step 1.</p>
+            <div class="row"><span class="btn">Keep them</span><span class="btn danger">Remove 7 prospects</span></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>The title names the number and the sequence. The body says what stops, what is lost and what is not. The button repeats the count.</p>
+          <p class="why">Loss Aversion (#65): naming what is lost makes people check. Framing (#23): a number beats "the selected". Buttons name actions, not "Yes / No".</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">High</b></div><div class="meter"><span>Friction</span><b>One click</b></div><div class="meter"><span>Reach</span><b>30 places</b></div><div class="meter"><span>Build</span><b class="hi">Small</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">F</span><div><h3>Show what else it touches</h3><div class="tags"><span class="tag be">Small backend</span></div></div></div>
+        <div class="stage">
+          <div class="modal">
+            <h4>Remove 2,340 prospects from "SaaS founders, Oct"?</h4>
+            <div class="kv"><span>Still in progress</span><span>1,906</span><span>Email scheduled in the next hour</span><span>214</span><span>Replied</span><span>312</span><span>Paused</span><span>122</span></div>
+            <div class="row"><span class="btn">Keep them</span><span class="btn danger">Remove 2,340 prospects</span></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>For big or spill-over actions, the dialog breaks the count down so the user spots "wait, 312 replied". Same idea for mailboxes: "3 sequences will pause".</p>
+          <p class="why">Second-Order Effect (#86): people judge the first effect, not the knock-on. Chunking (#95): four lines are easy to scan. Needs a quick count lookup before the dialog opens.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">High</b></div><div class="meter"><span>Friction</span><b>One click</b></div><div class="meter"><span>Reach</span><b>9 places</b></div><div class="meter"><span>Build</span><b>Medium</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">G</span><div><h3>Type to confirm, for the biggest ones</h3><div class="tags"><span class="tag ui">UI only</span></div></div></div>
+        <div class="stage">
+          <div class="modal">
+            <h4>Remove all 2,340 prospects from "SaaS founders, Oct"?</h4>
+            <p>This empties the sequence. Type <b>2340</b> to confirm.</p>
+            <div class="input">2340</div>
+            <div class="row"><span class="btn">Keep them</span><span class="btn danger" aria-disabled="true">Remove 2,340 prospects</span></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Typing the number, not the word "delete", forces a read of the count. The webui already has this built (<code>DeleteAlertModal</code>) and nobody uses it.</p>
+          <p class="why">Commitment &amp; Consistency (#66): typing it makes it a choice, not a reflex. Kept rare on purpose: used everywhere, it causes Decision Fatigue (#68).</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">Very high</b></div><div class="meter"><span>Friction</span><b class="lo">High</b></div><div class="meter"><span>Reach</span><b>6 places</b></div><div class="meter"><span>Build</span><b class="hi">Small</b></div></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- AFTER -->
+  <section class="band" aria-labelledby="b3">
+    <div class="band-head"><h2 id="b3">After the click</h2><p>Make the mistake cheap</p></div>
+    <div class="grid">
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">H</span><div><h3>Undo for 10 seconds</h3><div class="tags"><span class="tag be">Backend</span></div></div></div>
+        <div class="stage">
+          <div class="toast"><span class="ring"></span>Removed 7 prospects from "SaaS founders, Oct"<a href="#"><svg width="12" height="12" style="vertical-align:-2px"><use href="#i-undo"/></svg> Undo</a></div>
+        </div>
+        <div class="dir-body">
+          <p>The rows leave the table at once; the real removal waits 10 seconds. Bulk removal already runs as a background job, so the job just starts late and can be cancelled.</p>
+          <p class="why">Forgiveness beats asking: "Undo &gt; Are you sure?". Loss Aversion (#65) is answered after the fact, without slowing everyone who meant it. Peak-End Rule (#91): the moment ends in relief, not dread.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">High</b></div><div class="meter"><span>Friction</span><b class="hi">None</b></div><div class="meter"><span>Reach</span><b>12 places</b></div><div class="meter"><span>Build</span><b>Medium</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">I</span><div><h3>Restore removed prospects</h3><div class="tags"><span class="tag be">Backend, needs a case</span><span class="tag rec-tag">If data backs it</span></div></div></div>
+        <div class="stage">
+          <div class="tabs"><span>All 109</span><span>In progress 84</span><span>Replied 18</span><span class="on">Removed 7</span></div>
+          <div class="list">
+            <div><span>Priya Shah</span><small>Removed 7 Oct, 14:08, by you</small></div>
+            <div><span>Arjun Mehta</span><small>Removed 7 Oct, 14:08, by you</small></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end"><span class="btn primary">Restore 7 to step 2</span></div>
+        </div>
+        <div class="dir-body">
+          <p>Removed prospects stay in a "Removed" tab for 30 days and go back to the step they left. Today removal deletes their events and drafts, so this means keeping that data until the 30 days pass.</p>
+          <p class="why">Endowment Effect (#94): a sequence's progress feels owned; losing it hurts more than its size suggests. The only direction that saves someone who noticed a day later, like the reported customer.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">Very high</b></div><div class="meter"><span>Friction</span><b class="hi">None</b></div><div class="meter"><span>Reach</span><b>3 places</b></div><div class="meter"><span>Build</span><b class="lo">Large</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">J</span><div><h3>A record of every bulk action</h3><div class="tags"><span class="tag be">Small backend</span></div></div></div>
+        <div class="stage">
+          <div class="list">
+            <div><span><b>You</b> added 109 prospects</span><small>8 Oct, 14:51</small></div>
+            <div><span><b>You</b> removed 7 prospects</span><small>7 Oct, 14:08</small></div>
+            <div><span><b>Neha</b> marked 40 as finished</span><small>3 Oct, 11:16</small></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Each sequence (and the account) keeps a short log: who did what to how many, and when. It answers "where did my prospects go?" without a support ticket.</p>
+          <p class="why">Feedback Loop (#27): the action leaves a trace. Hawthorne Effect (#55): in shared accounts, people act more carefully when actions are attributed.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b>Low</b></div><div class="meter"><span>Friction</span><b class="hi">None</b></div><div class="meter"><span>Reach</span><b>All bulk</b></div><div class="meter"><span>Build</span><b>Medium</b></div></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+
+  <section class="band" aria-labelledby="b35">
+    <div class="band-head"><h2 id="b35">Guard the account</h2><p>Security switches and money</p></div>
+    <div class="grid">
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">K</span><div><h3>Prove it is you, for account-wide switches</h3><div class="tags"><span class="tag be">Small backend</span></div></div></div>
+        <div class="stage">
+          <div class="modal">
+            <h4><svg width="14" height="14" style="vertical-align:-2px;margin-right:4px"><use href="#i-lock"/></svg>Turn off email codes for everyone?</h4>
+            <p>All 12 users will sign in with a password only. Enter your password to continue.</p>
+            <div class="input">Password</div>
+            <div class="row"><span class="btn">Keep codes on</span><span class="btn danger">Turn off for everyone</span></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Turning off MFA or SSO, or opening exports to the team, asks for the admin's password or a code. The delete-account flow already does this.</p>
+          <p class="why">Authority Bias (#42) in reverse: an unattended logged-in tab should not be able to weaken security for 12 people. Consistent with the existing delete-account flow (Familiarity, #34).</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b class="hi">High</b></div><div class="meter"><span>Friction</span><b>Medium</b></div><div class="meter"><span>Reach</span><b>4 places</b></div><div class="meter"><span>Build</span><b class="hi">Small</b></div></div>
+        </div>
+      </article>
+      <article class="dir">
+        <div class="dir-head"><span class="letter">L</span><div><h3>Show the total before any spend</h3><div class="tags"><span class="tag ui">UI only</span></div></div></div>
+        <div class="stage">
+          <div class="modal">
+            <h4>Reveal work emails for 250 leads?</h4>
+            <div class="kv"><span>Credits this uses</span><span>250</span><span>You have</span><span>1,240</span><span>Left after</span><span>990</span></div>
+            <div class="row"><span class="btn">Not now</span><span class="btn primary">Reveal 250 emails</span></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Lead Finder reveals, Save to list, AI columns and the Email Verifier all spend credits. Each shows the total, the balance and what is left, before the spend.</p>
+          <p class="why">Cashless Effect (#79): credits feel like play money until the number is in front of you. Anchoring (#5): the balance gives the total its weight. The per-lead costs already exist in the code.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b>Medium</b></div><div class="meter"><span>Friction</span><b>One click</b></div><div class="meter"><span>Reach</span><b>6 places</b></div><div class="meter"><span>Build</span><b>Small</b></div></div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="dir-head"><span class="letter">M</span><div><h3>Plan changes name what stops</h3><div class="tags"><span class="tag be">Small backend</span></div></div></div>
+        <div class="stage">
+          <div class="modal">
+            <h4>Remove 3 email slots?</h4>
+            <p>You use 10 of 10. Choose the 3 mailboxes to disconnect on 1 Nov.</p>
+            <div class="list">
+              <div><span><span class="chk on"></span>ravi@acme.io</span><small>In 4 sequences</small></div>
+              <div><span><span class="chk on"></span>sales2@acme.io</span><small>Not in use</small></div>
+              <div><span><span class="chk"></span>hello@acme.io</span><small>In 9 sequences</small></div>
+            </div>
+            <div class="row"><span class="btn">Keep my slots</span><span class="btn danger" aria-disabled="true">Remove 3 slots</span></div>
+          </div>
+        </div>
+        <div class="dir-body">
+          <p>Reducing slots, seats or the plan says exactly what will be cut and lets the user choose, instead of finding out at renewal. A downgrade warning already exists in the code and is never shown.</p>
+          <p class="why">Second-Order Effect (#86): the cost of a cheaper plan is the paused sequences. Feedforward (#52): no surprise on 1 Nov. Honest, not a retention trick: one screen, and "Remove" stays one click.</p>
+          <div class="meters"><div class="meter"><span>Prevents loss</span><b>High</b></div><div class="meter"><span>Friction</span><b>Medium</b></div><div class="meter"><span>Reach</span><b>3 places</b></div><div class="meter"><span>Build</span><b>Medium</b></div></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="b4">
+    <div class="band-head"><h2 id="b4">Side by side</h2><p>Reach counts the 35 audit rows each direction can apply to</p></div>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Direction</th><th>When</th><th>Prevents loss</th><th>Friction</th><th>Reach</th><th>Build</th><th>Backend change and the case for it</th></tr></thead>
+      <tbody>
+        <tr><td>A. Say what is really selected</td><td class="n">Before</td><td>Medium</td><td>None</td><td>14</td><td>Small</td><td>None</td></tr>
+        <tr><td>B. Words and distance for risky actions</td><td class="n">Before</td><td>High</td><td>None</td><td>6</td><td>Small</td><td>None</td></tr>
+        <tr><td>C. One explained status menu</td><td class="n">Before</td><td>Medium</td><td>One click</td><td>2</td><td>Small</td><td>None</td></tr>
+        <tr><td>D. Friction scales with damage (the rule)</td><td class="n">At</td><td>High</td><td>Low</td><td>35</td><td>Small</td><td>None</td></tr>
+        <tr><td>E. Count and consequence dialog</td><td class="n">At</td><td>High</td><td>One click</td><td>30</td><td>Small</td><td>None</td></tr>
+        <tr><td>F. Show what else it touches</td><td class="n">At</td><td>High</td><td>One click</td><td>9</td><td>Medium</td><td>Count-by-status lookup before the dialog. Case: the knock-on is what users miss</td></tr>
+        <tr><td>G. Type to confirm</td><td class="n">At</td><td>Very high</td><td>High</td><td>6</td><td>Small</td><td>None; component already exists</td></tr>
+        <tr><td>H. Undo for 10 seconds</td><td class="n">After</td><td>High</td><td>None</td><td>12</td><td>Medium</td><td>Delay and cancel the existing background job. Case: removes the dialog for most bulk changes</td></tr>
+        <tr><td>I. Restore removed prospects</td><td class="n">After</td><td>Very high</td><td>None</td><td>3</td><td>Large</td><td>Keep events and drafts for 30 days, add restore. Case needs prevalence data we do not have yet</td></tr>
+        <tr><td>J. Record of bulk actions</td><td class="n">After</td><td>Low</td><td>None</td><td>All bulk</td><td>Medium</td><td>Log who, what, how many. Case: support load and team accounts</td></tr>
+        <tr><td>K. Prove it is you</td><td class="n">Guard</td><td>High</td><td>Medium</td><td>4</td><td>Small</td><td>Reuse delete-account re-check. Case: security switches for every user</td></tr>
+        <tr><td>L. Total before any spend</td><td class="n">Guard</td><td>Medium</td><td>One click</td><td>6</td><td>Small</td><td>None</td></tr>
+        <tr><td>M. Plan changes name what stops</td><td class="n">Guard</td><td>High</td><td>Medium</td><td>3</td><td>Medium</td><td>Which mailboxes or users go at renewal. Case: today the user finds out after the fact</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <ul class="dropped">
+      <li><b>Dropped:</b> confirm in place (the button turns into "Yes, remove" under the cursor, so a double-click goes straight through, Fitts's Law #8), hold-to-confirm (hard with a trackpad, fails keyboard users), cool-down timers on the button (punishes people who meant it, Reactance #69), "type DELETE" everywhere (trains muscle memory, not reading), and approval by a second admin (too slow for daily list cleaning).</li>
+    </ul>
+  </section>
+
+  <section class="ask">
+    <h2>Your call</h2>
+    <p>Tell me in the terminal which directions to keep, drop or push further. The next step is the full prototype on the real screens, built on the layers you keep.</p>
+  </section>
+
+</main>
+</body>
+</html>

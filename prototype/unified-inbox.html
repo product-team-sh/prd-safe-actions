@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unified Inbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; ui-/nx- rules cover the prototype frame and what is new. */
+#ui-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#ui-root > .unified-inbox { display: flex; flex-direction: column; min-height: 0; }
+#ui-root .unified-inbox-content > .mobile-app-banner,
+#ui-root .unified-inbox-content > .unified-inbox-content--row,
+#ui-root .unified-inbox-content > .ui-banner-host { flex-shrink: 0; }
+/* production fades list rows in once; the prototype re-renders on clicks */
+#ui-root .unified-inbox-content .mail-item { animation: none; }
+
+/* proposed bulk bar inside the actions row: the left side takes the free width so the bar can measure and collapse */
+.unified-inbox-content--row.ui-proposed-row .row-left { flex: 1 1 auto; min-width: 0; }
+.unified-inbox-content--row.ui-proposed-row .row-center { display: none; }
+.unified-inbox-content--row.ui-proposed-row .row-right { flex-shrink: 0; margin-left: 20px; }
+.unified-inbox-content--row .row-left > .d-flex.gap-20 { flex-shrink: 0; }
+.unified-inbox-content--row .row-left > .bs-checkbox-wrapper { flex-shrink: 0; margin: 0; white-space: nowrap; }
+.unified-inbox-content--row .row-left > .unified-inbox-action-separator { flex-shrink: 0; }
+.ui-bulk-host { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; margin-left: -8px; }
+/* A: the selection banner gets its own full-width row under the actions row */
+.ui-banner-host { position: relative; z-index: 3; }
+.ui-banner-host .prospect-selected-row-info { display: flex; justify-content: center; align-items: center; padding: .5625rem 24px; border-bottom: 1px solid #fef3c7; }
+.ui-banner-host .prospect-selected-row-info .divider-vertical { height: 1.25rem; width: .063rem; background: #9ca3af; margin: 0 .75rem; }
+.ui-banner-host .prospect-selected-row-info-waring { background: #fffbeb; }
+/* the scoped production banner rules (tasks, sequence, subsequence) are copied above; the actions row shadow sits over it */
+
+/* F: outcome picker inside the impact dialog (production Select, ConfirmationModalV3 sizing from unified-inbox.scss) */
+.nx-extra.ui-picker { display: flex; flex-direction: column; gap: 4px; }
+.ui-picker-l { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: #6b7280; }
+.ui-picker .bs-select-box { height: 32px; min-height: 32px; border: 1px solid #e5e7eb; border-radius: 4px; background: #fff; padding: 0 8px 0 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-sizing: border-box; }
+.ui-picker .bs-select-box:hover { border-color: #d1d5db; }
+.ui-picker .bs-select-box:focus-visible, .ui-picker .bs-select-box[aria-expanded="true"] { outline: 0; border-color: #1d4ed8; box-shadow: 0 0 0 2px #dbeafe; }
+.ui-picker .bs-select-box .bs-select-box-text { font: 400 14px/20px Inter, sans-serif; color: #1f2937; }
+.ui-picker .bs-select-box .bs-select-box-text.placeholder { color: #9ca3af; background: none; opacity: 1; cursor: inherit; min-height: 0; vertical-align: baseline; }
+.ui-picker .bs-select-box .bs-select-box-text .email-category-renderer { font-size: 14px; line-height: 20px; color: #1f2937 !important; margin-left: 8px !important; }
+.ui-picker .bs-select-box .bs-select-box-icon-wrapper { display: flex; color: #6b7280; }
+.delete-conversation-confirmation-modal .ui-today-select { margin-top: 0; }
+/* the dropdown (transfer overlay); production's light theme, rendered outside the modal like react-bootstrap's Overlay */
+.ui-transfer { padding: 0 !important; margin: 0 !important; box-sizing: border-box; }
+.ui-transfer .ui-transfer-c { background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; box-shadow: 0 2px 12px #1f293724; overflow: hidden; }
+.ui-transfer .transfer-body { background: #fff; border-radius: 4px; }
+.ui-transfer .transfer-search { background: #fff !important; padding: 8px !important; border-bottom: 1px solid #f3f4f6; }
+.ui-transfer .transfer-search .bs-input-affix-wrapper { width: 100%; height: 32px; border: 1px solid #e5e7eb; border-radius: 4px; padding: 0 8px; background: #fff; }
+.ui-transfer .transfer-search input { border: 0; outline: 0; width: 100%; font: 14px/20px Inter, sans-serif; color: #1f2937; background: transparent; padding: 0; }
+.ui-transfer .transfer-content { max-height: 16.3rem !important; overflow-y: auto; scrollbar-color: #d1d5db transparent; }
+.ui-transfer .transfer-list { list-style: none; margin: 0; padding: 4px 0; }
+.ui-transfer .transfer-list li { display: flex; align-items: center; padding: 6px 16px !important; cursor: pointer; }
+.ui-transfer .transfer-list li[hidden] { display: none; }
+.ui-transfer .transfer-list li:hover { background: #f3f4f6; }
+.ui-transfer .transfer-list li.active { background: #eff6ff; }
+.ui-transfer .sentiment-content { font: 400 14px/20px Inter, sans-serif; color: #1f2937; }
+.ui-transfer .sentiment-icon { display: flex; align-items: center; }
+/* ActionStatesModal's Lottie loader, drawn as three pulsing dots */
+.ui-lottie { display: flex; justify-content: center; gap: 8px; padding: 24px 0; }
+.ui-lottie span { width: 10px; height: 10px; border-radius: 50%; background: #1d4ed8; animation: ui-pulse 1.2s infinite ease-in-out; }
+.ui-lottie span:nth-child(2) { animation-delay: .2s; } .ui-lottie span:nth-child(3) { animation-delay: .4s; }
+@keyframes ui-pulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* kit gaps, kept page-local: skeleton rows match the height of loaded rows; the error box keeps the dialog's 16px rhythm */
+.nx-rows[aria-busy="true"] .nx-row { min-height: 20px; }
+.confirmation-modal-v3--body > .nx-error { margin-top: 16px; }
+
+/* production is desktop-first; at phone width the list takes the screen and the actions row wraps */
+@media (max-width: 600px) {
+  .page-header { padding-left: 16px !important; padding-right: 16px !important; }
+  #ui-root .unified-inbox-content--row { height: auto; flex-wrap: wrap; row-gap: 12px; padding: 12px 16px; }
+  #ui-root .unified-inbox-content--row .row-left { flex-wrap: wrap; row-gap: 12px; flex: 1 1 100%; min-width: 0; }
+  #ui-root .unified-inbox-content--row .row-right { margin-left: 0; }
+  #ui-root .unified-inbox-content--row .row-right .refresh-unified-inbox, #ui-root .unified-inbox-content--row .row-right .unified-inbox-action-separator, #ui-root .unified-inbox-content--row .row-right .unified-filter-icon-container { display: none; }
+  #ui-root .ui-bulk-host { flex-basis: 100%; margin-left: 0; }
+  #ui-root .unified-inbox-content--row .row-left > .unified-inbox-action-separator { display: none; }
+  /* phone width: "More" keeps its icon and chevron so both risky actions stay whole inside the 16px gutter */
+  #ui-root .nx-bulk .nx-act[data-id="more"] > span { display: none; }
+  .ui-banner-host .prospect-selected-row-info { padding-left: 16px; padding-right: 16px; }
+  .ui-banner-host .nx-banner-text { flex-basis: 100%; text-align: center; }
+  .ui-banner-host .nx-banner-text + .divider-vertical { display: none; }
+  #ui-root .unified-inbox-mail-content { display: none !important; }
+  #ui-root .unified-inbox-content--container .unified-inbox-mail-list, #ui-root .mail-item { width: 100%; min-width: 0; }
+  #ui-root .mail-item p { width: auto; }
+  #ui-root .mobile-app-banner { display: none; }
+}
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="unified-inbox-markup.js"></script>
+<script src="unified-inbox.js"></script>
+</body>
+</html>

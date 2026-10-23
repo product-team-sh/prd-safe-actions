@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRM prospects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; nx- rules cover what is new, crm- rules stand in
+   for third-party widgets the prototype does not load (OverlayScrollbars, react-autosuggest, Select, the prompt editor). */
+#crm-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#crm-root > .prospect-container { flex: 1; min-height: 0; display: flex; }
+/* OverlayScrollbars stands in as native scrolling inside the same wrapper */
+.shd-table--wrapper { overflow: auto; }
+/* production hides resizers on hover-capable devices (@media (hover: hover)); headless Chrome reports no hover, so say it plainly */
+.shd-table--th .column-header-resizer { opacity: 0; }
+.shd-table--th:hover > .column-header-resizer { opacity: 1; }
+.crm-bulk-host { display: flex; align-items: center; gap: 0; min-width: 0; }
+.crm-bulk-today { gap: 0; }
+.crm-left-proposed { flex: 1 1 auto; min-width: 0; }
+.crm-left-proposed .crm-bulk-host { flex: 1 1 auto; }
+.crm-left-proposed > .prospect-view-switch, .crm-left-proposed > .prospect-list-content--header__bottom__search { flex-shrink: 0; }
+.prospect-list-content--header--container .prospect-list-content--header__bottom__search { width: 195px; }
+.prospect-list-content--header__bottom--right { flex-shrink: 0; margin-left: 16px; }
+/* pagination Select stand-in (production: shared Select, .bs-select-box) */
+.crm-select-box { height: 32px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; line-height: 20px; color: #1f2937; cursor: pointer; box-sizing: border-box; background: #fff; }
+.crm-select-box .crm-select-chev { color: #6b7280; }
+.shd-table--pagination__input .bs-input { width: 56px; height: 32px; padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; line-height: 20px; color: #1f2937; box-sizing: border-box; }
+.shd-table--pagination__separator { width: 1px; height: 20px; background: #e5e7eb; }
+/* react-autosuggest list in the Remove Tags picker */
+.crm-tag-suggest { list-style: none; margin: 4px 0 0; padding: 4px 0; border: 1px solid #e5e7eb; border-radius: 4px; background: #fff; box-shadow: 0 4px 8px rgba(0,0,0,.06); max-height: 160px; overflow: auto; font-size: 14px; line-height: 20px; color: #1f2937; }
+.crm-tag-suggest li [class*="pointer"]:hover { background: #eff6ff; }
+.crm-chip .bs-tag { gap: 4px; }
+.crm-chip-x { display: inline-flex; cursor: pointer; color: #6b7280; }
+.crm-chip-x i { font-size: 12px; }
+.add-remove-tag-email-modal .modal-header-title { display: flex; align-items: center; }
+.add-remove-tag-email-modal .modal-header-title svg { color: #1d4ed8; }
+/* AI drawer. ai-col-enrichment-modal/index.scss is not in the downloaded production CSS (lazy chunk), so the
+   header, footer and Save popover rules below are transcribed from it with the same numbers. */
+.crm-ai-root .ai-column-drawer-modal.modal { top: calc(var(--nx-demo-h) + 50px); right: 0; left: auto; width: 400px; height: calc(100vh - var(--nx-demo-h) - 50px); max-height: none; z-index: 1040; }
+.crm-ai-root .ai-column-drawer-modal .modal-dialog { width: 100%; max-width: 100%; height: 100%; margin: 0; }
+.crm-ai-root .modal-content-container, .crm-ai-root .ai-column-drawer-modal .modal-body { height: 100%; max-height: none !important; display: flex; flex-direction: column; padding: 0 !important; }
+.crm-ai-root .template-header-container { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #eee; }
+.crm-ai-root .template-header { display: flex; flex-grow: 1; align-items: center; gap: 8px; min-width: 0; }
+.crm-ai-root .template-header .template-header-back-btn { background: none; border: 0; padding: 0; max-height: 20px; min-width: 20px; display: flex; align-items: center; justify-content: center; color: #6b7280; border-radius: 4px; }
+.crm-ai-root .template-header .template-header-back-btn:hover { background-color: #f3f4f6; }
+.crm-ai-root .template-header .ai-title { display: flex; align-items: center; gap: 4px; width: 100%; flex-grow: 1; overflow: hidden; white-space: nowrap; }
+.crm-ai-root .template-header .use-template { display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; color: #1f2937; font-size: 14px; font-weight: 600; line-height: 24px; }
+.crm-ai-root .template-header .use-template-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crm-ai-root .template-header-right { display: flex; align-items: center; gap: 8px; }
+.crm-ai-root .template-header-credit-capsule { padding: 4px; height: 20px; gap: 2px; border-color: #ddd6fe !important; }
+.crm-ai-root .template-header-credit-capsule .ai-credit-capsule-text { font-size: 12px; font-weight: 500; line-height: 16px; background: linear-gradient(113.67deg, #eb4ce6 -49.13%, #9d54db 12.25%, #1d4ed8 93.65%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.crm-ai-root .help-logo-container, .crm-ai-root .template-header-right .cross-icon-container { display: flex; cursor: pointer; color: #6b7280; }
+.crm-ai-root .cross-icon-header:hover { background-color: #f3f4f6; border-radius: 4px; }
+.crm-ai-root .enrich-own-prompt-container { flex: 1; min-height: 0; }
+.crm-ai-root .template-footer-container { display: flex; justify-content: space-between; align-items: center; padding: 6px 16px; border-top: 1px solid #f3f4f6; gap: 8px; }
+.crm-ai-root .template-footer-container .save-as-template { background: none; border: 0; padding: 0; }
+.crm-ai-root .template-footer-container .save-as-template > span { display: flex; align-items: center; gap: 4px; color: #6b7280; font-size: 14px; font-weight: 500; line-height: 20px; white-space: nowrap; }
+.crm-ai-root .template-footer-container .save-as-template:hover > span, .crm-ai-root .template-footer-container .save-as-template:hover svg { color: #1d4ed8; }
+.crm-ai-root .template-preview-container { display: flex; align-items: center; gap: 8px; }
+.crm-ai-root .template-preview { background: none; padding: 6px 16px; border-radius: 4px; border: 1px solid #e5e7eb; max-height: 32px; }
+.crm-ai-root .template-preview > span { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 500; line-height: 20px; color: #6b7280; }
+.crm-ai-root .template-preview .preview-icon { color: #6b7280; }
+.crm-ai-root .save-dropdown-btn > span { display: flex; align-items: center; }
+.crm-ai-field { height: 32px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; line-height: 20px; color: #1f2937; background: #fff; box-sizing: border-box; }
+.crm-ai-field svg { color: #6b7280; }
+.crm-ai-root .select-column-name-input { width: 100%; height: 32px; padding: 6px 12px; font-size: 14px; line-height: 20px; color: #1f2937; border: 1px solid #d1d5db; border-radius: 4px; background: #fff; box-sizing: border-box; }
+.crm-ai-editor { min-height: 120px; padding: 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; line-height: 20px; color: #1f2937; background: #fff; }
+.crm-mt { color: #1d4ed8; background: #eff6ff; border-radius: 4px; padding: 0 4px; }
+/* Save menu: .bs-popover-inner.save-dropdown */
+.crm-save-pop { z-index: 1060; min-width: 368px; max-width: none; padding: 0; background: #fff; border: 0; border-radius: 4px; box-shadow: 0 2px 16px rgba(4,21,76,.16); }
+.crm-save-pop .arrow { display: none; }
+.crm-save-pop .popover-body { padding: 0; }
+.crm-save-pop .save-dropdown-content { padding: 8px 0; }
+.crm-save-pop .save-dropdown-item { padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; width: 100%; cursor: pointer; box-sizing: border-box; }
+.crm-save-pop .save-dropdown-item:hover { background-color: #eff6ff; }
+.crm-save-pop .save-credits { display: flex; align-items: center; gap: 4px; }
+.crm-save-pop .total-prospects { font-size: 12px; line-height: 16px; font-weight: 600; color: #6b7280; padding: 2px 6px; background-color: #e5e7eb; border-radius: 4px; }
+.crm-save-pop .save-option { font-size: 14px; font-weight: 400; color: #1f2937; line-height: 20px; }
+.crm-save-pop .credits { display: flex; align-items: center; gap: 4px; border: 1px solid #eee; border-radius: 4px; padding: 4px 6px; background: #fff; }
+.crm-save-pop .credits-amount { font-size: 12px; line-height: 12px; font-weight: 400; color: #4b5563; }
+/* the upsell line kept inside the delete dialog */
+.crm-upsell a { color: #1d4ed8; font-weight: 500; }
+.crm-credit-rows { margin-top: 12px; }
+@media (max-width: 600px) {
+  .prospect-list-content--header--container .prospect-list-content--header { padding: 18px 16px; }
+  .prospect-list-content--header--container .prospect-list-content--header__bottom { padding: 0 16px 16px; }
+  .prospect-list-content--header__right .add-prospect-button, .prospect-view-switch, .prospect-list-content--header__bottom--right { display: none !important; }
+  .prospect-list-content--header__left { min-width: 0; overflow: hidden; }
+  .crm-left-proposed > .prospect-list-content--header__bottom__search { display: none; }
+  .page-header { padding-left: 16px !important; padding-right: 16px !important; }
+  .shd-table { padding: 0 16px; }
+  .prospect-container .prospect-component .prospect-banner .prospect-selected-row-info { margin: 0 16px; }
+  .shd-table--pagination { justify-content: center; padding: 0 8px; }
+  .shd-table--pagination > .shd-table--pagination__container, .shd-table--pagination__separator { display: none; }
+}
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="crm-prospects-markup.js"></script>
+<script src="crm-prospects.js"></script>
+</body>
+</html>

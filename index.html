@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safe actions: no risky action on one click</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#ffffff; --bg-secondary:#F9FAFB; --bg-tertiary:#F3F4F6;
+  --border:#E5E7EB; --border-strong:#D1D5DB;
+  --ink:#111827; --ink-secondary:#374151; --ink-tertiary:#6B7280; --ink-quiet:#9CA3AF;
+  --primary:#1D4ED8; --primary-hover:#1E40AF; --primary-tint:#EFF6FF; --primary-tint-border:#BFDBFE;
+  --success:#047857; --success-tint:#ECFDF5; --success-border:#A7F3D0;
+  --warning:#B45309; --warning-tint:#FFFBEB; --warning-border:#FDE68A;
+  --danger:#B91C1C; --danger-tint:#FEF2F2; --danger-border:#FECACA;
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px;
+  --content-w:760px;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15.5px;line-height:1.68;letter-spacing:-.001em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  font-feature-settings:'cv11','ss01';text-rendering:optimizeLegibility}
+code{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.86em;
+  background:var(--bg-tertiary);color:#B91C1C;padding:.1em .4em;border-radius:4px;border:1px solid var(--border)}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3,h4{font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+::selection{background:var(--primary-tint-border)}
+
+.progress-rail{position:fixed;top:0;left:0;height:3px;background:var(--primary);
+  z-index:50;width:0%;transition:width .1s linear}
+
+.top-btn{position:fixed;right:28px;bottom:28px;width:42px;height:42px;border-radius:50%;
+  background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(17,24,39,.22);opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;font-size:16px;z-index:40;text-decoration:none}
+.top-btn.show{opacity:1;pointer-events:auto}
+.top-btn:hover{transform:translateY(-2px);text-decoration:none}
+
+.shell{display:flex;max-width:1240px;margin:0 auto}
+.sidebar{width:248px;flex-shrink:0;position:sticky;top:0;align-self:flex-start;
+  height:100vh;overflow-y:auto;padding:32px 16px 32px 24px;border-right:1px solid var(--border)}
+.sidebar-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-quiet);margin:0 0 12px 8px}
+.toc-l2{display:block;padding:7px 8px;border-radius:6px;font-size:13.5px;font-weight:600;
+  color:var(--ink-secondary)}
+.toc-l2:hover{background:var(--bg-secondary);text-decoration:none;color:var(--ink)}
+.toc-l2.active{background:var(--primary-tint);color:var(--primary-hover)}
+.toc-l3{display:block;padding:5px 8px 5px 22px;border-radius:6px;font-size:12.5px;
+  color:var(--ink-tertiary);border-left:2px solid transparent}
+.toc-l3:hover{background:var(--bg-secondary);text-decoration:none;color:var(--ink-secondary)}
+.toc-l3.active{color:var(--primary-hover);font-weight:600;border-left-color:var(--primary)}
+.toc-num{display:inline-block;min-width:20px;font-family:ui-monospace,monospace;font-size:.85em;
+  color:var(--primary);margin-right:4px}
+
+.main{flex:1;min-width:0;padding:56px 48px 120px}
+.content-col{max-width:var(--content-w)}
+
+.doc-header{max-width:var(--content-w);margin-bottom:8px;position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--primary);margin:0 0 12px}
+.eyebrow::before{content:'';width:16px;height:2px;border-radius:1px;background:var(--primary)}
+.doc-header h1{font-size:36px;line-height:1.14;margin:0 0 4px;letter-spacing:-.02em;text-wrap:balance}
+
+.proto-embed{display:flex;align-items:center;gap:16px;max-width:var(--content-w);margin:28px 0 44px;
+  padding:18px 20px;border:1px solid var(--primary-tint-border);border-radius:var(--radius-lg);
+  background:var(--primary-tint);text-decoration:none;transition:background .12s}
+.proto-embed:hover{background:var(--primary-tint-border);text-decoration:none}
+.proto-embed-icon{flex-shrink:0;width:38px;height:38px;border-radius:50%;background:var(--primary);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700}
+.proto-embed-title{margin:0 0 3px;font-size:14px;font-weight:700;color:var(--primary-hover)}
+.proto-embed-sub{margin:0;font-size:12.5px;color:var(--ink-secondary);max-width:520px}
+
+.sec{max-width:var(--content-w);padding-top:8px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin:52px 0 20px}
+.sec:first-of-type .sec-head{margin-top:8px}
+.sec-num{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
+  width:31px;height:31px;border-radius:9px;background:linear-gradient(155deg,var(--primary),var(--primary-hover));
+  color:#fff;font-size:14px;font-weight:700;font-family:ui-monospace,monospace;
+  box-shadow:0 2px 6px rgba(29,78,216,.28)}
+.sec-head h2{font-size:22px;margin:0}
+
+.subsec{margin:36px 0}
+.subsec h3{font-size:16.5px;display:flex;align-items:center;gap:9px;margin:0 0 14px}
+.subsec-num{font-family:ui-monospace,monospace;font-size:12px;font-weight:700;color:var(--primary);
+  background:var(--primary-tint);border:1px solid var(--primary-tint-border);
+  padding:2px 7px;border-radius:5px}
+
+h4{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-tertiary);margin:36px 0 14px;padding-top:20px}
+h4::before{content:'';flex-shrink:0;width:14px;height:14px;border-radius:4px;
+  background:var(--primary-tint);border:1px solid var(--primary-tint-border)}
+h4::after{content:'';flex:1;height:1px;background:var(--border)}
+
+p{margin:0 0 15px;text-wrap:pretty}
+ul,ol{margin:0 0 15px;padding-left:21px}
+li{margin:0 0 9px;padding-left:2px}
+li::marker{color:var(--ink-quiet)}
+ul.nested{margin:9px 0 0;padding-left:19px}
+ul.nested li{margin-bottom:6px;font-size:.95em;color:var(--ink-secondary)}
+strong{font-weight:650;color:var(--ink)}
+em{color:var(--ink-secondary);font-style:italic}
+
+.hr{height:1px;background:var(--border);margin:32px 0 0;max-width:var(--content-w)}
+.hr + .sec .sec-head{margin-top:40px}
+
+figure{margin:20px 0;max-width:900px}
+figure img{width:100%;display:block;border:1px solid var(--border);border-radius:var(--radius-md);
+  box-shadow:0 1px 3px rgba(17,24,39,.06)}
+figcaption{margin-top:9px;font-size:12.5px;color:var(--ink-tertiary);font-style:italic;line-height:1.5}
+
+.tbl-wrap{max-width:100%;overflow-x:auto;margin:16px 0 22px;border:1px solid var(--border);
+  border-radius:var(--radius-md)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}
+th{text-align:left;background:var(--bg-secondary);color:var(--ink-tertiary);
+  font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--ink-secondary)}
+tr:last-child td{border-bottom:none}
+tr.row-quiet td{color:var(--ink-tertiary)}
+tr:hover td{background:var(--bg-secondary)}
+
+.id-pill{display:inline-block;font-family:ui-monospace,monospace;font-size:11.5px;font-weight:700;
+  color:var(--primary);background:var(--primary-tint);border:1px solid var(--primary-tint-border);
+  padding:2px 7px;border-radius:5px;white-space:nowrap}
+.id-pill.struck{color:var(--ink-quiet);background:var(--bg-tertiary);border-color:var(--border);
+  text-decoration:line-through}
+
+.pri-cell{white-space:nowrap}
+.pri{display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.03em;
+  padding:3px 8px;border-radius:5px;font-family:ui-monospace,monospace}
+.pri-P0{color:var(--danger);background:var(--danger-tint);border:1px solid var(--danger-border)}
+.pri-P1{color:var(--warning);background:var(--warning-tint);border:1px solid var(--warning-border)}
+.pri-P2{color:var(--ink-tertiary);background:var(--bg-tertiary);border:1px solid var(--border)}
+.pri-note{font-size:10.5px;color:var(--ink-tertiary);margin-top:4px;font-weight:500;
+  font-family:'Inter',sans-serif;max-width:130px;line-height:1.35}
+
+.stepper{display:flex;align-items:flex-start;max-width:var(--content-w);margin:8px 0 28px;
+  padding:20px 8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.step{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:76px}
+.step-dot{width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  font-family:ui-monospace,monospace;flex-shrink:0}
+.step-final .step-dot{background:var(--ink);}
+.step-label{margin-top:8px;font-size:11px;text-align:center;color:var(--ink-tertiary);
+  line-height:1.35;font-weight:600}
+.step-line{flex:1;height:2px;background:var(--border-strong);margin-top:17px;min-width:8px}
+
+@media (max-width: 980px){
+  .sidebar{display:none}
+  .main{padding:32px 20px 80px}
+}
+</style>
+<style>figure figcaption{margin:0 0 8px}</style>
+<style>
+.tbl-wrap td img{max-width:100%;height:auto;border:1px solid var(--border);border-radius:var(--radius-md)}
+figure img{width:100%;height:auto}
+</style>
+<style>
+.tbl-wrap td img{max-width:100%;height:auto;border:1px solid var(--border);border-radius:var(--radius-md)}
+figure img{width:100%;height:auto}
+</style>
+</head>
+<body>
+<div class="progress-rail"></div>
+<div class="shell">
+  <nav class="sidebar">
+    <p class="sidebar-title">Contents</p>
+<a class="toc-l2" href="#1-problem"><span class="toc-num">1</span>Problem</a>
+<a class="toc-l2" href="#2-why-this-approach"><span class="toc-num">2</span>Why this approach</a>
+<a class="toc-l2" href="#3-what-we-re-building"><span class="toc-num">3</span>What we're building</a>
+<a class="toc-l2" href="#4-user-stories"><span class="toc-num">4</span>User stories</a>
+<a class="toc-l2" href="#5-decisions"><span class="toc-num">5</span>Decisions</a>
+<a class="toc-l2" href="#6-surfaces"><span class="toc-num">6</span>Surfaces</a>
+<a class="toc-l3" href="#6-1-sequence-prospects-spec-rows-1-4-the-reported-case">6.1 Sequence &gt; Prospects (spec rows 1-4) – the reported case</a>
+<a class="toc-l3" href="#6-2-sequence-list-rows-5-37">6.2 Sequence list (rows 5, 37)</a>
+<a class="toc-l3" href="#6-3-sequence-steps-and-settings-rows-6-7">6.3 Sequence &gt; Steps and Settings (rows 6, 7)</a>
+<a class="toc-l3" href="#6-4-unified-inbox-rows-8-10">6.4 Unified Inbox (rows 8-10)</a>
+<a class="toc-l3" href="#6-5-tasks-row-11">6.5 Tasks (row 11)</a>
+<a class="toc-l3" href="#6-6-crm-prospects-and-ai-columns-rows-12-14-16">6.6 CRM prospects and AI columns (rows 12-14, 16)</a>
+<a class="toc-l3" href="#6-7-import-csv-row-15">6.7 Import CSV (row 15)</a>
+<a class="toc-l3" href="#6-8-email-accounts-rows-17-20">6.8 Email accounts (rows 17-20)</a>
+<a class="toc-l3" href="#6-9-lead-finder-and-email-verifier-rows-21-25">6.9 Lead Finder and Email Verifier (rows 21-25)</a>
+<a class="toc-l3" href="#6-10-settings-rows-26-32">6.10 Settings (rows 26-32)</a>
+<a class="toc-l3" href="#6-11-admin-settings-profile-and-billing-rows-33-36">6.11 Admin settings, profile and billing (rows 33-36)</a>
+<a class="toc-l2" href="#7-reconciliation-with-existing-behaviour"><span class="toc-num">7</span>Reconciliation with existing behaviour</a>
+<a class="toc-l2" href="#8-cross-cutting"><span class="toc-num">8</span>Cross-cutting</a>
+<a class="toc-l2" href="#9-implementation-notes"><span class="toc-num">9</span>Implementation notes</a>
+<a class="toc-l2" href="#10-measurement"><span class="toc-num">10</span>Measurement</a>
+<a class="toc-l2" href="#11-rollout"><span class="toc-num">11</span>Rollout</a>
+<a class="toc-l2" href="#12-open-questions"><span class="toc-num">12</span>Open questions</a>
+<a class="toc-l2" href="#13-priority-timeline"><span class="toc-num">13</span>Priority &amp; timeline</a>
+<a class="toc-l2" href="#appendix-reference-index"><span class="toc-num"></span>Appendix – reference index</a>
+  </nav>
+  <main class="main">
+<header class="doc-header"><p class="eyebrow">Product Requirements Document</p><h1>Safe actions: no risky action on one click</h1></header>
+<p><strong>Design of record:</strong> <a href="prototype/index.html">clickable prototype</a> (11 screens, Today vs Proposed on each) · <strong>Status:</strong> Ready for review</p>
+<p>Per-surface copy, breakdown rows and dialog states are in the <a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md">spec</a>. This PRD states what changes, why, and how it is judged; the prototype is the visual record.</p>
+<section id="1-problem" class="sec"><div class="sec-head"><span class="sec-num">1</span><h2>Problem</h2></div>
+
+<p><strong>What users do.</strong> They tick a header checkbox or "Select all" and click a bulk action to clean a list: remove prospects from a sequence, mark them finished, delete prospects, disconnect mailboxes. Up to 25,000 records per click.</p>
+<p><strong>What actually happens.</strong> On 6 of the bulk bars the destructive action is an unlabelled icon that fires immediately: no confirmation, no count, no undo. On Sequence &gt; Prospects, "Remove from sequence" is an X, which reads as "close". Where a confirmation exists, it rarely says how many or what else breaks ("Are you sure you want to delete the selected prospects."). The product confirms removing <strong>one</strong> prospect from a sequence, but not removing 25,000. A reported case: a customer removed all 7 prospects of a sequence with the header checkbox and one click on the X; their progress, events and drafts in that sequence were deleted and could not be restored (measured, 7 Oct 2026, Metabase timeline and code at webui <code>aeda4e3</code>).</p>
+<p><strong>Why they do not find out.</strong> Nothing tells them the selection covered everyone (the banner says "7 Prospects are selected", and hides "Select all" when the page already holds everyone), the button gives no count, and the success toast arrives after the data is gone.</p>
+<p><strong>Problems the fix creates.</strong> More dialogs add a click to frequent clean-up work; this is answered by making every dialog say something specific and by the 10-second undo. Undo needs the backend to delay bulk changes; that is a backend ask (§9).</p>
+</section>
+<section id="2-why-this-approach" class="sec"><div class="sec-head"><span class="sec-num">2</span><h2>Why this approach</h2></div>
+
+<p>13 directions were explored and scored on loss prevented, friction, reach and build cost (<a href="prototype/01-directions.html">directions</a>). Picked:</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Picked</th>
+<th>Rejected, and why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong> selection banner states real scope · <strong>B</strong> risky actions labelled and set apart · <strong>C</strong> one explained "Change status" menu</td>
+<td>Confirm in place on the button: a double-click goes straight through</td>
+</tr>
+<tr>
+<td><strong>F</strong> impact dialog with a breakdown on every risky action</td>
+<td>A tiered rule (no dialog for small or undoable actions) and type-to-confirm for big ones: decided against, one consistent ask everywhere (D1, D2)</td>
+</tr>
+<tr>
+<td><strong>H</strong> 10-second undo on changes that lose nothing outside Saleshandy</td>
+<td>30-day restore: a large backend change and we have no data on how often this happens; activity log: does not prevent the loss</td>
+</tr>
+<tr>
+<td><strong>K</strong> prove it is you for account-wide security switches · <strong>L</strong> total credits before any spend · <strong>M</strong> plan changes name what stops</td>
+<td>Second-admin approval: too slow for daily list cleaning</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Evidence.</strong> About 110 risky actions audited in production code: about 35 have no confirmation, about 35 have one that hides the count, item or consequence (measured, code read at webui <code>aeda4e3</code>; <a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/confirmation-audit.md">audit</a>). Thread delete in Unified Inbox is already a soft delete, so its undo is cheap (measured, edge <code>4617c54</code>).</p>
+<p><strong>Not claimed.</strong> How often users lose data this way. The 90-day query over removal timestamps timed out and support data was not reachable; prevalence is not measured. This PRD fixes a defect class, it does not size it.</p>
+</section>
+<section id="3-what-we-re-building" class="sec"><div class="sec-head"><span class="sec-num">3</span><h2>What we're building</h2></div>
+
+<ol>
+<li>Before any risky bulk action, the screen says exactly how much is selected relative to everything, and the risky button is a labelled, separated, plain verb.</li>
+<li>Every risky action, from one item to 25,000, opens one dialog that names the count or item, breaks down what is affected, and says what is lost and whether it can be undone.</li>
+<li>Changes that lose nothing outside Saleshandy can be undone for 10 seconds; security switches, spends and plan changes are guarded by identity, total cost and a named list of what stops.</li>
+</ol>
+<p><strong>Invariant:</strong> no action that deletes, removes, stops sending, spends or weakens security fires on a single click.</p>
+</section>
+<section id="4-user-stories" class="sec"><div class="sec-head"><span class="sec-num">4</span><h2>User stories</h2></div>
+
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Story</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>US1</td>
+<td>As a user cleaning a sequence, I see that my selection is "All 7 prospects in this sequence" before I act, so I never empty a sequence by accident.</td>
+</tr>
+<tr>
+<td>US2</td>
+<td>As a user about to remove, delete or unsubscribe, I see how many, which ones matter (replied, scheduled to send, in other sequences) and what I lose, so I can stop if it is wrong.</td>
+</tr>
+<tr>
+<td>US3</td>
+<td>As a user who clicked the wrong thing, I can undo within 10 seconds and get everything back as it was.</td>
+</tr>
+<tr>
+<td>US4</td>
+<td>As an admin, I must prove it is me before switching off email codes or SSO for every user, so an unattended tab cannot weaken the account.</td>
+</tr>
+<tr>
+<td>US5</td>
+<td>As a user spending credits, I see the total, my balance and what is left before anything is spent.</td>
+</tr>
+<tr>
+<td>US6</td>
+<td>As an owner reducing slots or downgrading, I choose which mailboxes or users go and see what stops on the date, instead of hitting a dead end or finding out at renewal.</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="5-decisions" class="sec"><div class="sec-head"><span class="sec-num">5</span><h2>Decisions</h2></div>
+
+<p><strong>D1 – One impact dialog (F) on every risky action, including a single item.</strong> Rationale: one consistent ask is learnable; a rule that skips the dialog for "small" actions is how a 7-prospect sequence was emptied. <strong>Consequence to accept explicitly:</strong> one extra click on frequent clean-up work; we rely on undo and specific copy to keep it cheap.</p>
+<p><strong>D2 – No type-to-confirm anywhere.</strong> Replaces today's typed "delete" on Delete step and Delete sequence. Rationale: typing a word trains muscle memory, not reading; the count in the title does the work. <strong>Consequence to accept explicitly:</strong> emptying a whole sequence, deleting 25,000 prospects or deleting a sequence is guarded only by a red dialog whose title says "all" or names the sequences, and whose consequence says what is lost.</p>
+<p><strong>D3 – Undo for 10 seconds only; no restore after that.</strong> Rationale: covers the wrong-click case at modest backend cost. <strong>Consequence to accept explicitly:</strong> a mistake noticed later (the reported customer noticed after 4 minutes) is still unrecoverable. Restore is deferred until we can measure how often it happens.</p>
+<p><strong>D4 – The risky button carries no count.</strong> "Remove", "Delete", "Skip". The count lives in the selection banner and in the dialog title and primary button ("Remove 7 prospects"). <strong>Consequence to accept explicitly:</strong> the count is not visible at the moment of the first click; the banner directly below and the dialog carry it.</p>
+<p><strong>D5 – Red only when data is lost.</strong> Red: deleted, removed with history, never undoable (unsubscribe). Blue: pause, resume, assign outcome, skip, remove tags, remove from a list. <strong>Consequence to accept explicitly:</strong> some "remove" actions are blue, which reviewers will question; the rule is about loss, not the verb.</p>
+<p><strong>D6 – Undo is not offered</strong> for spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (side effects outside Saleshandy happen at once). <strong>Consequence to accept explicitly:</strong> these rely on F, K, L and M alone.</p>
+</section>
+<section id="6-surfaces" class="sec"><div class="sec-head"><span class="sec-num">6</span><h2>Surfaces</h2></div>
+
+<p>Each screen below shows today and the proposal. The prototype has a Today / Proposed switch on every screen; every state below opens from the demo bar. Literal copy for every dialog is in the <a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md">spec, Surfaces table</a>.</p>
+<h3 id="6-1-sequence-prospects-spec-rows-1-4-the-reported-case">6.1 Sequence &gt; Prospects (spec rows 1-4) – the reported case</h3>
+<p><strong>What it's for.</strong> Cleaning or changing the prospects of one sequence; users arrive from the sequence list or straight from a launch.</p>
+<figure><figcaption>Today: eight look-alike icons; the X removes everything selected at once. Banner: &quot;7 Prospects are selected.&quot;</figcaption><img src="screens/01-seqp-today.png" style="max-width:885px" alt="Today: eight look-alike icons; the X removes everything selected at once. Banner: &quot;7 Prospects are selected.&quot;" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> The X reads as "close", sits among seven similar icons, and fires with no confirmation; the banner hides that the selection is the whole sequence.</p>
+<figure><figcaption>Proposed: labelled actions, Remove set apart in red, banner says &quot;All 7 prospects in this sequence are selected.&quot;</figcaption><img src="screens/02-seqp-bar.png" style="max-width:885px" alt="Proposed: labelled actions, Remove set apart in red, banner says &quot;All 7 prospects in this sequence are selected.&quot;" loading="lazy"></figure>
+<figure><figcaption>Proposed: one &quot;Change status&quot; menu that explains each option; Unsubscribe last, in red</figcaption><img src="screens/03-seqp-menu.png" style="max-width:885px" alt="Proposed: one &quot;Change status&quot; menu that explains each option; Unsubscribe last, in red" loading="lazy"></figure>
+<figure><figcaption>Proposed: impact dialog for removing everyone</figcaption><img src="screens/04-seqp-remove.png" style="max-width:885px" alt="Proposed: impact dialog for removing everyone" loading="lazy"></figure>
+<figure><figcaption>Proposed: rows leave at once, 10-second undo; the empty state is what the customer saw, now with a way back</figcaption><img src="screens/05-seqp-undo.png" style="max-width:885px" alt="Proposed: rows leave at once, 10-second undo; the empty state is what the customer saw, now with a way back" loading="lazy"></figure>
+<p><strong>What it must do</strong>
+- Banner states scope per spec A: "7 of 2,340 prospects selected.", "All 25 on this page are selected.", "All 7 prospects in this sequence are selected.", "First 25,000 of 31,200…".
+- Bar: Add to sequence, Tags, Change status, divider, red "Remove" (trash icon, never an X). No count on the button.
+- Change status replaces the five status icons: Pause, Resume, divider, Mark as replied, Mark as finished, Unsubscribe (red). Options that do not apply are disabled with the reason.
+- Every action opens F; then undo (H). Pause keeps today's duration picker inside the dialog.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SP-1</td>
+<td>7 prospects, header checkbox ticked</td>
+<td>Banner reads "All 7 prospects in this sequence are selected."</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SP-2</td>
+<td>Click Remove with all selected</td>
+<td>Dialog title "Remove all 7 prospects from “SaaS founders, Oct”?"; consequence includes "This empties the sequence."; nothing removed until the primary is clicked</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SP-3</td>
+<td>Confirm, then Undo within 10 s</td>
+<td>All 7 rows return with the same step, status and outcome; no email went out in between</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SP-4</td>
+<td>Confirm, wait 10 s</td>
+<td>Removal commits; Undo no longer offered</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SP-5</td>
+<td>Mark as replied on 3 already-replied prospects</td>
+<td>Option disabled with its reason</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sign off by name (owner: QA lead, unassigned):</strong> SP-3. It is the only criterion whose failure loses customer data while telling the user it is safe.</p>
+<h3 id="6-2-sequence-list-rows-5-37">6.2 Sequence list (rows 5, 37)</h3>
+<figure><figcaption>Today: &quot;Are you sure you want to pause the Sequence?&quot; for 12 sequences, Yes / No</figcaption><img src="screens/06-seql-today.png" style="max-width:885px" alt="Today: &quot;Are you sure you want to pause the Sequence?&quot; for 12 sequences, Yes / No" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Bulk pause names neither the sequences nor how many prospects stop; bulk delete needs a typed word but says nothing about what is lost.</p>
+<figure><figcaption>Proposed: pause names the sequences and what stops</figcaption><img src="screens/07-seql-pause.png" style="max-width:885px" alt="Proposed: pause names the sequences and what stops" loading="lazy"></figure>
+<figure><figcaption>Proposed: delete uses F instead of typed &quot;delete&quot;</figcaption><img src="screens/08-seql-delete.png" style="max-width:885px" alt="Proposed: delete uses F instead of typed &quot;delete&quot;" loading="lazy"></figure>
+<p><strong>What it must do.</strong> Banner per A (noun "sequence"). Pause / Resume (blue) and Delete (red) open F, naming the first 3 sequences "and N more". Pause keeps today's "Pause the 5 subsequences as well" checkbox, now with its count. Pause and Resume get undo; Delete does not. A sequence that cannot resume (disconnected mailbox) is left out and named in a note.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SL-1</td>
+<td>Pause 12</td>
+<td>Title "Pause 12 sequences?"; rows: prospects who stop getting emails, emails in the next hour, subsequences</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SL-2</td>
+<td>Delete 3</td>
+<td>Red F dialog "Delete 3 sequences?"; no text field to type; "This can't be undone."</td>
+<td>P0</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-3-sequence-steps-and-settings-rows-6-7">6.3 Sequence &gt; Steps and Settings (rows 6, 7)</h3>
+<figure><figcaption>Today: typed &quot;delete&quot; for a step that 412 prospects are on, with no word about them</figcaption><img src="screens/09-steps-today.png" style="max-width:885px" alt="Today: typed &quot;delete&quot; for a step that 412 prospects are on, with no word about them" loading="lazy"></figure>
+<figure><figcaption>Proposed: delete step says where its prospects go</figcaption><img src="screens/10-steps-delete.png" style="max-width:885px" alt="Proposed: delete step says where its prospects go" loading="lazy"></figure>
+<figure><figcaption>Today: an email account that has sent nothing is removed instantly by an X</figcaption><img src="screens/11-steps-remove-today.png" style="max-width:885px" alt="Today: an email account that has sent nothing is removed instantly by an X" loading="lazy"></figure>
+<figure><figcaption>Proposed: every removal names the account and what moves or stops</figcaption><img src="screens/12-steps-remove.png" style="max-width:885px" alt="Proposed: every removal names the account and what moves or stops" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Deleting a step and removing a sender both move or stop live prospects, and neither dialog says so.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ST-1</td>
+<td>Delete step 2 with 412 prospects on it</td>
+<td>F names the step; consequence says they move to step 3 after its delay; no typed word</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>ST-2</td>
+<td>Remove the only email account</td>
+<td>Consequence says the sequence pauses</td>
+<td>P0</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-4-unified-inbox-rows-8-10">6.4 Unified Inbox (rows 8-10)</h3>
+<figure><figcaption>Today: &quot;Are you sure you want to remove this email thread?&quot; for 25 threads</figcaption><img src="screens/13-inbox-today.png" style="max-width:885px" alt="Today: &quot;Are you sure you want to remove this email thread?&quot; for 25 threads" loading="lazy"></figure>
+<figure><figcaption>Proposed: delete with breakdown and undo</figcaption><img src="screens/14-inbox-delete.png" style="max-width:885px" alt="Proposed: delete with breakdown and undo" loading="lazy"></figure>
+<figure><figcaption>Proposed: assign outcome shows how many outcomes get replaced</figcaption><img src="screens/15-inbox-outcome.png" style="max-width:885px" alt="Proposed: assign outcome shows how many outcomes get replaced" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Bulk actions reach 10,000 threads, and the copy is written for one.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IN-1</td>
+<td>Delete 25</td>
+<td>Title "Delete 25 conversations from Unified Inbox?"; says the emails stay in the mailbox; undo 10 s</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>IN-2</td>
+<td>Unsubscribe 25</td>
+<td>Title "Unsubscribe 25 prospects from every sequence?"; counts unique prospects, not threads</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>IN-3</td>
+<td>Assign "Interested" to 25</td>
+<td>Primary disabled until an outcome is picked; rows say how many outcomes are replaced; undo restores each thread's earlier outcome</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-5-tasks-row-11">6.5 Tasks (row 11)</h3>
+<figure><figcaption>Today: &quot;Skip task&quot; title for any number, no count</figcaption><img src="screens/16-tasks-today.png" style="max-width:885px" alt="Today: &quot;Skip task&quot; title for any number, no count" loading="lazy"></figure>
+<figure><figcaption>Proposed: skip names the count and what happens to prospects</figcaption><img src="screens/17-tasks-skip.png" style="max-width:885px" alt="Proposed: skip names the count and what happens to prospects" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Bulk skip reaches 25,000 tasks and moves every prospect on, with a fixed singular title and no undo.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TK-1</td>
+<td>Skip 36</td>
+<td>Title "Skip 36 tasks due today?"; rows by task type and prospects who move on; blue; undo 10 s</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>TK-2</td>
+<td>Skip 1 from the bar</td>
+<td>F names the task and the prospect; primary "Skip task"</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>TK-3</td>
+<td>Hover Skip on one row</td>
+<td>No dialog; undo toast lasts 10 s (today 5 s)</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-6-crm-prospects-and-ai-columns-rows-12-14-16">6.6 CRM prospects and AI columns (rows 12-14, 16)</h3>
+<figure><figcaption>Today: &quot;Are you sure you want to delete the selected prospects.&quot; with no count</figcaption><img src="screens/18-crm-today.png" style="max-width:885px" alt="Today: &quot;Are you sure you want to delete the selected prospects.&quot; with no count" loading="lazy"></figure>
+<figure><figcaption>Proposed: delete with breakdown and undo</figcaption><img src="screens/19-crm-delete.png" style="max-width:885px" alt="Proposed: delete with breakdown and undo" loading="lazy"></figure>
+<figure><figcaption>Proposed: AI column run shows credits before spending</figcaption><img src="screens/20-crm-ai.png" style="max-width:885px" alt="Proposed: AI column run shows credits before spending" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Delete is permanent and reaches 25,000 prospects; the AI column spends credits with no total.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CR-1</td>
+<td>Delete 4</td>
+<td>Title "Delete 4 prospects from your account?"; rows: in active sequences, with replies, with notes; undo 10 s</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>CR-2</td>
+<td>Remove 2 tags, only 2 of 4 selected have them</td>
+<td>Title and button count 2, not 4</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>CR-3</td>
+<td>AI run with 190 credits for 480 rows</td>
+<td>Shortfall shown; primary "Buy credits"; partial "Run on 190 rows"</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-7-import-csv-row-15">6.7 Import CSV (row 15)</h3>
+<figure><figcaption>Today: Update All Fields and Overwrite import on click; the only warning is a tooltip</figcaption><img src="screens/21-csv-today.png" style="max-width:885px" alt="Today: Update All Fields and Overwrite import on click; the only warning is a tooltip" loading="lazy"></figure>
+<figure><figcaption>Proposed: import that overwrites asks first and counts what changes</figcaption><img src="screens/22-csv-dialog.png" style="max-width:885px" alt="Proposed: import that overwrites asks first and counts what changes" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Both options overwrite existing prospects, and a blank cell erases a value; for Overwrite the option text never says so (measured in edge <code>4617c54</code>).</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CS-1</td>
+<td>Import with Update All Fields</td>
+<td>Red F before import: existing prospects that change, values cleared by blank cells, new prospects added</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>CS-2</td>
+<td>Import with Add Missing Fields or Skip</td>
+<td>No dialog; imports as today</td>
+<td>P0</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-8-email-accounts-rows-17-20">6.8 Email accounts (rows 17-20)</h3>
+<figure><figcaption>Today: &quot;Are you sure you want to delete all the selected email accounts?&quot; with no count</figcaption><img src="screens/23-ea-today.png" style="max-width:885px" alt="Today: &quot;Are you sure you want to delete all the selected email accounts?&quot; with no count" loading="lazy"></figure>
+<figure><figcaption>Proposed: delete names the accounts and the sequences that pause</figcaption><img src="screens/24-ea-delete.png" style="max-width:885px" alt="Proposed: delete names the accounts and the sequences that pause" loading="lazy"></figure>
+<figure><figcaption>Proposed: the pause switch asks first and can be undone</figcaption><img src="screens/25-ea-pause.png" style="max-width:885px" alt="Proposed: the pause switch asks first and can be undone" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Deleting or pausing a mailbox stops every sequence that sends from it; the pause switch has no confirmation at all.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EA-1</td>
+<td>Delete 6</td>
+<td>Names first 3 "and 3 more"; rows: active sequences that pause, emails scheduled today; no undo</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>EA-2</td>
+<td>Pause switch on one account</td>
+<td>Blue F naming the account; undo 10 s</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-9-lead-finder-and-email-verifier-rows-21-25">6.9 Lead Finder and Email Verifier (rows 21-25)</h3>
+<figure><figcaption>Today: revealing 250 leads asks only for an optional tag; the credit total is never shown</figcaption><img src="screens/26-lf-today.png" style="max-width:885px" alt="Today: revealing 250 leads asks only for an optional tag; the credit total is never shown" loading="lazy"></figure>
+<figure><figcaption>Proposed: total credits, balance and what is left</figcaption><img src="screens/27-lf-reveal.png" style="max-width:885px" alt="Proposed: total credits, balance and what is left" loading="lazy"></figure>
+<figure><figcaption>Proposed: Email Verifier shows the cost before it spends</figcaption><img src="screens/28-lf-verify.png" style="max-width:885px" alt="Proposed: Email Verifier shows the cost before it spends" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Spends happen without the total; the Email Verifier spends and clears the input on click.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LF-1</td>
+<td>Reveal emails and phones for 250</td>
+<td>One row per type with its rate; total, balance, left after</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>LF-2</td>
+<td>Verify fails</td>
+<td>Input is kept; it clears only on success</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-10-settings-rows-26-32">6.10 Settings (rows 26-32)</h3>
+<figure><figcaption>Today: &quot;Are you sure you want to delete the selected user permanently?&quot; names nobody</figcaption><img src="screens/29-set-today.png" style="max-width:885px" alt="Today: &quot;Are you sure you want to delete the selected user permanently?&quot; names nobody" loading="lazy"></figure>
+<figure><figcaption>Proposed: delete user says what they own and where it goes</figcaption><img src="screens/30-set-user.png" style="max-width:885px" alt="Proposed: delete user says what they own and where it goes" loading="lazy"></figure>
+<figure><figcaption>Proposed: CRM disconnect, which today has no confirmation</figcaption><img src="screens/31-set-crm.png" style="max-width:885px" alt="Proposed: CRM disconnect, which today has no confirmation" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Each of these names neither the item nor what depends on it; CRM disconnect and agency client password reset fire on one click.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SE-1</td>
+<td>Delete user</td>
+<td>Names the user; rows: sequences, prospects, email accounts they own; says where they go</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SE-2</td>
+<td>Delete schedule used by sequences</td>
+<td>Blocked inside the dialog with the reason and the sequences named, instead of the error after confirming</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SE-3</td>
+<td>Disconnect HubSpot</td>
+<td>Blue F naming the workflows that stop; says field mappings are kept</td>
+<td>P1</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="6-11-admin-settings-profile-and-billing-rows-33-36">6.11 Admin settings, profile and billing (rows 33-36)</h3>
+<figure><figcaption>Proposed: switching off email codes asks for the password</figcaption><img src="screens/32-ab-mfa.png" style="max-width:885px" alt="Proposed: switching off email codes asks for the password" loading="lazy"></figure>
+<figure><figcaption>Today: the slot field refuses to go below what is in use, with no way forward</figcaption><img src="screens/33-ab-slots-today.png" style="max-width:885px" alt="Today: the slot field refuses to go below what is in use, with no way forward" loading="lazy"></figure>
+<figure><figcaption>Proposed: choose which mailboxes go and see the new bill</figcaption><img src="screens/34-ab-slots.png" style="max-width:885px" alt="Proposed: choose which mailboxes go and see the new bill" loading="lazy"></figure>
+<figure><figcaption>Proposed: delete account for Google users says what is erased, then re-checks with Google</figcaption><img src="screens/35-ab-delete.png" style="max-width:885px" alt="Proposed: delete account for Google users says what is erased, then re-checks with Google" loading="lazy"></figure>
+<p><strong>Why it changes.</strong> Security switches flip on one click; slot reduction is a dead end; Google users delete their account with no warning about what is erased.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Case</th>
+<th>Expected</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AB-1</td>
+<td>Switch off email codes</td>
+<td>Primary disabled until the password is typed (or Google confirms); toast names the user count</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AB-2</td>
+<td>Reduce 12 slots to 7 with 10 in use</td>
+<td>Must pick exactly 3 mailboxes; bill before and after shown; change dated at renewal</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>AB-3</td>
+<td>Delete account, Google user</td>
+<td>Lists what is erased; Delete stays disabled until Google confirms</td>
+<td>P0</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="7-reconciliation-with-existing-behaviour" class="sec"><div class="sec-head"><span class="sec-num">7</span><h2>Reconciliation with existing behaviour</h2></div>
+
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Existing behaviour</th>
+<th>What happens to it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single "Remove from sequence" alert in the prospect drawer (AL-2724, Nov 2025)</td>
+<td>Replaced by the F dialog, so single and bulk ask the same way</td>
+</tr>
+<tr>
+<td>CRM "Delete Prospect" modal and the "Wait! No need to delete" upsell (10+ selected, older plans)</td>
+<td>Replaced by F; the upsell survives as one muted line inside the dialog, under the consequence</td>
+</tr>
+<tr>
+<td>Typed "delete" on Delete step</td>
+<td>Replaced by F (D2)</td>
+</tr>
+<tr>
+<td>Typed "delete" on Delete sequence</td>
+<td>Replaced by F (D2)</td>
+</tr>
+<tr>
+<td>Tasks single Skip / Complete undo toast (5 seconds)</td>
+<td>Kept, raised to 10 seconds to match H</td>
+</tr>
+<tr>
+<td>Bulk "Action Stats" modal after sequence pause / resume</td>
+<td>Dropped; failures become a toast with a count and a reason</td>
+</tr>
+<tr>
+<td>Slot input that refuses to go below what is in use</td>
+<td>Replaced by the M picker (choose what goes)</td>
+</tr>
+<tr>
+<td>SSO enable modal, password delete-account flow, API key and MCP disconnect dialogs</td>
+<td>Unchanged; they already meet the bar and are the benchmarks</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="8-cross-cutting" class="sec"><div class="sec-head"><span class="sec-num">8</span><h2>Cross-cutting</h2></div>
+
+<p><strong>Every F dialog (release blocker if any is missing):</strong></p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>State</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Counting</td>
+<td>Opens at once with title and count; breakdown rows show placeholders at the same height as loaded rows; primary enabled</td>
+</tr>
+<tr>
+<td>Breakdown fails</td>
+<td>Breakdown replaced by "We couldn't load the details. You can still continue." Action still allowed</td>
+</tr>
+<tr>
+<td>Submitting</td>
+<td>Spinner on the primary; further clicks ignored</td>
+</tr>
+<tr>
+<td>Action fails</td>
+<td>Dialog stays open with what happened, why, and what to do</td>
+</tr>
+<tr>
+<td>Keyboard</td>
+<td>Esc and clicking outside cancel. Focus starts on Cancel for red dialogs, on the primary for blue</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Every undo toast:</strong> rows leave at once; 10-second ring; pauses on hover; Undo restores position and status; a second action commits the first at once; leaving the page still commits after 10 seconds.</p>
+</section>
+<section id="9-implementation-notes" class="sec"><div class="sec-head"><span class="sec-num">9</span><h2>Implementation notes</h2></div>
+
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Backend ask</th>
+<th>Needed by</th>
+<th>Resolve before estimation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Breakdown counts before the dialog opens (by status, knock-on counts)</td>
+<td>F on bulk surfaces</td>
+<td>Which counts can be served under 500 ms for 25,000 selected (assumed budget; confirm with dev)</td>
+</tr>
+<tr>
+<td>Delay bulk changes 10 seconds and allow cancel</td>
+<td>H</td>
+<td>Which bulk jobs already run as background jobs (sequence prospects do: "Estimated time: 30 minutes"); CRM delete and email account delete unknown</td>
+</tr>
+<tr>
+<td>Identity re-check for admin switches</td>
+<td>K</td>
+<td>Reuse the password delete-account check; how SSO owners re-check</td>
+</tr>
+<tr>
+<td>Preview what a plan change cuts</td>
+<td>M</td>
+<td>What happens to a removed member's sequences and mailboxes at renewal</td>
+</tr>
+</tbody>
+</table></div>
+<p>Assumptions flagged on each screen's Dev notes in the prototype (for example: where a deleted user's data goes, whether a scheduled reply still sends after its thread is deleted) are <strong>resolve before estimation</strong>.</p>
+<p>Not adopted: tiered friction rule, type-to-confirm, confirm in place, 30-day restore, activity log, second-admin approval.</p>
+</section>
+<section id="10-measurement" class="sec"><div class="sec-head"><span class="sec-num">10</span><h2>Measurement</h2></div>
+
+<p><strong>Privacy:</strong> never log prospect emails, names or message content in these events; counts and surface IDs only.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Fires when</th>
+<th>Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>risky_action_dialog_shown</code></td>
+<td>F, K, L or M dialog opens</td>
+<td>surface, action, count, breakdown_loaded</td>
+</tr>
+<tr>
+<td><code>risky_action_confirmed</code></td>
+<td>Primary clicked and succeeded</td>
+<td>surface, action, count, ms_open</td>
+</tr>
+<tr>
+<td><code>risky_action_cancelled</code></td>
+<td>Cancel, Esc or outside click</td>
+<td>surface, action, count</td>
+</tr>
+<tr>
+<td><code>risky_action_undone</code></td>
+<td>Undo clicked</td>
+<td>surface, action, count, seconds_after</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Indicator</th>
+<th>Definition</th>
+<th>Healthy</th>
+<th>Investigate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cancel rate (most important early signal)</strong></td>
+<td>cancelled / shown, per surface, day 1 to 14</td>
+<td>2% to 15% (target)</td>
+<td>Under 1% (dialog ignored) or over 30% (dialog blocks real work)</td>
+</tr>
+<tr>
+<td>Undo rate</td>
+<td>undone / confirmed, per surface</td>
+<td>Under 5% (target)</td>
+<td>Over 10%: the dialog is not doing its job on that surface</td>
+</tr>
+<tr>
+<td>Support tickets about accidental removal or deletion</td>
+<td>Tagged tickets per month, 90 days after full rollout</td>
+<td>Down from baseline (baseline not measured; capture before stage 1)</td>
+<td>Flat</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Guardrail:</strong> if any surface's undo rate is over 10% for 7 days, halt rollout of further surfaces and review that surface's copy.</p>
+<p>Instrumentation ships with the feature; the gates in §11 cannot be read without it.</p>
+</section>
+<section id="11-rollout" class="sec"><div class="sec-head"><span class="sec-num">11</span><h2>Rollout</h2></div>
+
+<p>Staged by surface as a blast-radius control, not an A/B test.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Who</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Sequence &gt; Prospects (A, B, C, F, H) for all users</td>
+<td>Events live; cancel and undo rates readable</td>
+</tr>
+<tr>
+<td>2</td>
+<td>CRM prospects, Unified Inbox, Tasks, Sequence list, email accounts</td>
+<td>Stage 1 cancel rate within the healthy band for 14 days</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Steps, CSV import, Lead Finder, Email Verifier, Settings, Admin, Billing</td>
+<td>Stage 2 healthy for 14 days</td>
+</tr>
+</tbody>
+</table></div>
+<p>No stage starts before the delayed, cancellable job (H) works for that stage's surfaces.</p>
+</section>
+<section id="12-open-questions" class="sec"><div class="sec-head"><span class="sec-num">12</span><h2>Open questions</h2></div>
+
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Why it matters</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1</td>
+<td>Does bulk Resume touch subsequences?</td>
+<td>The Resume breakdown needs it</td>
+<td>Dev to confirm; prototype shows no subsequence row</td>
+</tr>
+<tr>
+<td>Q2</td>
+<td>Where does a deleted user's data go?</td>
+<td>The Delete user consequence states it</td>
+<td>Prototype says it moves to the owner; confirm before stage 3</td>
+</tr>
+<tr>
+<td>Q3</td>
+<td>Does a scheduled reply still send after its thread is deleted?</td>
+<td>Delete conversation breakdown counts it</td>
+<td>Confirm in edge; if yes, deleting must cancel it</td>
+</tr>
+<tr>
+<td>Q4</td>
+<td>Add 30-day restore later?</td>
+<td>D3 leaves late mistakes unrecoverable</td>
+<td>Revisit after 90 days of undo and support data</td>
+</tr>
+</tbody>
+</table></div>
+<p>Q3 is blocking for Unified Inbox in stage 2.</p>
+</section>
+<section id="13-priority-timeline" class="sec"><div class="sec-head"><span class="sec-num">13</span><h2>Priority &amp; timeline</h2></div>
+
+<p>Priority: high (a defect class that deletes customer data). Target and release gate: per §11. <strong>Named owners still required:</strong> product (Hitesh), tech lead (Rajat), design review (Hemanshu), QA owner for the undo family (unassigned).</p>
+</section>
+<section id="appendix-reference-index" class="sec"><div class="sec-head"><h2>Appendix – reference index</h2></div>
+
+<ul>
+<li><a href="prototype/index.html">Prototype</a>: design of record; Sequence &gt; Prospects is the flagship.</li>
+<li><a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md">Spec</a>: copy, breakdown rows and states for all 37 surfaces; production CSS is the token source.</li>
+<li><a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/confirmation-audit.md">Audit</a>: every risky action in production with code links.</li>
+<li><a href="prototype/01-directions.html">Directions</a>: the 13 directions explored.</li>
+<li>Source card: Basecamp, "Prospects gets deleted with just one click." (7 Oct 2026).</li>
+</ul></section>
+
+  </main>
+</div>
+<a href="#" class="top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">&uarr;</a>
+
+<script>
+(function(){
+  var rail = document.querySelector('.progress-rail');
+  var topBtn = document.querySelector('.top-btn');
+  function onScroll(){
+    var h = document.documentElement;
+    var pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    if (rail) rail.style.width = pct + '%';
+    if (topBtn) topBtn.classList.toggle('show', h.scrollTop > 600);
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  var links = Array.from(document.querySelectorAll('.toc-l2, .toc-l3'));
+  var targets = links.map(function(l){ return document.getElementById(l.getAttribute('href').slice(1)); }).filter(Boolean);
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var link = links[targets.indexOf(e.target)];
+      if (!link) return;
+      if (e.isIntersecting) {
+        links.forEach(function(l){ l.classList.remove('active'); });
+        link.classList.add('active');
+      }
+    });
+  }, {rootMargin: '-10% 0px -75% 0px'});
+  targets.forEach(function(t){ io.observe(t); });
+})();
+</script>
+
+</body>
+</html>

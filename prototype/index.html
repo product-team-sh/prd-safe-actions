@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safe actions prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+  body.nx-index { overflow: auto; background: #f9fafb; }
+  .nx-ix { max-width: 960px; margin: 0 auto; padding: 40px 24px 64px; box-sizing: border-box; font-size: 14px; line-height: 20px; color: #1f2937; }
+  .nx-ix h1 { font-size: 24px; line-height: 32px; font-weight: 600; margin: 0 0 8px; }
+  .nx-ix h2 { font-size: 16px; line-height: 24px; font-weight: 600; margin: 40px 0 12px; }
+  .nx-ix p { margin: 0 0 12px; max-width: 72ch; }
+  .nx-ix .nx-lede { color: #6b7280; }
+  .nx-ix a { color: #1d4ed8; text-decoration: none; font-weight: 500; }
+  .nx-ix a:hover { text-decoration: underline; }
+  .nx-ix .nx-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 16px 0 0; }
+  .nx-tbl-wrap { overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; }
+  .nx-tbl { width: 100%; border-collapse: collapse; }
+  .nx-tbl th { background: #f9fafb; color: #6b7280; font-size: 12px; line-height: 16px; font-weight: 500; text-align: left; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+  .nx-tbl td { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
+  .nx-tbl tr:last-child td { border-bottom: 0; }
+  .nx-tbl td.nx-n { color: #6b7280; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .nx-tbl td b { font-weight: 600; }
+  .nx-soon { color: #6b7280; white-space: nowrap; }
+  .nx-screens td:nth-child(4) { white-space: nowrap; }
+  .nx-ready { white-space: nowrap; }
+  .nx-steps { margin: 0; padding-left: 20px; max-width: 72ch; }
+  .nx-steps li { margin-bottom: 8px; }
+  @media (max-width: 600px) { .nx-ix { padding: 24px 16px 48px; } }
+</style>
+</head>
+<body class="nx-index">
+<main class="nx-ix">
+  <h1>Safe actions prototype</h1>
+  <p class="nx-lede">A clickable prototype of how Saleshandy protects risky actions: the selection says its real scope, risky buttons carry words and sit apart, every risky action opens a dialog that says what it affects, and bulk changes can be undone for 10 seconds. Each screen is built on production markup and the production stylesheet, so what you see is what ships; anything new is outlined when you switch on "What's new". The spec is the source of truth for copy and states.</p>
+  <div class="nx-links">
+    <a href="../safe-actions-spec.md">Spec: safe-actions-spec.md</a>
+    <a href="01-directions.html">Directions explored</a>
+    <a href="../confirmation-audit.md">Source audit</a>
+  </div>
+
+  <h2>Decisions (22 Oct 2026)</h2>
+  <div class="nx-tbl-wrap">
+    <table class="nx-tbl">
+      <thead><tr><th>Layer</th><th>In</th><th>Out</th></tr></thead>
+      <tbody>
+        <tr><td>Before the click</td><td><b>A</b> selection states its real scope, <b>B</b> risky actions get words and distance, <b>C</b> one explained "Change status" menu</td><td></td></tr>
+        <tr><td>At the click</td><td><b>F</b> impact dialog on every risky action, from one item to 25,000</td><td>Tiered rule, plain dialog, type-to-confirm</td></tr>
+        <tr><td>After the click</td><td><b>H</b> 10-second undo, backed by a delayed, cancellable job</td><td>30-day restore, activity record</td></tr>
+        <tr><td>Guard the account</td><td><b>K</b> prove it is you, <b>L</b> total cost before any spend, <b>M</b> plan changes name what stops</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Screens</h2>
+  <div class="nx-tbl-wrap">
+    <table class="nx-tbl nx-screens">
+      <thead><tr><th>Page</th><th>Spec rows</th><th>What it covers</th><th>Patterns</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><a href="sequence-prospects.html">Sequence &gt; Prospects</a></td><td class="nx-n">1 to 4</td><td>Remove from sequence, unsubscribe, mark as replied or finished, pause and resume</td><td>A B C F H</td><td class="nx-ready"><a href="sequence-prospects.html">Open</a></td></tr>
+        <tr><td><a href="sequence-list.html">Sequence list</a></td><td class="nx-n">5, 37</td><td>Bulk pause and resume, delete sequences</td><td>A B F H</td><td class="nx-ready"><a href="sequence-list.html">Open</a></td></tr>
+        <tr><td><a href="sequence-steps.html">Sequence &gt; Steps and Settings</a></td><td class="nx-n">6, 7</td><td>Delete step, remove email account from sequence</td><td>F</td><td class="nx-ready"><a href="sequence-steps.html">Open</a></td></tr>
+        <tr><td><a href="unified-inbox.html">Unified Inbox</a></td><td class="nx-n">8 to 10</td><td>Bulk delete, bulk unsubscribe, bulk assign outcome</td><td>A B F H</td><td class="nx-ready"><a href="unified-inbox.html">Open</a></td></tr>
+        <tr><td><a href="tasks.html">Tasks</a></td><td class="nx-n">11</td><td>Bulk skip</td><td>A B F H</td><td class="nx-ready"><a href="tasks.html">Open</a></td></tr>
+        <tr><td><a href="crm-prospects.html">CRM prospects</a></td><td class="nx-n">12 to 14, 16</td><td>Bulk delete, bulk unsubscribe, remove tags, AI column runs</td><td>A B F H L</td><td class="nx-ready"><a href="crm-prospects.html">Open</a></td></tr>
+        <tr><td><a href="csv-import.html">CRM &gt; Import CSV</a></td><td class="nx-n">15</td><td>Update all fields, overwrite</td><td>F</td><td class="nx-ready"><a href="csv-import.html">Open</a></td></tr>
+        <tr><td><a href="email-accounts.html">Email accounts</a></td><td class="nx-n">17 to 20</td><td>Bulk and single delete or disconnect, pause switch, remove tags</td><td>A B F H</td><td class="nx-ready"><a href="email-accounts.html">Open</a></td></tr>
+        <tr><td><a href="lead-finder.html">Lead Finder and Email Verifier</a></td><td class="nx-n">21 to 25</td><td>Reveal, save with reveal, remove from list, delete saved filter, verify</td><td>A F H L</td><td class="nx-ready"><a href="lead-finder.html">Open</a></td></tr>
+        <tr><td><a href="settings.html">Settings</a></td><td class="nx-n">26 to 32</td><td>Users, roles, custom fields, schedules, tracking domain, integrations, agency client reset</td><td>F</td><td class="nx-ready"><a href="settings.html">Open</a></td></tr>
+        <tr><td><a href="admin-billing.html">Admin settings, profile and billing</a></td><td class="nx-n">33 to 36</td><td>Security switches, account-wide events, delete account, slots, seats and downgrade</td><td>F K M</td><td class="nx-ready"><a href="admin-billing.html">Open</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>How to use the demo bar</h2>
+  <ol class="nx-steps">
+    <li>The dark bar at the top is not part of the product. Its controls change the scenario: how big the selection is, whether the breakdown loads, is slow or fails, and whether the action succeeds or fails.</li>
+    <li>"Today" shows production as it is now, so you can compare before and after on the same data. "Proposed" is the change.</li>
+    <li>"What's new" outlines, with a purple dashed line, every element production does not have yet.</li>
+    <li>"Dev notes" opens a panel with each spec row on the page: the data the dialog needs, whether undo applies, and links to today's code at the pinned commit.</li>
+    <li>Esc or a click outside a dialog cancels it, exactly as it should in the product.</li>
+  </ol>
+</main>
+</body>
+</html>

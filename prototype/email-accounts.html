@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email accounts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; nx- and ea- rules cover what is new or prototype-only. */
+#ea-root { flex: 1; min-height: 0; padding: 0; }
+#ea-root > .email-account-container { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; min-height: 0; }
+.email-accounts-actions { flex-shrink: 0; }
+.email-accounts-actions .ea-actions-left { flex: 1 1 auto; min-width: 0; }
+.email-accounts-actions .ea-actions-right { flex-shrink: 0; margin-left: 24px; }
+.email-accounts-actions form { flex-shrink: 0; }
+/* the demo bar takes 44px of the viewport; production sizes the table from 100vh */
+.nx-kit .table-scroll-container.not-selected .table-list { height: calc(100vh - 44px - 10.875rem); }
+.nx-kit .table-scroll-container.selected .table-list { height: calc(100vh - 44px - 12rem - 2.375rem); }
+.nx-kit .email-accounts-table .pagination-container-new { z-index: 2; }
+/* toasts sit above production's fixed 40px pagination bar instead of over it */
+.nx-kit .nx-toasts.bs-message-container .bs-message.bottom { bottom: 56px; }
+.email-account-banner { margin-bottom: 0; flex-shrink: 0; }
+/* proposed bulk bar in the place of production's icon row (.email-account-icons has margin-left 1.25rem) */
+.ea-bulk-host { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; margin-left: 1.25rem; }
+.nx-act svg.ea-ico { width: 20px; height: 20px; flex-shrink: 0; }
+.nx-menu .nx-mi svg.ea-ico { width: 20px; height: 20px; color: var(--nx-text-2); flex-shrink: 0; }
+/* Disconnect sits with the risky actions (after the divider, never in "More") but deletes nothing, so it is not red */
+.nx-act.nx-risky.ea-neutral { color: var(--nx-text-2); }
+.nx-act.nx-risky.ea-neutral:hover:not(:disabled) { background: var(--nx-blue-100); color: var(--nx-blue); }
+/* proposed selection banner reuses production's email banner box */
+.email-selected-row-info .nx-banner-row { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 4px; }
+/* production's "Email Account(s) selected" rows */
+.email-selected-row-info .blue-txt-11 { cursor: pointer; }
+/* row actions menu, portalled to body like production */
+.ea-row-menu.dropdown-menu-custom { display: inline-flex; flex-direction: column; align-items: flex-start; width: 9.4375rem; padding: .5rem 0; border-radius: 4px; border: 1px solid #e5e7eb; background: #fff; box-shadow: 8px 16px 56px -24px #9c9da13d, 2px 2px 16px -3px #04154c29; }
+.ea-row-menu .dropdown-item-custom { display: flex; align-items: center; width: 100%; box-sizing: border-box; padding: 6px 16px; text-decoration: none; }
+.ea-row-menu .dropdown-item-custom svg { color: #6b7280; flex-shrink: 0; }
+.ea-row-menu .dropdown-item-custom span { color: #374151; font-size: .875rem; font-weight: 400; line-height: 1.25rem; }
+.ea-row-menu .dropdown-item-custom:focus-visible { outline: 2px solid var(--nx-blue); outline-offset: -2px; }
+/* today's tag dropdown sits under the tag icon (add-remove-tag) */
+.email-account-icons .tag-button-container { position: relative; }
+/* F dialog additions */
+.ea-lead { color: var(--nx-text); font-size: 14px; line-height: 20px; overflow-wrap: anywhere; }
+.ea-tagpick .ea-tagrow { margin: 0; cursor: pointer; }
+.ea-tagpick .ea-tagrow:hover { background: var(--nx-gray-50); }
+.ea-tagpick .ea-tagrow dt { display: flex; align-items: center; gap: 12px; }
+.ea-tagpick .ea-tagrow input { width: 16px; height: 16px; margin: 0; accent-color: var(--nx-blue); flex-shrink: 0; }
+.ea-tagpick .ea-tagrow input:focus-visible { outline: 2px solid var(--nx-blue); outline-offset: 2px; }
+.ea-tagpick .ea-tagrow dd { font-weight: 400; color: var(--nx-text-2); }
+.ea-tagpick .ea-tagchip { margin: 0; }
+.nx-breakdown + .nx-loadfail, .ea-tagpick + .nx-loadfail { margin-top: 8px; }
+/* today's remove tags modal: picked chips inline before the input */
+.ea-chips { display: contents; }
+.ea-chip { align-items: center; margin: 2px 4px 2px 0; }
+.ea-chip i { font-size: 12px; cursor: pointer; }
+/* a row that just changed (pause, undo) */
+.email-accounts-table .table-organism-body tr.ea-flash > td { background-color: #eff6ff !important; transition: background-color .6s ease; }
+/* production is desktop-first; at phone width the right-side buttons wrap under the search */
+@media (max-width: 600px) {
+  #ea-root > .email-account-container { padding: 16px; }
+  .email-accounts-actions { flex-direction: column; align-items: stretch; row-gap: 12px; }
+  .email-accounts-actions .ea-actions-left { flex-wrap: wrap; row-gap: 12px; }
+  .email-accounts-actions .ea-actions-left > form { flex: 1 1 auto; }
+  .email-accounts-actions .ea-actions-left > form .search-input { width: 100% !important; box-sizing: border-box; }
+  .email-accounts-actions .icon-container { margin: 0 0 0 12px; }
+  .email-accounts-actions .separator-line { display: none; }
+  .ea-bulk-host, .email-accounts-actions .email-account-icons { flex-basis: 100%; margin-left: 0; justify-content: flex-start !important; }
+  .email-accounts-actions .ea-actions-right { margin-left: 0; justify-content: flex-start !important; flex-wrap: wrap; gap: 12px; }
+  .page-header { padding-left: 16px !important; padding-right: 16px !important; }
+}
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="email-accounts-markup.js"></script>
+<script src="email-accounts.js"></script>
+</body>
+</html>

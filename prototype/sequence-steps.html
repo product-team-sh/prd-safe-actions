@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sequence steps and settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; nx- rules cover what is new or demo-only. */
+#ss-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#ss-root > .sequence-container { flex: 1; min-height: 0; }
+/* production plays a 0.3s ink-bar slide; the prototype re-renders on clicks */
+.bs-tabs-ink-bar { transition: none !important; }
+/* production's daily-limit tooltip breaks lines (className "line-break") */
+.nx-tip .tooltip-inner { white-space: pre-line; }
+/* demo only (?hover=N): show a step's hover actions in a still screenshot, same rule as production's li:hover */
+.sequence-container .sequence-components .single-sequence-tab-container .bs-tabs .steps-list-container .step-list-inner ul li.nx-ss-hover .step-list .step-actions-wrapper { display: flex; }
+/* proposed remove icon: production's gray action cell, trash instead of X */
+.nx-ss-remove { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; }
+.nx-ss-remove:hover { color: #b91c1c !important; background: #fef2f2; }
+.nx-ss-empty { display: flex; flex-direction: column; align-items: center; padding: 48px 16px; }
+@media (max-width: 600px) {
+  .page-header { padding-left: 16px !important; padding-right: 16px !important; }
+  .sequence-container .sequence-components .single-sequence-tab-container .bs-tabs .bs-tabs-nav { padding: 0 16px; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="sequence-steps-markup.js"></script>
+<script src="sequence-steps.js"></script>
+</body>
+</html>

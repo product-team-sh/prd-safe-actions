@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin, profile and billing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; nx- and ab- rules cover what is new or what the
+   lazy-loaded production chunks would otherwise supply. */
+/* demo bar: controls that do not apply to the current page are hidden */
+.nx-demo [hidden] { display: none !important; }
+#ab-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#ab-root > .setting-container, #ab-root > .billing-subscription { flex: 1; min-height: 0; }
+#ab-root > .setting-container { overflow: hidden; }
+/* production sizes .settings-navigation against 100vh - 5.625rem; the demo bar takes 44px more */
+.ab-body .setting-container .setting-content .settings-navigation { min-height: 0; height: 100%; }
+.ab-body .setting-container .setting-content .setting-components { height: 100%; min-height: 0; }
+.ab-body .admin-settings { max-height: none; }
+.ab-body .billing-subscription { overflow: auto; }
+.ab-info { display: inline-flex; align-items: center; cursor: pointer; }
+.ab-info svg { display: block; }
+/* billing page: header back link (upgrade-plan-header) */
+.ab-back { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: #6b7280; font: 500 14px/20px Inter, sans-serif; }
+.ab-back i { font-size: 16px; }
+.ab-back:hover { color: #1d4ed8; }
+.modify-subscription__select-plan-container { gap: 24px; }
+.ab-scheduled { display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 4px; background: #f3f4f6; color: #1f2937; font-size: 12px; line-height: 16px; font-weight: 500; }
+.ab-slot-note { margin: 12px 0 0; font-size: 12px; line-height: 16px; color: #1f2937; }
+.ab-force-hover .bs-input-number-handler-wrap { opacity: 1; } /* screenshot state only: shows the hover handlers */
+.ab-v3-icon { color: #b45309; flex-shrink: 0; }
+/* end state after delete account */
+.ab-end { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #1f2937; font-size: 14px; line-height: 20px; }
+.ab-end p { margin: 0; }
+.ab-end img { width: 32px; height: 32px; }
+@media (max-width: 600px) {
+  .page-header { padding-left: 16px !important; padding-right: 16px !important; }
+  .ab-body .setting-container .setting-content .settings-navigation { display: none; }
+  .ab-body .setting-container .setting-content .setting-components { width: 100%; }
+  .ab-body .globalSettings__Wrapper { padding: 16px 16px 0 !important; }
+  .ab-body .admin-settings { padding-right: 16px; }
+  .ab-body .billing-subscription-sidebar { display: none; }
+  .ab-body .billing-subscription .billing-subscription-container { padding: 16px; }
+  .ab-body .billing-subscription .billing-subscription-content { padding: 0; }
+  .ab-body .billing-subscription .billing-section { flex-direction: column; gap: 16px; }
+  .ab-body .billing-subscription .billing-section__container { width: 100%; }
+  .ab-body .billing-subscription .billing-section__bill-wrap { margin-left: 0; }
+  .ab-body .subscription-plan__info { row-gap: 12px; }
+}
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="admin-billing-markup.js"></script>
+<script src="admin-billing.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings safe actions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; st- and nx- rules cover the prototype and what is new. */
+#st-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#st-root > .setting-container, #st-root > .agency-client-container { flex: 1; min-height: 0; }
+/* production sizes the nav to 100vh minus its 90px chrome; the demo bar takes 44px more */
+.setting-container .setting-content .settings-navigation { min-height: 0; height: 100%; box-sizing: border-box; }
+.settings-navigation nav { display: contents; }
+.settings-navigation a.settings-navigation--item:focus-visible { outline: 2px solid #1d4ed8; outline-offset: -2px; }
+
+/* production plays a 0.3s ink-bar slide; the prototype re-renders on clicks */
+.bs-tabs-ink-bar { transition: none !important; }
+
+/* production dropdowns are placed by Popper inside the cell; here they are lifted to <body> so overflow does not clip them */
+.st-menu-layer { position: fixed; z-index: 1300; }
+.st-menu-layer .st-menu-host .dropdown-custom > .dropdown-menu-custom,
+.st-menu-layer .dropdown-menu-custom.show { display: flex !important; flex-direction: column; align-items: stretch; position: static; margin-left: 0; min-width: 10rem; }
+.st-menu-layer .li-int-card__more .dropdown-menu-custom { flex-direction: column; align-items: stretch; padding: .375rem .5rem; min-width: 8.125rem; border: 1px solid #e5e7eb; }
+.st-menu-layer .li-int-card__more [role="menuitem"] { cursor: pointer; }
+.st-menu-layer .dropdown-menu-custom a { text-decoration: none; }
+.st-menu-layer .dropdown-menu-custom .dropdown-item-custom { display: flex; align-items: center; }
+
+/* Client Management: actions show on row hover; ?state= screenshots force one row's hover */
+.client-table .table-list tr.st-hover .hoverable-cell--content { display: none !important; }
+.client-table .table-list tr.st-hover .hoverable-cell--actions { display: flex !important; }
+.client-table .table-list tr.st-hover { box-shadow: 0 0 .25rem #1f293729 !important; }
+.client-table .hoverable-cell--actions [role="button"] { cursor: pointer; }
+
+/* Today: Change Role options list (the production Transfer popover) */
+.st-role-list { z-index: 3100; background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; box-shadow: 8px 16px 56px -24px #9c9da13d, 2px 2px 16px -3px #04154c29; padding: 4px 0; }
+.st-role-list .st-role-opt { padding: 8px 16px; cursor: pointer; font-size: 14px; line-height: 20px; }
+.st-role-list .st-role-opt:hover, .st-role-list .st-role-opt.active { background: #eff6ff; }
+
+/* ───────── new: Change role picker and the blocked state (kit tokens) ───────── */
+.st-roles label { cursor: pointer; }
+.st-roles input[type="radio"]:focus-visible { outline: 2px solid var(--nx-blue); outline-offset: 2px; }
+.st-roles input[type="radio"] { width: 16px; height: 16px; margin: 0; accent-color: var(--nx-blue); flex-shrink: 0; }
+.st-delta-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.st-delta-list li { position: relative; padding-left: 16px; font-size: 14px; line-height: 20px; color: var(--nx-text); }
+.st-delta-list li::before { content: ""; position: absolute; left: 4px; top: 8px; width: 4px; height: 4px; border-radius: 50%; background: var(--nx-text-2); }
+.st-blocked { display: flex; gap: 8px; align-items: flex-start; padding: 8px 12px; border: 1px solid var(--nx-blue-100); border-radius: 6px; background: var(--nx-blue-50); }
+.st-blocked img { width: 18px; height: 18px; margin-top: 1px; flex-shrink: 0; }
+.st-blocked p { margin: 0; font-size: 14px; line-height: 20px; color: var(--nx-text); }
+/* kit leaves an empty breakdown box when every row is 0; hide it so the note sits at the top */
+.nx-impact .nx-breakdown:empty { display: none; }
+.nx-impact .nx-consequence, .nx-impact .nx-note { text-wrap: pretty; }
+.nx-impact .nx-sentence { font-size: 14px; line-height: 20px; color: var(--nx-text); }
+.nx-rows .nx-row dd.st-status { font-weight: 500; color: var(--nx-text-2); }
+
+/* production is desktop-first; at phone width the settings nav would take half the screen */
+@media (max-width: 600px) {
+  .setting-container .setting-content .settings-navigation { display: none; }
+  .setting-container .setting-content .setting-components { width: 100%; }
+  .page-header { padding-left: 16px !important; padding-right: 16px !important; }
+  .globalSettings__Wrapper { padding: 16px 16px 0 !important; }
+}
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="settings-markup.js"></script>
+<script src="settings.js"></script>
+</body>
+</html>

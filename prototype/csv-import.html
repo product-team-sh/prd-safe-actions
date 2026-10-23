@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Import CSV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; ci- rules place the stand-in CRM list and the popovers. */
+#ci-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.ci-crm { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 24px; }
+.ci-crm-actions { flex-shrink: 0; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.ci-crm-actions .search-input { width: 280px; }
+.ci-crm-right { display: flex; align-items: center; gap: 16px; }
+.ci-crm-table { flex: 1; min-height: 0; overflow: hidden; }
+.ci-crm-table td { vertical-align: middle; }
+/* react-bootstrap Overlay renders the transfer list in a portal above the modal */
+.ci-pop { position: fixed; z-index: 1060; }
+.ci-tip { position: fixed; z-index: 1070; pointer-events: none; }
+/* new: feedforward line under the After Import control. The footer grows from production's fixed 50px to fit it. */
+.import-contacts-csv-modal .import-flow-stage-wrapper .map-fields .map-list .map-list-footer.ci-footer-ff { height: auto; }
+.ci-ff { display: flex; width: fit-content; align-items: center; gap: 8px; margin: 6px 0 12px 3px; font-size: 12px; line-height: 16px; font-weight: 400; color: #6b7280; }
+.ci-ff-spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #e5e7eb; border-top-color: #9ca3af; animation: ci-spin .8s linear infinite; flex-shrink: 0; }
+@keyframes ci-spin { to { transform: rotate(360deg); } }
+.ci-nowrap { white-space: nowrap; }
+/* kit gap: the failure box sits outside .nx-impact's 16px rhythm */
+.confirmation-modal-v3--body > .nx-error { margin-top: 16px; }
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="csv-import-markup.js"></script>
+<script src="csv-import.js"></script>
+</body>
+</html>

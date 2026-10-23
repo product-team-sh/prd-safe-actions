@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tasks bulk skip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+/* page-only rules. Production layout comes from prod/index.css; nx- and tk- rules cover what is new or what the demo bar changes. */
+#tk-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#tk-root > .tasks { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.tasks > .tasks__header { flex-shrink: 0; }
+/* production sizes the content to 100vh and the table to calc(100vh - N rem); the 44px demo bar breaks that, so flex it */
+.tasks > .tasks__content { flex: 1; min-height: 0; height: auto; display: flex; flex-direction: column; }
+.tasks__content > .filter-container, .tasks__content > .tasks-banner { flex-shrink: 0; }
+.tasks__content > .tasks__content-table-list { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+/* .table-list stays the scroller (its sticky header and first columns depend on it); 40px clears the fixed pagination bar */
+.tasks__content > .tasks__content-table-list > .table-list { height: auto !important; flex: 1; min-height: 0; padding-bottom: 2.5rem; box-sizing: border-box; }
+.tk-bulk-today { display: contents; }
+/* proposed bar takes the free width so it can show labels, then collapse (kit nxBulkBar) */
+.tk-left { flex: 1 1 auto; min-width: 0; }
+.tk-bulk-host { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; }
+/* kit banner text inside production's tasks banner (.email-selected-row-info) */
+.email-selected-row-info .nx-banner-row { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; row-gap: 4px; }
+/* Skip keeps B's distance but not red: nothing is deleted or removed (see Dev notes) */
+.tk-bar .nx-act.nx-risky[data-id="skip"] { color: var(--nx-text-2); }
+.tk-bar .nx-act.nx-risky[data-id="skip"]:hover:not(:disabled) { background: var(--nx-blue-100); color: var(--nx-blue); }
+/* production icons (@saleshandy/icons Alarm, CircleCheck, ForwardStep; shared/svg RetryIcon) on the kit buttons */
+.tk-bar .nx-act[data-id="snooze"] i::before, .tk-bar .nx-act[data-id="complete"] i::before, .tk-bar .nx-act[data-id="skip"] i::before, .tk-bar .nx-act[data-id="retry"] i::before {
+  content: ""; display: block; width: 20px; height: 20px; background-color: currentColor;
+  -webkit-mask: var(--tk-ic) no-repeat center / 20px 20px; mask: var(--tk-ic) no-repeat center / 20px 20px; }
+.tk-bar .nx-act[data-id="retry"] i::before { -webkit-mask-size: 15px 15px; mask-size: 15px 15px; }
+.tk-bar .nx-act[data-id="snooze"] i { --tk-ic: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 fill=%22none%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2213%22 r=%228%22 stroke=%22%23000%22 stroke-width=%222%22/%3E%3Cpath fill=%22%23000%22 fill-rule=%22evenodd%22 d=%22M7.559 2.412a1 1 0 0 1-.22 1.397l-2.75 2A1 1 0 0 1 3.411 4.19l2.75-2a1 1 0 0 1 1.397.22ZM16.191 2.412a1 1 0 0 1 1.397-.22l2.75 2a1 1 0 1 1-1.176 1.617l-2.75-2a1 1 0 0 1-.22-1.397ZM12 9a1 1 0 0 1 1 1v3.586l1.707 1.707a1 1 0 0 1-1.414 1.414l-2-2A1 1 0 0 1 11 14v-4a1 1 0 0 1 1-1Z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E"); }
+.tk-bar .nx-act[data-id="complete"] i { --tk-ic: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 fill=%22none%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23000%22 fill-rule=%22evenodd%22 d=%22M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Z%22 clip-rule=%22evenodd%22/%3E%3Cpath fill=%22%23000%22 fill-rule=%22evenodd%22 d=%22M15.707 9.3a1 1 0 0 1 0 1.415l-4 4a1 1 0 0 1-1.414 0l-2-2A1 1 0 1 1 9.707 11.3L11 12.593 14.293 9.3a1 1 0 0 1 1.414 0Z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E"); }
+.tk-bar .nx-act[data-id="skip"] i { --tk-ic: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22 fill=%22none%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23000%22 fill-rule=%22evenodd%22 d=%22M15.707 11.293a1 1 0 0 1 0 1.414l-8 6A1 1 0 0 1 6 18V6a1 1 0 0 1 1.707-.707l8 6ZM8 8.414v7.172L13.4 12 8 8.414Z%22 clip-rule=%22evenodd%22/%3E%3Cpath fill=%22%23000%22 fill-rule=%22evenodd%22 d=%22M17 5c.552 0 1 .348 1 .778v12.444c0 .43-.448.778-1 .778s-1-.348-1-.778V5.778c0-.43.448-.778 1-.778Z%22 clip-rule=%22evenodd%22/%3E%3C/svg%3E"); }
+.tk-bar .nx-act[data-id="retry"] i { --tk-ic: url("data:image/svg+xml,%3Csvg width=%2218%22 height=%2218%22 viewBox=%220 0 18 18%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath fill-rule=%22evenodd%22 clip-rule=%22evenodd%22 d=%22M8.95319 2.00003C7.25066 1.99494 5.60462 2.61052 4.32323 3.73153C3.04183 4.85254 2.2129 6.40213 1.99163 8.09023C1.91985 8.63784 1.41775 9.02357 0.870146 8.95179C0.322546 8.88001 -0.0631841 8.3779 0.00859443 7.8303C0.293089 5.65989 1.35884 3.66755 3.00636 2.22625C4.65387 0.78495 6.7702 -0.00650491 8.95917 4.02729e-05C11.1481 0.00658546 13.2597 0.810682 14.8986 2.26181C16.5374 3.71293 17.5912 5.71161 17.8628 7.88369C18.1343 10.0558 17.6049 12.2523 16.3736 14.0622C15.1424 15.8721 13.2937 17.1712 11.1737 17.7164C9.05371 18.2616 6.80768 18.0154 4.85608 17.024C3.74892 16.4616 2.77957 15.6812 2.00011 14.7398V16.9603C2.00011 17.5126 1.5524 17.9603 1.00011 17.9603C0.447828 17.9603 0.000112812 17.5126 0.000112812 16.9603V11.9603C0.000112812 11.408 0.447828 10.9603 1.00011 10.9603H1.47683C1.49218 10.9599 1.50751 10.9599 1.5228 10.9603H6.00011C6.5524 10.9603 7.00011 11.408 7.00011 11.9603C7.00011 12.5126 6.5524 12.9603 6.00011 12.9603H3.16022C3.81838 13.9195 4.71019 14.7066 5.7619 15.2409C7.27981 16.012 9.02672 16.2035 10.6756 15.7794C12.3245 15.3554 13.7624 14.345 14.72 12.9373C15.6776 11.5296 16.0894 9.82115 15.8782 8.13176C15.667 6.44236 14.8474 4.88784 13.5727 3.75918C12.298 2.63053 10.6557 2.00512 8.95319 2.00003Z%22 fill=%22%23000%22/%3E%3C/svg%3E"); }
+/* kit gap: the action-failed box is appended after .nx-impact, outside its 16px gap */
+.confirmation-modal-v3--body > .nx-impact + .nx-error { margin-top: 16px; }
+/* the table's pagination bar is fixed to the bottom 40px; keep toasts clear of it */
+body:has(.pagination-container-new) .nx-toasts.bs-message-container .bs-message.bottom { bottom: 64px; }
+@media (max-width: 600px) {
+  .page-header { padding-left: 16px !important; padding-right: 16px !important; }
+  .page-header .link-badge-anchor { display: none; }
+  .tasks__header { overflow-x: auto; padding-left: 16px; padding-right: 16px; }
+  .tasks__header .tasks__header--item { flex-shrink: 0; white-space: nowrap; }
+  .tasks__content .filter-container .tasks-separator { display: none; }
+  .email-selected-row-info .nx-banner-row { column-gap: 16px; }
+  .email-selected-row-info .nx-banner-row .divider-vertical { display: none; }
+  /* production's fixed-width confirmation modals (Today view) */
+  .task-confirmation-modal .modal-dialog, .bulk-retry-modal .modal-dialog { width: auto !important; max-width: calc(100vw - 32px) !important; margin-left: auto; margin-right: auto; }
+  .pagination-container-new .pagination-select-count, .pagination-container-new .divider, .pagination-container-new .pagination-page-input { display: none !important; }
+  .tasks__content .filter-container { padding-left: 16px; padding-right: 16px; flex-wrap: wrap; row-gap: 12px; }
+  .tasks__content .filter-container > .d-flex:last-child { display: none !important; }
+  .tasks__content .filter-container .tk-left { flex-wrap: wrap; row-gap: 12px; }
+  .tasks__content .filter-container .tk-left > form { flex: 1 1 auto; }
+  .tasks__content .filter-container .tk-left > form .search-input { width: 100%; }
+  .tasks-banner { padding-left: 16px; padding-right: 16px; }
+  .tasks__content-table-list { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+<script src="kit/kit.js"></script>
+<script src="tasks-markup.js"></script>
+<script src="tasks.js"></script>
+</body>
+</html>
