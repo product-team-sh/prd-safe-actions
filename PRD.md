@@ -302,10 +302,6 @@ No stage ships before undo works for its surfaces.
 | Q3 | Does a scheduled reply still send after its thread is deleted? **Blocks Unified Inbox.** | If yes, deleting must cancel it |
 | Q4 | Add a 30-day restore later? | Revisit with 90 days of undo and ticket data |
 
-## 13. Priority & timeline
-
-High: a defect class that deletes customer data. **Owners:** product (Hitesh), tech lead (Rajat), design review (Hemanshu), QA for undo (unassigned).
-
 ## Appendix
 
 [Prototype](prototype/index.html) · [Spec](https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md) · [Audit](https://github.com/product-team-sh/prd-safe-actions/blob/main/confirmation-audit.md) · [Directions explored](prototype/01-directions.html) · Source: Basecamp card "Prospects gets deleted with just one click." (7 Oct 2026)
