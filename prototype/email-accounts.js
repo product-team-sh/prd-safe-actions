@@ -153,7 +153,8 @@
       bh.className = 'email-account-banner';
       const opts = { count: n, total: rows.length, allSelected: S.all, onSelectAll: () => { S.all = true; render(); }, onClear: () => { clearSel(); render(); } };
       bh.appendChild(S.view === 'today' ? window.EA_TODAY_BANNER(opts) : proposedBanner(opts));
-    } else bh.remove();
+    } else if (S.view === 'today') bh.remove();
+    else { bh.className = 'email-account-banner'; const ph = NX.bannerPlaceholder(); ph.className = 'email-selected-row-info nx-banner-ph'; bh.appendChild(ph); } // reserved row: no layout shift
     wireTable();
     NX.settle(root);
   }

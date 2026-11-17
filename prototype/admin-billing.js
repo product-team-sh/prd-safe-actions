@@ -35,7 +35,7 @@
   /* ───────── data ───────── */
   // Admin page: an Outreach Scale account (SSO is offered only on Scale plans, admin-settings.tsx L204-206)
   const TEAM = { users: 12, admins: 2, members: 10 };
-  const A = { mfa: true, sso: false, exportOn: false, exportAdmin: false, events: false };
+  const A = { mfa: true, sso: param('sso') === 'on', exportOn: false, exportAdmin: false, events: false };
   const EVENTS = { members: 10, webhooks: 3, integrations: 2 };
   // Profile: free plan owner (Delete Account is enabled only on the free plan, my-profle-content.tsx L857-866)
   const PROFILE = { first: 'Jordan', last: 'Lee', tz: '(GMT+05:30) Asia/Kolkata', emailPw: 'jordan@northbeam.dev', emailOauth: 'jordan@northbeam.dev' };
@@ -48,6 +48,10 @@
     ['elena@getledgerloop.com', 2], ['daniel@tryledgerloop.com', 2], ['marcus.hale@ledgerloop.io', 3], ['priya@ledgerloop.io', 4],
     ['sales@ledgerloophq.com', 5], ['outreach@ledgerloop.io', 6],
   ];
+  // the 14 sequences that pause on Starter; prospects add up to the 3,482 in the dialog
+  const PAUSING = [['SaaS founders, Oct', 640], ['Agency owners, EU', 512], ['Webinar no-shows', 430], ['Churned trials', 388], ['Series A CFOs', 301], ['Ledger demo follow-up', 260],
+    ['Partner referrals', 244], ['Conference leads, Berlin', 198], ['Reactivation Q3', 150], ['Podcast guests', 120], ['Product Hunt upvoters', 96], ['Pricing page visitors', 72], ['Intro to RevOps', 42], ['Holiday check-in', 29]]
+    .map(([name, n]) => ({ name, meta: `${fmt(n)} prospects` }));
   const MEMBERS = [
     ['Kofi Mensah', 0, 0], ['Lucia Ferreira', 1, 0], ['Noah Brooks', 1, 1], ['Zara Haddad', 2, 1], ['Ravi Iyer', 3, 1],
     ['Chloe Dubois', 3, 2], ['Mateo Silva', 4, 1], ['Priya Raman', 6, 2], ['Marcus Hale', 8, 3],
@@ -63,6 +67,7 @@
     title: TITLES[S.page],
     controls: [
       { key: 'page', label: 'Page', value: S.page, options: [['admin', 'Admin'], ['profile', 'Profile'], ['billing', 'Billing']], onChange: (v) => { go(v); } },
+      { key: 'sso', label: 'Login with SSO', value: param('sso') === 'on' ? 'on' : 'off', options: [['off', 'Off'], ['on', 'On']], onChange: (v) => { A.sso = v === 'on'; render(); } },
       { key: 'method', label: 'Login', value: S.method, options: [['password', 'Password'], ['google', 'Google']], onChange: (v) => { S.method = v; render(); } },
       { key: 'over', label: 'Over the new slot count', value: S.over, options: [['email', 'Email accounts'], ['team', 'Team members']], onChange: (v) => { S.over = v; S.slotValue = Math.max(S.slotValue, 1); render(); } },
       { key: 'breakdown', label: 'Breakdown', value: S.breakdown, options: [['ok', 'Loads'], ['slow', 'Slow 2s'], ['fail', 'Fails']], onChange: (v) => { S.breakdown = v; } },
@@ -115,7 +120,7 @@
 
   /* ───────── render ───────── */
   // demo bar shows only the controls that change something on the current page
-  const CTL_PAGES = { method: ['admin', 'profile'], breakdown: ['admin', 'profile'], over: ['billing'] };
+  const CTL_PAGES = { sso: ['admin'], method: ['admin', 'profile'], breakdown: ['admin', 'profile'], over: ['billing'] };
   function syncControls() {
     Object.entries(CTL_PAGES).forEach(([k, pages]) => {
       const t = shell.demo.querySelector('#nxc-' + k);
@@ -230,8 +235,18 @@
       });
     }
     if (key === 'sso') {
+      if (wanted && !isToday()) {
+        // K: the legacy "Are you Sure ... Proceed" dialog is replaced; its warning (no passwords, everyone signed out) is the consequence line
+        return reauth({
+          title: `Turn on Login with SSO for all ${TEAM.users} users?`,
+          rows: [{ label: 'Admins', value: TEAM.admins }, { label: 'Members', value: TEAM.members }, { label: 'Sessions signed out', value: TEAM.users }],
+          consequence: 'Passwords stop working. Everyone signs in through your identity provider from now on, and every active session is signed out.',
+          primaryLabel: `Turn on SSO for ${TEAM.users} users`,
+          onConfirm: () => apply(() => { A.sso = true; }, `Login with SSO is on for all ${TEAM.users} users`),
+        });
+      }
       if (wanted) {
-        // production benchmark (admin-settings.tsx L1546-1562), same in both views
+        // today: production benchmark (admin-settings.tsx L1546-1562)
         return window.AB_V3_MODAL({
           title: 'Are you Sure you want to enable login with SSO', icon: window.AB_ICON.AlertCircle.replace('width="16" height="16"', 'width="24" height="24" class="ab-v3-icon"'),
           contents: ['By enabling SSO Login, all users in your organisation will no longer be able to login using passwords and all active session will be logged out. Everyone will be required to use Login with SSO method.', '', 'Please proceed with caution.'],
@@ -368,9 +383,10 @@
           { label: 'Prospects whose next email will not send', value: 3482 },
           { label: 'A/B tests that stop', value: 5 },
         ],
-        consequence: `Sequences pause and A/B tests stop; email tracking and warm-up keep working. Your bill goes from ${money(before)} to ${money(after)} a month.`,
+        list: { title: 'Sequences that pause', items: PAUSING },
+        consequence: `Sequences pause and A/B tests stop; email tracking and warm-up keep working. Nothing changes until ${BILL.next}. Your bill goes from ${money(before)} to ${money(after)} a month.`,
         primaryLabel: `Downgrade to ${p.name.replace(' (Monthly)', '')}`,
-        tone: 'danger', submit: S.result, submitDelay: SD(),
+        tone: 'primary', submit: S.result, submitDelay: SD(),
         failMessage: { title: 'Your plan did not change.', body: 'The billing service did not respond. Try again in a minute.' },
         onConfirm: () => { BILL.scheduled = { text: `Moves to ${p.name} on ${BILL.next}`, amount: after }; done(`Your plan moves to ${p.name} on ${BILL.next}`); },
       });

@@ -95,7 +95,7 @@
 
   /* ───────── shell ───────── */
   const shell = nxShell({
-    active: 'crm',
+    active: 'crm', rule: true,
     headerHTML: window.CRM_HEADER,
     controls: [
       { key: 'sel', label: 'Select', value: S.sel, options: [['4', '4'], ['page', 'This page'], ['all', 'All 2,340']], onChange: (v) => { S.sel = v; applySel(); render(); } },
@@ -161,7 +161,7 @@
       onClear: () => { clearSel(); render(); },
     });
     const bh = root.querySelector('[data-crm="banner"]');
-    if (ban) bh.appendChild(ban); else bh.remove();
+    if (ban) bh.appendChild(ban); else if (S.view === 'today') bh.remove(); else bh.appendChild(NX.bannerPlaceholder()); // reserved row: no layout shift
     sizeTable(cols);
     const w = root.querySelector('[data-crm="wrapper"]');
     if (w) { if (loadingIds) w.scrollLeft = w.scrollWidth; else { w.scrollLeft = keep[0]; w.scrollTop = keep[1]; } } // keep the scroll; show the AI column while it fills
@@ -269,7 +269,7 @@
       actions: [
         { id: 'add', label: 'Add to sequence', icon: 'send', disabled: none, reason: why, onClick: () => nxToast({ message: 'Not part of this prototype' }) },
         { id: 'tags', label: 'Tags', icon: 'tag', menu: true, disabled: none, reason: why, onClick: (btn) => openTagsMenu(btn) },
-        { id: 'verify', label: 'Verify emails', icon: 'shield-check', disabled: none, reason: why, onClick: () => nxToast({ message: 'Not part of this prototype' }) },
+        { id: 'verify', label: 'Verify emails', icon: 'shield-check', disabled: none, reason: why, onClick: () => openVerify() },
       ],
       risky: [
         { id: 'unsub', label: 'Unsubscribe', icon: 'unavailable', disabled: none, reason: why, onClick: () => openUnsub() },
@@ -308,7 +308,7 @@
       return bits.length ? `${esc(one.first)} ${bits.join(', ').replace(/, ([^,]*)$/, ' and $1')}.` : `${esc(one.first)} is not in an active sequence and has no replies or notes.`;
     })() : null;
     const d = nxImpactDialog(dlg({
-      title, tone: 'danger',
+      title, tone: 'danger', undoable: { n: N, all },
       rows: one ? [{ label: '', value: 1 }] : [
         { key: 'seq', label: 'In active sequences, removed from them', value: s.seq },
         { key: 'rep', label: 'With replies', value: s.rep },
@@ -344,7 +344,7 @@
     const inSeq = l.filter(isActiveSeq).length;
     return nxImpactDialog(dlg({
       title: one ? `Unsubscribe ${esc(one.first + ' ' + one.last)} from every sequence?` : `Unsubscribe ${nP(N)} from every sequence?`,
-      tone: 'danger', icon: NX.IMG('unsubscribe-ban.svg'),
+      tone: 'danger', undoable: { n: N, all: everything() && N > 1 }, icon: NX.IMG('unsubscribe-ban.svg'),
       rows: [
         { key: 'seq', label: 'In active sequences, which stop', value: inSeq },
         { key: 'none', label: 'Not in an active sequence', value: N - inSeq },
@@ -469,6 +469,23 @@
     return openCost(rowsList);
   }
 
+  // L: verifying emails spends verifier credits, so the total comes first (1 credit per email, as in Email Verifier)
+  function openVerify() {
+    const N = selCount();
+    const have = HAVE();
+    return nxCostDialog({
+      title: `Verify emails for ${nP(N)}?`,
+      items: [{ label: 'Credits this uses', credits: N }],
+      have,
+      primaryLabel: `Verify ${fmt(N)} ${plural(N, 'email', 'emails')}`,
+      partial: have > 0 ? { label: `Verify ${fmt(have)} emails`, onConfirm: () => { clearSel(); render(); nxToast({ message: `Verifying ${fmt(have)} emails. This is a prototype: nothing is checked.`, variant: 'info', delay: 4000 }); } } : null,
+      onBuy: () => nxToast({ message: 'Opens Billing > Email Verifier credits (not part of this prototype)' }),
+      submit: S.result, submitDelay: window.CRM_SD,
+      failMessage: { title: 'No credits were used.', body: 'The check did not start because the request timed out. Try again.' },
+      onConfirm: () => { clearSel(); render(); nxToast({ message: `Verifying ${fmt(N)} ${plural(N, 'email', 'emails')}. This is a prototype: nothing is checked.`, variant: 'info', delay: 4000 }); },
+    });
+  }
+
   // L: total cost before any spend
   function openCost(rowsList) {
     const N = rowsList.length;
@@ -497,7 +514,7 @@
     const body = h('<div class="nx-impact nx-new"><div class="nx-breakdown" aria-live="polite"></div><dl class="nx-rows crm-credit-rows"></dl><p class="nx-consequence"></p></div>');
     const bd = body.querySelector('.nx-breakdown');
     bd.innerHTML = '<dl class="nx-rows" aria-busy="true" aria-label="Counting"><div class="nx-row"><dt><span class="react-loading-skeleton nx-skel-l"></span></dt><dd><span class="react-loading-skeleton"></span></dd></div><div class="nx-row"><dt><span class="react-loading-skeleton nx-skel-l"></span></dt><dd><span class="react-loading-skeleton"></span></dd></div></dl>';
-    body.querySelector('.crm-credit-rows').innerHTML = [['Credits this uses', fmt(uses), ''], ['You have', fmt(have), ''], short ? ['Left after', `You need ${fmt(short)} more credits`, 'nx-short'] : ['Left after', fmt(have - uses), '']]
+    body.querySelector('.crm-credit-rows').innerHTML = [['Credits this uses', fmt(uses), ''], ['You have', fmt(have), ''], short ? ['Shortfall', `${fmt(short)} credits`, 'nx-short'] : ['Left after', fmt(have - uses), '']]
       .map(([a, b, c]) => `<div class="nx-row ${c}"><dt>${a}</dt><dd>${b}</dd></div>`).join('');
     body.querySelector('.nx-consequence').textContent = 'Current values in this column are replaced with new ones from the latest prompt. This can\'t be undone.';
     const run = (rows) => (c) => {

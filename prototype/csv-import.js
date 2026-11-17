@@ -280,7 +280,7 @@
     const title = known ? `Import ${qf} and ${verb} ${fmt(b.change)} existing prospects?` : `Import ${qf} and ${verb} existing prospects?`;
     const same = MATCH - b.change;
     return nxImpactDialog({
-      title, tone: 'danger', icon: NX.IMG('info-circle-red.svg'),
+      title, tone: 'danger', icon: NX.IMG('info-circle-red.svg'), typeToConfirm: verb, // the word typed is the harm (overwrite, update), not "import"
       rows: [
         { key: 'change', label: 'Existing prospects that change', value: b.change },
         { key: 'cleared', label: 'Values cleared by blank cells', value: b.cleared },

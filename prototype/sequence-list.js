@@ -176,6 +176,7 @@
         }
       }
     }
+    else if (S.view !== 'today') { bh.innerHTML = window.SL_BANNER('<div class="sequence-selection-info--wrapper"></div>'); bh.querySelector('.sequence-selection-info--wrapper').appendChild(NX.bannerPlaceholder().firstElementChild); bh.firstElementChild.classList.add('nx-banner-ph'); bh.firstElementChild.setAttribute('aria-hidden', 'true'); } // reserved row: no layout shift
     wireTable(pageRows, isSel);
     NX.settle(root);
   }

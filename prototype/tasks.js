@@ -158,7 +158,8 @@
         });
         if (ban) { ban.classList.replace('prospect-selected-row-info', 'email-selected-row-info'); ban.classList.replace('prospect-selected-row-info-waring', 'email-selected-row-info-waring'); bh.appendChild(ban); }
       }
-    } else bh.remove();
+    } else if (S.view === 'today') bh.remove();
+    else { const ph = NX.bannerPlaceholder(); ph.classList.replace('prospect-selected-row-info', 'email-selected-row-info'); ph.style.minHeight = '40px'; bh.appendChild(ph); } // reserved row: no layout shift
     wire(pageRows);
     NX.settle(root);
   }

@@ -109,7 +109,7 @@
 
   /* ───────── shell ───────── */
   const shell = nxShell({
-    active: 'sequences',
+    active: 'sequences', rule: true,
     headerHTML: window.SP_HEADER(SEQ),
     controls: [
       { key: 'size', label: 'Prospects', value: S.size, options: [['7', '7'], ['2340', '2,340'], ['31200', '31,200 (over cap)']], onChange: (v) => { S.size = v; DATA = build(v); hidden.clear(); clearSel(); S.page = 0; S.tab = 'total'; render(); } },
@@ -170,7 +170,7 @@
       onClear: () => { clearSel(); render(); },
     });
     const bh = root.querySelector('[data-sp="banner"]');
-    if (bh) { if (ban) bh.appendChild(ban); else bh.remove(); }
+    if (bh) { if (ban) bh.appendChild(ban); else if (S.view === 'today') bh.remove(); else bh.appendChild(NX.bannerPlaceholder()); }
     wireTable(pageRows, isSel);
     placeInk();
     NX.settle(root);
@@ -250,8 +250,8 @@
     return [
       { id: 'pause', label: 'Pause', icon: 'pause-circle', desc: 'Stops sending until you resume', disabled: s.active === 0, reason: all('paused') ? 'All selected prospects are already paused' : 'None of the selected prospects are in progress' },
       { id: 'resume', label: 'Resume', icon: 'right-arrow', desc: 'Picks up from their current step', disabled: s.paused === 0, reason: 'None of the selected prospects are paused' },
-      { id: 'replied', label: 'Mark as replied', icon: 'round-corner-arrow-back', desc: 'Stops the sequence for them', divider: true, disabled: all('replied'), reason: 'All selected prospects are already marked as replied' },
-      { id: 'finished', label: 'Mark as finished', icon: 'flag', desc: 'Stops the sequence for them', disabled: all('finished'), reason: 'All selected prospects are already finished' },
+      { id: 'replied', label: 'Mark as replied', icon: 'round-corner-arrow-back', desc: 'They replied, so emails to them stop', divider: true, disabled: all('replied'), reason: 'All selected prospects are already marked as replied' },
+      { id: 'finished', label: 'Mark as finished', icon: 'flag', desc: 'They have no more steps to send', disabled: all('finished'), reason: 'All selected prospects are already finished' },
       { id: 'unsubscribe', label: 'Unsubscribe', icon: 'unavailable', desc: 'Never email them again, from any sequence', danger: true, disabled: all('unsubscribed'), reason: 'All selected prospects are already unsubscribed' },
     ];
   }
@@ -283,7 +283,7 @@
     const single = N === 1 ? `${list[0].first} ${list[0].last}` : null;
     const title = single ? `Remove ${esc(single)} from ${QSEQ}?` : all ? `Remove all ${nP(N)} from ${QSEQ}?` : `Remove ${nP(N)} from ${QSEQ}?`;
     return nxImpactDialog(dlgCommon({
-      title, tone: 'danger',
+      title, tone: 'danger', undoable: { n: N, all },
       rows: [
         { key: 'active', label: 'Still in progress', value: s.active },
         { key: 'soon', label: 'Email scheduled in the next hour', value: s.soon, sub: true },
@@ -384,7 +384,7 @@
       const list = sel.filter((p) => p.status !== 'unsubscribed'); const N = list.length;
       const ss = stats(list);
       return nxImpactDialog(dlgCommon({
-        title: `Unsubscribe ${who(list)} from every sequence?`, tone: 'danger', icon: NX.IMG('unsubscribe-ban.svg'),
+        title: `Unsubscribe ${who(list)} from every sequence?`, tone: 'danger', undoable: { n: N, all: isEverything() }, icon: NX.IMG('unsubscribe-ban.svg'),
         rows: [{ key: 'active', label: 'Still in progress', value: ss.active }, { key: 'replied', label: 'Replied', value: ss.replied }, { key: 'paused', label: 'Paused', value: ss.paused }, { key: 'other', label: 'Also in other sequences, which stop too', value: ss.other }],
         sentence: sentenceFor(N), note: others(N, 'already unsubscribed'),
         consequence: 'No sequence will email them again. You can undo this for 10 seconds.',

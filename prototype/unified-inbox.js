@@ -139,7 +139,7 @@
 
   /* ───────── shell ───────── */
   const shell = nxShell({
-    active: 'inbox',
+    active: 'inbox', rule: true,
     title: 'Unified Inbox',
     controls: [
       { key: 'inbox', label: 'Inbox', value: S.inbox, options: [['1284', '1,284'], ['12480', '12,480 (over cap)']], onChange: (v) => { S.inbox = v; DATA = build(Number(v)); hidden.clear(); clearSel(); S.page = 1; S.feed = 'all'; applySel(S.sel); } },
@@ -214,7 +214,7 @@
         onSelectAll: () => { S.all = true; S.desel.clear(); S.picked.clear(); render(); },
         onClear: () => { clearSel(); render(); },
       });
-      if (ban) bh.appendChild(ban);
+      if (ban) bh.appendChild(ban); else bh.appendChild(NX.bannerPlaceholder()); // reserved row: no layout shift
     }
     if (!bh.childElementCount) bh.remove();
     root.querySelector('.unified-inbox-content--row').classList.toggle('ui-proposed-row', S.view === 'proposed' && n > 0);
@@ -296,7 +296,11 @@
     const s = stats(list);
     const N = list.length;
     const all = isEverything();
+    // over the cap the action covers only the first 10,000: never say "all", say how many stay
+    const matching = S.all ? visible().length - S.desel.size : N;
+    const stay = Math.max(0, matching - N);
     const title = N === 1 ? `${VERB.base} the conversation with ${esc(list[0].name)} from Unified Inbox?`
+      : stay ? `${VERB.base} the first ${fmt(N)} of ${fmt(matching)}${scopeAll()} conversations from Unified Inbox?`
       : all || S.all ? `${VERB.base} all ${fmt(N)}${scopeAll()} conversations from Unified Inbox?` : `${VERB.base} ${nC(N)} from Unified Inbox?`;
     let one = {};
     if (N === 1) {
@@ -309,15 +313,15 @@
       one = single(bits.length ? `${first(t)} ${join(bits)}.` : `${first(t)} has no unread reply, scheduled reply or draft here.`);
     }
     return nxImpactDialog(common({
-      title, tone: 'danger',
+      title, tone: 'danger', undoable: { n: N, all: all || (S.all && !stay) },
       rows: [
         { key: 'n', label: 'Conversations', value: N, cls: 'nx-total' },
         { key: 'active', label: 'From prospects still in an active sequence', value: s.active, sub: true },
         { key: 'unread', label: 'With unread replies', value: s.unread, sub: true },
         { key: 'sd', label: 'With a scheduled reply or a draft', value: s.sd, sub: true },
       ],
-      consequence: `The emails stay in your mailbox; they disappear from Saleshandy. You can undo this for 10 seconds.${all ? ' This empties Unified Inbox.' : ''}`,
-      primaryLabel: N === 1 ? `${VERB.base} conversation` : all ? `${VERB.base} all ${nC(N)}` : `${VERB.base} ${nC(N)}`,
+      consequence: `The emails stay in your mailbox; they disappear from Saleshandy. You can undo this for 10 seconds.${all ? ' This empties Unified Inbox.' : ''}${stay ? ` ${fmt(stay)} stay. Run it again for the rest.` : ''}`,
+      primaryLabel: N === 1 ? `${VERB.base} conversation` : all && !stay ? `${VERB.base} all ${nC(N)}` : `${VERB.base} ${nC(N)}`,
       failMessage: { title: `We couldn't ${VERB.base.toLowerCase()} ${N === 1 ? 'this conversation' : 'these conversations'} because the connection to Saleshandy dropped.`, body: `Nothing was ${VERB.past.toLowerCase()}. Check your connection and try again.` },
       ...one,
       onConfirm: () => {
@@ -360,7 +364,7 @@
     }
     const prev = new Map();
     return nxImpactDialog(common({
-      title, tone: 'danger', icon: NX.IMG('unsubscribe-ban.svg'),
+      title, tone: 'danger', undoable: { n: N, all }, icon: NX.IMG('unsubscribe-ban.svg'),
       rows: [
         { key: 'n', label: 'Prospects', value: N, cls: 'nx-total' },
         { key: 'act', label: 'Still in an active sequence, which stops', value: act, sub: true },

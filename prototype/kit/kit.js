@@ -42,6 +42,8 @@
  *   breakdownDelay, submitDelay,      // ms overrides (screenshots)
  *   onConfirm(value), onCancel()
  * }) -> { el, close(), confirm(), type(value) }   type(value) fills the typed field (screenshots)
+ *   undoable: { n, all }            // the action has the 10-second undo. Rule A (default): the dialog turns blue, no typing. Rule B: stays red,
+ *                                     // typing only when all is true or n > 100. Rule is NX.rule() ('A' | 'B'), set from the demo bar or ?rule=B.
  *   Keyboard: Esc and overlay click = Cancel. Initial focus: Cancel for danger, primary for blue.
  *   Submitting: spinner, further clicks ignored. Failure keeps the dialog open with the error.
  *
@@ -98,6 +100,36 @@
   const param = (name) => new URLSearchParams(location.search).get(name);
   const h = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   const icon = (name, cls = '') => `<i class="sh-${name}${cls ? ' ' + cls : ''}" aria-hidden="true"></i>`;
+
+  /* Rule for undoable bulk actions (open design choice): A = blue, no typing; B = red, typing only above a threshold. */
+  const RULE_KEY = 'nx-rule';
+  let ruleNow = (() => {
+    const q = param('rule');
+    if (q === 'A' || q === 'B') return q;
+    try { const v = localStorage.getItem(RULE_KEY); if (v === 'A' || v === 'B') return v; } catch (e) { /* storage blocked */ }
+    return 'A';
+  })();
+  const rule = () => ruleNow;
+  const setRule = (v) => { ruleNow = v === 'B' ? 'B' : 'A'; try { localStorage.setItem(RULE_KEY, ruleNow); } catch (e) { /* */ } };
+  const TYPE_THRESHOLD = 100;
+
+  /* Input modality: Undo takes focus only when the confirm came from the keyboard. */
+  let kbd = false;
+  document.addEventListener('keydown', (e) => { if (['Tab', 'Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)) kbd = true; }, true);
+  document.addEventListener('pointerdown', () => { kbd = false; }, true);
+
+  /* Where focus goes when the element that opened a dialog or toast is gone (menu item, re-rendered bar). */
+  let menuAnchor = null; let menuAnchorAt = 0;
+  function focusHome() {
+    const m = document.querySelector('main.home-container') || document.querySelector('main');
+    if (!m) return;
+    if (!m.hasAttribute('tabindex')) m.setAttribute('tabindex', '-1');
+    try { m.focus({ preventScroll: true }); } catch (e) { /* */ }
+  }
+  function returnFocus(el, quietIfMouse) {
+    if (el && el.isConnected && el !== document.body) { try { el.focus({ preventScroll: true }); return; } catch (e) { /* */ } }
+    if (kbd || !quietIfMouse) focusHome();
+  }
 
   /* Production plays one-shot entry animations (modals, drawers, rows). The prototype re-renders on
      clicks, so after an action every running animation is finished and replays are switched off. */
@@ -180,7 +212,9 @@
     const demo = h('<div class="nx-demo" role="region" aria-label="Prototype controls"></div>');
     demo.appendChild(h(`<a class="nx-demo-back" href="${o.indexHref}">${icon('chevron-left')}<span>Back to index</span></a>`));
     const ctlByKey = {};
-    o.controls.forEach((c) => {
+    const controls = o.controls.slice();
+    if (o.rule) controls.push({ key: 'rule', label: 'Rule', value: rule(), options: [['A', 'A'], ['B', 'B']], onChange: (v) => setRule(v), title: 'A: undoable actions are blue, no typing. B: undoable actions stay red, typing only for all or over 100.' });
+    controls.forEach((c) => {
       demo.appendChild(h('<span class="nx-demo-sep" aria-hidden="true"></span>'));
       if (c.toggle) {
         const lab = h(`<label class="nx-tg"><input type="checkbox"${c.value ? ' checked' : ''}><span>${c.label}</span></label>`);
@@ -190,7 +224,7 @@
         demo.appendChild(lab);
         return;
       }
-      const wrap = h(`<span class="nx-demo-ctl"><span class="nx-demo-t" id="nxc-${c.key}">${c.label}</span><span class="nx-seg" role="group" aria-labelledby="nxc-${c.key}"></span></span>`);
+      const wrap = h(`<span class="nx-demo-ctl"${c.title ? ` title="${c.title}"` : ''}><span class="nx-demo-t" id="nxc-${c.key}">${c.label}</span><span class="nx-seg" role="group" aria-labelledby="nxc-${c.key}"></span></span>`);
       const seg = wrap.querySelector('.nx-seg');
       const set = (v) => seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === String(v))));
       c.options.forEach(([v, l]) => {
@@ -265,17 +299,20 @@
   function nxDialog(o) {
     o = Object.assign({ tone: 'primary', icon: null, wide: false, secondary: null, primaryDisabled: false }, o);
     const id = 'nx-dlg-' + (++dialogSeq);
-    const iconSrc = o.icon || (o.tone === 'danger' ? IMG('trash-danger.svg') : IMG('info-circle-blue.svg'));
+    // one red icon type: trash for deletes, the red info circle for every other red dialog (the ban glyph is not used red)
+    let iconSrc = o.icon || (o.tone === 'danger' ? IMG('trash-danger.svg') : IMG('info-circle-blue.svg'));
+    if (o.tone === 'danger' && /unsubscribe-ban\.svg$/.test(iconSrc)) iconSrc = IMG('info-circle-red.svg');
+    if (o.tone !== 'danger' && /(unsubscribe-ban|trash-danger|info-circle-red)\.svg$/.test(iconSrc)) iconSrc = IMG('info-circle-blue.svg');
     const root = h(`<div class="nx-modal-root">
       <div class="fade modal-backdrop"></div>
-      <div role="dialog" aria-modal="true" aria-labelledby="${id}-t" tabindex="-1" class="fade bs-modal-container confirmation-modal-v3 nx-dialog${o.wide ? ' nx-wide' : ''} modal">
+      <div role="dialog" aria-modal="true" aria-labelledby="${id}-t" aria-describedby="${id}-d" tabindex="-1" class="fade bs-modal-container confirmation-modal-v3 nx-dialog${o.wide ? ' nx-wide' : ''} modal">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content"><div class="modal-content-container">
             <div class="bs-modal-header modal-header">
               <div class="modal-title h4"><div class="confirmation-modal-v3--title d-flex align-items-center"><img src="${iconSrc}" alt=""><h2 id="${id}-t"></h2></div></div>
               <button type="button" class="close" aria-label="Close">${icon('close')}</button>
             </div>
-            <div class="bs-modal-body modal-body"><div class="confirmation-modal-v3--body"></div></div>
+            <div class="bs-modal-body modal-body"><div class="confirmation-modal-v3--body" id="${id}-d"></div></div>
             <div class="bs-modal-footer modal-footer"><div class="bs-modal-footer-action-buttons" style="display:flex;align-items:center"></div></div>
           </div></div>
         </div>
@@ -308,8 +345,9 @@
     }
     let typed = null;
     if (word) {
-      const tw = h(`<div class="nx-typed"><p class="nx-typed-label nx-new bs-mb-10">Confirm by typing <b class="red-txt-5">${esc(word)}</b></p><span class="bs-input-affix-wrapper bs-input-affix-wrapper-md input-default"><input name="confirm" autocomplete="off" class="bs-input-md bs-input" aria-label="Confirm by typing ${esc(word)}"></span></div>`);
+      const tw = h(`<div class="nx-typed"><p class="nx-typed-label nx-new bs-mb-10">Confirm by typing <b class="nx-typed-word">${esc(word)}</b></p><span class="bs-input-affix-wrapper bs-input-affix-wrapper-md input-default"><input name="confirm" autocomplete="off" class="bs-input-md bs-input" aria-label="Confirm by typing ${esc(word)}"></span></div>`);
       typed = tw.querySelector('input');
+      tw.querySelector('.bs-input-affix-wrapper').addEventListener('mousedown', (e) => { if (e.target !== typed) { e.preventDefault(); typed.focus(); } });
       body.appendChild(tw);
     }
     const typedOk = () => !typed || typed.value.trim().toLowerCase() === word;
@@ -351,7 +389,8 @@
         root.remove();
         const i = openDialogs.indexOf(ctrl); if (i >= 0) openDialogs.splice(i, 1);
         if (reason === 'cancel' && o.onCancel) o.onCancel();
-        if (lastFocus && lastFocus.isConnected) try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* */ }
+        if (reason === 'done') setTimeout(() => { if (!document.activeElement || document.activeElement === document.body) returnFocus(lastFocus, true); }, 0); // after a confirm, the toast may take focus first
+        else returnFocus(lastFocus);
       },
       type(v) { if (typed) { typed.value = v; applyDisabled(); } },
       // programmatic confirm (screenshot states, tests): types the word first
@@ -379,7 +418,10 @@
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     }
-    const lastFocus = document.activeElement;
+    let lastFocus = document.activeElement;
+    if (!lastFocus || lastFocus === document.body || (lastFocus.closest && lastFocus.closest('.nx-menu'))) {
+      if (menuAnchor && menuAnchor.isConnected && Date.now() - menuAnchorAt < 3000) lastFocus = menuAnchor; // opened from a menu item
+    }
     document.addEventListener('keydown', onKey, true);
     document.body.appendChild(root);
     openDialogs.push(ctrl);
@@ -395,7 +437,8 @@
       const sb = ctrl.setBusy;
       ctrl.setBusy = (on) => { sb(on); typed.disabled = !!on; };
     }
-    (typed ? typed : o.tone === 'danger' ? cancelBtn : primaryBtn).focus({ preventScroll: true });
+    // Cancel for danger (also keeps the phone keyboard from covering the button); the typed field is one Tab away
+    (o.tone === 'danger' ? cancelBtn : primaryBtn).focus({ preventScroll: true });
     return ctrl;
   }
 
@@ -409,6 +452,11 @@
 
   function nxImpactDialog(o) {
     o = Object.assign({ tone: 'danger', rows: [], breakdown: 'ok', submit: 'ok' }, o);
+    if (o.undoable) {
+      // the action has the 10-second undo: the open rule decides colour and typing
+      if (rule() === 'A') { o.tone = 'primary'; o.typeToConfirm = false; o.icon = null; }
+      else { o.tone = 'danger'; if (!(o.undoable.all || o.undoable.n > TYPE_THRESHOLD)) o.typeToConfirm = false; }
+    }
     const wrap = h('<div class="nx-impact nx-new"></div>');
     const rowsBox = h('<div class="nx-breakdown" aria-live="polite"></div>');
     const n = Math.max(1, Math.min(4, o.rows.length));
@@ -469,8 +517,10 @@
 
   function nxToast(o) {
     o = Object.assign({ variant: 'success', delay: 3000 }, o);
-    const v = o.variant === 'error' ? 'variant-error' : 'variant-success regular-2';
-    const src = o.variant === 'error' ? IMG('alert-triangle-red.svg') : IMG('checks-green.svg');
+    if (o.variant === 'success' && /not part of this prototype/i.test(o.message)) o.variant = 'info'; // a stub is not a success
+    const info = o.variant === 'info'; // neutral: for prototype stubs, so a stub never reads as "done"
+    const v = o.variant === 'error' ? 'variant-error' : info ? 'variant-success regular-2 nx-toast-info' : 'variant-success regular-2';
+    const src = o.variant === 'error' ? IMG('alert-triangle-red.svg') : info ? IMG('info-circle.svg') : IMG('checks-green.svg');
     const el = h(`<div role="status" aria-live="polite" aria-atomic="true" class="fade toast message-container theme-new ${v} show"><div class="message-icon ${o.variant === 'error' ? 'icon-error' : 'icon-success'}"><img src="${src}" alt=""></div><div class="message-desc">${o.message}</div></div>`);
     host().appendChild(el);
     if (o.delay) setTimeout(() => el.remove(), o.delay);
@@ -481,18 +531,20 @@
     o = Object.assign({ seconds: 10 }, o);
     if (activeUndo) activeUndo.commit(); // a second action commits the first at once
     const total = o.seconds * 1000;
+    const born = performance.now();
     let remaining = total;
     let paused = false;
     let done = false;
     const C = 2 * Math.PI * 8;
+    // the ring is decorative (aria-hidden): the window is announced once, in words, by the polite live region
     const el = h(`<div role="status" aria-live="polite" aria-atomic="true" class="fade toast message-container theme-new variant-success regular-2 show">
       <div class="message-icon icon-success"><img src="${IMG('checks-green.svg')}" alt=""></div>
       <div class="message-desc">${o.message}</div>
-      <button type="button" class="message-undo">Undo</button>
-      <svg class="nx-ring nx-new" viewBox="0 0 20 20" role="img" aria-label="${o.seconds} seconds to undo"><circle class="nx-ring-bg" cx="10" cy="10" r="8"/><circle class="nx-ring-fg" cx="10" cy="10" r="8" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg>
+      <button type="button" class="message-undo" aria-keyshortcuts="Enter">Undo</button>
+      <svg class="nx-ring nx-new" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle class="nx-ring-bg" cx="10" cy="10" r="8"/><circle class="nx-ring-fg" cx="10" cy="10" r="8" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg>
     </div>`);
     const fg = el.querySelector('.nx-ring-fg');
-    const ring = el.querySelector('.nx-ring');
+    const undoBtn = el.querySelector('.message-undo');
     let last = performance.now();
     const tick = () => {
       const now = performance.now();
@@ -500,11 +552,15 @@
       last = now;
       const left = Math.max(0, remaining);
       fg.setAttribute('stroke-dashoffset', String(C * (1 - left / total)));
-      ring.setAttribute('aria-label', `${Math.ceil(left / 1000)} seconds to undo`);
       if (left <= 0) api.commit();
     };
     const iv = setInterval(tick, 100);
-    const stop = () => { done = true; clearInterval(iv); el.remove(); if (activeUndo === api) activeUndo = null; };
+    // when the toast goes while focus is inside it, put focus somewhere logical instead of dropping it to the page
+    const stop = () => {
+      const had = el.contains(document.activeElement);
+      done = true; clearInterval(iv); el.remove(); if (activeUndo === api) activeUndo = null;
+      if (had) setTimeout(() => focusHome(), 0);
+    };
     const api = {
       el,
       commit() { if (done) return; stop(); o.onCommit && o.onCommit(); },
@@ -517,13 +573,18 @@
       resume() { paused = false; last = performance.now(); },
       get remaining() { return remaining; },
     };
-    el.querySelector('.message-undo').addEventListener('click', api.undo);
+    // an Enter or Space still held from the dialog must not trigger Undo (keyboard click inside the first 0.6 s is ignored)
+    undoBtn.addEventListener('click', (e) => { if (e.detail === 0 && performance.now() - born < 600) return; api.undo(); });
     el.addEventListener('mouseenter', api.pause);
     el.addEventListener('mouseleave', () => { if (!el.contains(document.activeElement)) api.resume(); });
     el.addEventListener('focusin', api.pause);
     el.addEventListener('focusout', (e) => { if (!el.contains(e.relatedTarget) && !el.matches(':hover')) api.resume(); });
     host().appendChild(el);
     activeUndo = api;
+    // announce the window once, after the live region exists, so screen readers speak it
+    setTimeout(() => { if (!done) { const sr = h(`<span class="nx-sr">. You can undo this for ${o.seconds} seconds.</span>`); el.querySelector('.message-desc').appendChild(sr); } }, 80);
+    // keyboard users: Undo is the next stop (focus is paused while it is there)
+    if (kbd) undoBtn.focus({ preventScroll: true });
     return api;
   }
 
@@ -577,6 +638,11 @@
     return el;
   }
 
+  /* Reserves the banner row while nothing is selected, so the table does not jump down when the banner appears. */
+  function bannerPlaceholder() {
+    return h('<div class="prospect-selected-row-info nx-banner-ph" aria-hidden="true" inert><div class="nx-banner-row"><span class="nx-banner-text">&nbsp;</span></div></div>');
+  }
+
   /* ───────────────────────── menus ───────────────────────── */
   let openMenu = null;
   function closeMenu() { if (openMenu) { const m = openMenu; openMenu = null; m.close(); } }
@@ -610,6 +676,7 @@
       el.appendChild(it);
     });
     document.body.appendChild(el);
+    if (o.anchor) { menuAnchor = o.anchor; menuAnchorAt = Date.now(); }
     placeMenu(el, o.anchor, o.align);
     if (o.anchor) o.anchor.setAttribute('aria-expanded', 'true');
     const items = () => [...el.querySelectorAll('.nx-mi')];
@@ -753,7 +820,7 @@
       : [{ label: 'Credits this uses', value: fmt(uses) }];
     if (o.items.length > 1) rows.push({ label: 'Credits this uses', value: fmt(uses), cls: 'nx-total' });
     rows.push({ label: 'You have', value: fmt(o.have) });
-    rows.push(short ? { label: 'Left after', value: `You need ${fmt(short)} more credits`, cls: 'nx-short' } : { label: 'Left after', value: fmt(o.have - uses) });
+    rows.push(short ? { label: 'Shortfall', value: `${fmt(short)} credits`, cls: 'nx-short' } : { label: 'Left after', value: fmt(o.have - uses) });
     const body = h(`<div class="nx-impact nx-new"><dl class="nx-rows">${rows.map((r) => `<div class="nx-row ${r.cls || ''}"><dt>${r.label}</dt><dd>${r.value}</dd></div>`).join('')}</dl>${o.consequence ? `<p class="nx-consequence">${o.consequence}</p>` : ''}</div>`);
     const run = (fn) => (c) => {
       c.setError(null); c.setBusy(true);
@@ -783,6 +850,13 @@
     if (o.kind === 'downgrade') {
       body.appendChild(h(`<p>On <b>${o.date}</b>, these stop:</p>`));
       body.appendChild(h(renderRows(o.stops) || '<span></span>'));
+      if (o.list && o.list.items.length) {
+        // named list of what pauses, so nothing is a surprise on the date
+        body.appendChild(h(`<p class="nx-list-title">${o.list.title}</p>`));
+        const nl = h(`<ul class="nx-namelist" tabindex="0" aria-label="${esc(o.list.title)}"></ul>`);
+        o.list.items.forEach((it) => nl.appendChild(h(`<li><span class="nx-pk-name">${it.name}</span><span class="nx-pk-meta">${it.meta || ''}</span></li>`)));
+        body.appendChild(nl);
+      }
     } else {
       need = Math.max(0, o.inUse - o.after);
       body.appendChild(h(`<dl class="nx-rows"><div class="nx-row"><dt>${o.kind === 'seats' ? 'Seats in use' : 'Slots in use'}</dt><dd>${fmt(o.inUse)}</dd></div><div class="nx-row"><dt>After the change</dt><dd>${fmt(o.after)}</dd></div></dl>`));
@@ -823,6 +897,6 @@
     return { el: ctrl.el, close: () => ctrl.close('cancel'), confirm: () => ctrl.confirm(), ctrl };
   }
 
-  const NX = { fmt, plural, esc, param, h, icon, settle, closeMenu, IMG, renderRows, SIDE_ICONS };
+  const NX = { fmt, plural, esc, param, h, icon, settle, closeMenu, IMG, renderRows, SIDE_ICONS, rule, setRule, bannerPlaceholder };
   Object.assign(window, { NX, nxShell, nxDialog, nxImpactDialog, nxUndoToast, nxToast, nxSelectionBanner, nxBulkBar, nxStatusMenu, nxReauthDialog, nxCostDialog, nxPlanChangeDialog });
 })();
