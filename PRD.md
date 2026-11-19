@@ -48,7 +48,7 @@ About 110 risky actions audited: about 35 unconfirmed, about 35 with a confirmat
 
 ## 6. Surfaces
 
-Every state below opens from the prototype's demo bar, with a Today / Proposed switch on each screen.
+Every state below opens from the prototype's demo bar, with a Today / Proposed switch on each screen. To compare all 35 screens side by side, open the [canvas](canvas/index.html).
 
 ### 6.1 Sequence > Prospects (rows 1-4)
 
