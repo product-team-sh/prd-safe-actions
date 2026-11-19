@@ -1,6 +1,6 @@
 /* Sequence > Prospects: safe actions prototype (spec rows 1 to 4).
    Data is generated in the page. Production markup is reproduced from webui main aeda4e3;
-   new elements carry .nx-new. URL params: ?size=7|2340|31200 &view=proposed|today &breakdown=ok|slow|fail
+   new elements carry .nx-new. URL params: ?size=7|2340|31200 &view=proposed|today &fin=circle-check|play-track-next|check-r
    &result=ok|fail &state=<screenshot state> &new=1 &dev=1 */
 (function () {
   'use strict';
@@ -109,36 +109,24 @@
 
   /* ───────── shell ───────── */
   const shell = nxShell({
-    active: 'sequences', rule: true,
+    active: 'sequences',
     headerHTML: window.SP_HEADER(SEQ),
     controls: [
       { key: 'size', label: 'Prospects', value: S.size, options: [['7', '7'], ['2340', '2,340'], ['31200', '31,200 (over cap)']], onChange: (v) => { S.size = v; DATA = build(v); hidden.clear(); clearSel(); S.page = 0; S.tab = 'total'; render(); } },
-      { key: 'breakdown', label: 'Breakdown', value: S.breakdown, options: [['ok', 'Loads'], ['slow', 'Slow 2s'], ['fail', 'Fails']], onChange: (v) => { S.breakdown = v; } },
       { key: 'result', label: 'Action', value: S.result, options: [['ok', 'Succeeds'], ['fail', 'Fails']], onChange: (v) => { S.result = v; } },
       { key: 'view', label: 'View', value: S.view, options: [['today', 'Today'], ['proposed', 'Proposed']], onChange: (v) => { S.view = v; render(); } },
     ],
     devNotes: {
-      intro: 'Spec rows 1 to 4. Breakdown counts must come from the backend before the dialog opens; the client cannot count them for "Select all". Undo needs the real change to start only after 10 seconds and be cancellable until then.',
+      intro: 'Bulk bar is icon-only with tooltips; each confirmation is short: action name, one sentence, a skipped-prospects line only when some selected prospects will be skipped, and a grey "This can\'t be undone" note row only for Unsubscribe and Mark as finished. No counts, no typing. Direction D, 19 Nov 2026.',
       rows: [
-        { n: 1, surface: 'Sequence > Prospects', action: 'Remove from sequence', patterns: 'A B F H', breakdown: 'By status: in progress, email scheduled within the hour (subset of in progress), replied, paused. "All" title and "This empties the sequence." when the selection is everyone.', undo: 'Yes, 10 seconds',
-          code: [{ label: 'contact-list-header.tsx L119-130 (X icon, no confirmation)', url: HDR + '#L119-L130' }, { label: 'contact-list-content.tsx L542-558 (fires at once)', url: CNT + '#L542-L558' }, { label: 'banner L77-113 (hides "Select all" when one page holds everyone)', url: BAN + '#L77-L113' }],
-          v3: `saleshandy-app b39fe37 already labels it "Remove" with a trash icon, but it still fires on click with no dialog and sits 4th of 9 actions: <a href="${V3}ProspectsBulkActionBar.tsx#L143-L151" target="_blank" rel="noopener">ProspectsBulkActionBar.tsx L143-151</a>, <a href="${V3}constants.ts" target="_blank" rel="noopener">constants.ts</a>. Apply B, F and H there too.` },
-        { n: 2, surface: 'Sequence > Prospects', action: 'Unsubscribe', patterns: 'A C F H', breakdown: 'By status (in progress, replied, paused) plus "Also in other sequences" (prospects whose other sequences stop too).', undo: 'Yes, 10 seconds',
-          code: [{ label: 'contact-list-header.tsx L142-152 (icon, no confirmation)', url: HDR + '#L142-L152' }, { label: 'contact-list-content.tsx L598-608', url: CNT + '#L598-L608' }],
-          v3: `Fires on click: <a href="${V3}ProspectsBulkActionBar.tsx#L187-L190" target="_blank" rel="noopener">ProspectsBulkActionBar.tsx L187-190</a>.` },
-        { n: 3, surface: 'Sequence > Prospects', action: 'Mark as replied, Mark as finished', patterns: 'A C F H', breakdown: 'By status of the prospects that change (in progress, scheduled within the hour, paused); those already in the target status are named in a note and left alone.', undo: 'Yes, 10 seconds',
-          code: [{ label: 'contact-list-header.tsx L131-141, L153-163', url: HDR + '#L131-L163' }, { label: 'contact-list-content.tsx L586-619', url: CNT + '#L586-L619' }],
-          v3: `Fire on click: <a href="${V3}ProspectsBulkActionBar.tsx#L183-L194" target="_blank" rel="noopener">ProspectsBulkActionBar.tsx L183-194</a>.` },
-        { n: 4, surface: 'Sequence > Prospects', action: 'Pause, Resume', patterns: 'A C F H', breakdown: 'Pause: in progress, scheduled within the hour. Resume: paused, will send today. Prospects the action does not apply to are named in a note.', undo: 'Yes, 10 seconds',
-          code: [{ label: 'contact-list-header.tsx L164-185', url: HDR + '#L164-L185' }, { label: 'contact-list-content.tsx L621-647 (pause modal keeps its duration picker)', url: CNT + '#L621-L647' }],
-          v3: `Pause opens a duration dialog, Resume fires on click: <a href="${V3}ProspectsBulkActionBar.tsx#L195-L199" target="_blank" rel="noopener">ProspectsBulkActionBar.tsx L195-199</a>.` },
+        { n: 1, surface: 'Sequence > Prospects', action: 'Remove from sequence, Unsubscribe', patterns: 'Red icon and button', breakdown: 'None. Remove: "Selected prospects stop getting emails from this sequence and their progress is deleted.", plus "This leaves the sequence empty." when every prospect is selected. Unsubscribe: "Selected prospects will not get emails from any sequence again.", "Prospects who are already unsubscribed will be skipped." (only when it applies), note: "This can\'t be undone. To email them again, remove them from the sequence and add them again."', undo: 'Remove: 10 seconds. Unsubscribe: none, it cannot be reversed',
+          code: [{ label: 'contact-list-header.tsx L119-152', url: HDR + '#L119-L152' }, { label: 'contact-list-content.tsx L542-608', url: CNT + '#L542-L608' }], v3: '' },
+        { n: 2, surface: 'Sequence > Prospects', action: 'Mark as replied, Mark as finished, Resume, Pause', patterns: 'Blue icon and button', breakdown: 'None. Replied: "The sequence stops for selected prospects.", skipped line "Prospects who are already marked as replied will be skipped." Finished: same body, "Prospects who are already finished will be skipped.", note: "This can\'t be undone. To bring them back, remove them from the sequence and add them again." Resume: "Selected prospects continue from their current step.", skip "not paused". Pause: "Emails to selected prospects stop until the pause ends or you resume them.", skip "not in progress".', undo: 'Replied: 10 seconds. Finished, Resume, Pause: none',
+          code: [{ label: 'contact-list-header.tsx L131-185', url: HDR + '#L131-L185' }, { label: 'contact-list-content.tsx L586-647 (pause keeps its duration picker)', url: CNT + '#L586-L647' }], v3: '' },
       ],
       notes: [
-        'The "Change status" menu replaces the five status icons. Options that do not apply are disabled with the reason, never hidden.',
-        'Counts in titles are what the action changes: "Pause 4 prospects" when 3 of 7 selected are not in progress. The note under the breakdown names the rest.',
-        'Rows leave the table at once; Undo puts them back in the same position with the selection cleared. A second action commits the first at once.',
-        'Leaving the page does not cancel: the change still completes after 10 seconds.',
-        'Over 25,000: "Select all" selects the first 25,000 and the banner says so.',
+        'Add to sequence and Tags have no confirmation.',
+        'Disabled icons keep their reason in the tooltip.',
       ],
     },
   });
@@ -228,91 +216,82 @@
   document.fonts && document.fonts.ready.then(() => { sizeTitle(); placeInk(); });
   window.addEventListener('resize', placeInk);
 
-  /* ───────── proposed bar (B, C) ───────── */
-  function proposedBar() {
-    const n = selCount();
-    const none = n === 0;
+  /* ───────── proposed bar: icon-only (meeting 19 Nov 2026) ───────── */
+  // Production's BulkAction IconButton (contact-list-header.tsx): ghost 32px, 20px glyph. Danger red only on the last two.
+  const FIN = ['circle-check', 'play-track-next', 'check-r'].includes(param('fin')) ? param('fin') : 'circle-check';
+  const GLYPH = { add: 'send', tags: 'tag', pause: 'pause-circle', resume: 'right-arrow', replied: 'round-corner-arrow-back', finished: FIN, unsubscribe: 'unavailable', remove: 'trash' };
+  function barModel() {
+    const sel = selectedList();
+    const s = stats(sel);
+    const all = (k) => s[k] === s.n;
+    const none = sel.length === 0;
     const why = 'Select prospects first';
-    const bar = nxBulkBar({
-      actions: [
-        { id: 'add', label: 'Add to sequence', icon: 'send', disabled: none, reason: why, onClick: () => nxToast({ message: 'Not part of this prototype' }) },
-        { id: 'tags', label: 'Tags', icon: 'tag', disabled: none, reason: why, onClick: () => nxToast({ message: 'Not part of this prototype' }) },
-        { id: 'status', label: 'Change status', icon: 'arrows-exchange', menu: true, disabled: none, reason: why, onClick: (btn) => openStatusMenu(btn) },
-      ],
-      risky: [{ id: 'remove', label: 'Remove', count: null, icon: 'trash', disabled: none, reason: why, onClick: () => openRemove() }],
+    const off = (cond, reason) => (none ? why : cond ? reason : null);
+    return [
+      { id: 'tags', name: 'Tags', off: off(false), on: () => nxToast({ message: 'Not part of this prototype' }) },
+      { div: true },
+      { id: 'add', name: 'Add to sequence', off: off(false), on: () => nxToast({ message: 'Not part of this prototype' }) },
+      { id: 'pause', name: 'Pause', off: off(s.active === 0, 'None of the selected prospects are in progress'), on: () => openAction('pause') },
+      { id: 'resume', name: 'Resume', off: off(s.paused === 0, 'None of the selected prospects are paused'), on: () => openAction('resume') },
+      { div: true },
+      { id: 'replied', name: 'Mark as replied', off: off(all('replied'), 'All selected prospects already replied'), on: () => openAction('replied') },
+      { id: 'finished', name: 'Mark as finished', off: off(all('finished'), 'All selected prospects are already finished'), on: () => openAction('finished') },
+      { div: true },
+      { id: 'unsubscribe', name: 'Unsubscribe', danger: true, off: off(all('unsubscribed'), 'All selected prospects are already unsubscribed'), on: () => openAction('unsubscribe') },
+      { id: 'remove', name: 'Remove from sequence', danger: true, off: off(false), on: () => openAction('remove') },
+    ];
+  }
+  function proposedBar() {
+    const bar = h('<div class="sp-bar nx-new" role="toolbar" aria-label="Bulk actions"></div>');
+    barModel().forEach((a) => {
+      if (a.div) { bar.appendChild(h('<span class="divider-vertical sp-div" aria-hidden="true"></span>')); return; }
+      const tip = a.off ? `${a.name}: ${a.off}` : a.name;
+      const b = h(`<button type="button" data-id="${a.id}" class="btn-icon-md bulk-action-icon-button btn-ghost btn-ghost-default btn-ghost-md${a.danger ? ' sp-danger' : ''}${a.off ? ' disabled' : ''}" aria-label="${esc(a.name)}" aria-disabled="${a.off ? 'true' : 'false'}" data-nx-tip="${esc(tip)}"><span><i class="sh-${GLYPH[a.id]}"></i></span></button>`);
+      b.addEventListener('click', () => { if (!a.off) a.on(); });
+      bar.appendChild(b);
     });
     return bar;
   }
 
-  function statusOptions() {
-    const s = stats(selectedList());
-    const all = (k) => s[k] === s.n;
-    return [
-      { id: 'pause', label: 'Pause', icon: 'pause-circle', desc: 'Stops sending until you resume', disabled: s.active === 0, reason: all('paused') ? 'All selected prospects are already paused' : 'None of the selected prospects are in progress' },
-      { id: 'resume', label: 'Resume', icon: 'right-arrow', desc: 'Picks up from their current step', disabled: s.paused === 0, reason: 'None of the selected prospects are paused' },
-      { id: 'replied', label: 'Mark as replied', icon: 'round-corner-arrow-back', desc: 'They replied, so emails to them stop', divider: true, disabled: all('replied'), reason: 'All selected prospects are already marked as replied' },
-      { id: 'finished', label: 'Mark as finished', icon: 'flag', desc: 'They have no more steps to send', disabled: all('finished'), reason: 'All selected prospects are already finished' },
-      { id: 'unsubscribe', label: 'Unsubscribe', icon: 'unavailable', desc: 'Never email them again, from any sequence', danger: true, disabled: all('unsubscribed'), reason: 'All selected prospects are already unsubscribed' },
-    ];
-  }
-  function openStatusMenu(anchor, opts = {}) {
-    return nxStatusMenu({ anchor, label: 'Change status', options: statusOptions(), onPick: (id) => openStatus(id), focus: opts.focus });
-  }
-
-  /* ───────── dialogs (F) ───────── */
+  /* ───────── dialogs: short, like Tasks' bulk Snooze ───────── */
   const nP = (n) => `${fmt(n)} ${plural(n, 'prospect', 'prospects')}`;
-  const isEverything = () => S.tab === 'total' && selCount() === inSeq().length;
-  const phrase = { active: ['is still in progress', 'are still in progress'], replied: ['has replied', 'have replied'], paused: ['is paused', 'are paused'] };
-  const sentenceFor = (N) => (r) => {
-    const ph = phrase[r.key] || ['', ''];
-    if (r.value === N) return N === 1 ? `This prospect ${ph[0]}.` : `All ${fmt(N)} ${ph[1]}.`;
-    return `${fmt(r.value)} of them ${r.value === 1 ? ph[0] : ph[1]}.`;
-  };
-  const dlgCommon = (o) => Object.assign({ breakdown: S.breakdown, submit: S.result, breakdownDelay: window.SP_BD, submitDelay: window.SP_SD }, o);
-  // One prospect: no lookup is needed, so no counting state; the breakdown becomes one sentence about them
-  function oneProspect(p, extra = '') {
-    const st = { active: `is still in progress${p.soon ? ', with an email scheduled in the next hour' : ''}`, replied: 'has replied', paused: `is paused${p.sendToday ? ' and will send today once resumed' : ''}`, finished: 'has finished', unsubscribed: 'is unsubscribed' }[p.status];
-    return { rows: [{ key: 'one', label: '', value: 1 }], sentence: `${esc(p.first)} ${st}${extra}.`, breakdown: 'ok', breakdownDelay: 0 };
-  }
-
-  function openRemove() {
-    const list = selectedList();
-    const s = stats(list);
-    const N = list.length;
-    const all = isEverything();
-    const single = N === 1 ? `${list[0].first} ${list[0].last}` : null;
-    const title = single ? `Remove ${esc(single)} from ${QSEQ}?` : all ? `Remove all ${nP(N)} from ${QSEQ}?` : `Remove ${nP(N)} from ${QSEQ}?`;
-    return nxImpactDialog(dlgCommon({
-      title, tone: 'danger', undoable: { n: N, all },
-      rows: [
-        { key: 'active', label: 'Still in progress', value: s.active },
-        { key: 'soon', label: 'Email scheduled in the next hour', value: s.soon, sub: true },
-        { key: 'replied', label: 'Replied', value: s.replied },
-        { key: 'paused', label: 'Paused', value: s.paused },
-      ],
-      sentence: sentenceFor(N),
-      consequence: `${N === 1 ? `${esc(list[0].first)} stops` : 'They stop'} getting emails from this sequence. You can undo this for 10 seconds; after that their progress here is gone.${all ? ' This empties the sequence.' : ''}`,
-      primaryLabel: N === 1 ? 'Remove prospect' : all ? `Remove all ${nP(N)}` : `Remove ${nP(N)}`,
-      failMessage: { title: `We couldn't remove ${N === 1 ? 'this prospect' : 'these prospects'} because the sequence was deleted.`, body: 'Refresh the page.' },
-      ...(N === 1 ? oneProspect(list[0]) : {}),
-      onConfirm: () => {
-        const ids = list.map((p) => p.id);
-        ids.forEach((id) => hidden.add(id));
-        clearSel(); render();
-        nxUndoToast({
-          message: `Removed ${nP(N)} from ${QSEQ}`,
-          undoneMessage: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} back`,
-          onUndo: () => { ids.forEach((id) => hidden.delete(id)); clearSel(); render(); },
-          onCommit: () => { const set = new Set(ids); DATA = DATA.filter((p) => !set.has(p.id)); ids.forEach((id) => hidden.delete(id)); render(); },
-        });
+  // One shell for every action: own icon, name as title, one or two sentences, optional exclusions line.
+  function shortDialog(o) {
+    const wrap = h('<div class="nx-impact nx-new"></div>');
+    wrap.appendChild(h(`<p class="nx-consequence">${o.body}</p>`));
+    if (o.excl) wrap.appendChild(h(`<p class="nx-note">${o.excl}</p>`));
+    let extraEl = null;
+    if (o.extra) { extraEl = h('<div class="nx-extra"></div>'); o.extra.render(extraEl); wrap.appendChild(extraEl); }
+    if (o.cant) wrap.appendChild(h(`<div class="nx-qnote nx-new"><i class="sh-info" aria-hidden="true"></i><span><b>This can't be undone.</b> ${o.cant}</span></div>`));
+    const ctrl = nxDialog({
+      title: o.name, tone: o.danger ? 'danger' : 'primary', icon: NX.IMG('info-circle-blue.svg'), body: wrap, primaryLabel: o.primaryLabel,
+      typeToConfirm: false,
+      onPrimary(c) {
+        c.setError(null); c.setBusy(true);
+        setTimeout(() => {
+          if (!c.el.isConnected) return;
+          if (S.result === 'fail') {
+            c.setBusy(false);
+            c.setError(`<b>${o.failTitle}</b>Refresh the page.`);
+            c.primaryBtn.focus();
+            return;
+          }
+          c.close('done');
+          o.onConfirm && o.onConfirm(o.extra ? o.extra.value() : undefined);
+        }, window.SP_SD != null ? window.SP_SD : 900);
       },
-    }));
+    });
+    const img = ctrl.el.querySelector('.confirmation-modal-v3--title img');
+    ctrl.el.querySelector('.modal').classList.add('nx-dD');
+    if (img) img.replaceWith(h(`<i class="sh-${o.glyph} sp-title-glyph${o.danger ? ' sp-red' : ''}" aria-hidden="true"></i>`));
+    return ctrl;
   }
 
-  function changeStatus(list, to, toast) {
+  function changeStatus(list, to, toast, undo) {
     const prev = list.map((p) => [p, p.status]);
     list.forEach((p) => { p.status = to; });
     clearSel(); render();
+    if (!undo) { nxToast({ message: toast.message }); return; }
     nxUndoToast({
       message: toast.message, undoneMessage: toast.undone,
       onUndo: () => { prev.forEach(([p, st]) => { p.status = st; }); clearSel(); render(); },
@@ -321,7 +300,7 @@
   }
 
   function pauseExtra() {
-    // Today's PauseProspectModal duration picker, kept inside the dialog (window.SP_PAUSE_PICKER renders production markup)
+    // Today's PauseProspectModal duration picker, kept (window.SP_PAUSE_PICKER renders production markup)
     let days = 14;
     const ex = {
       ctrl: null,
@@ -331,68 +310,76 @@
     return ex;
   }
 
-  function openStatus(id) {
+  function openAction(id) {
     const sel = selectedList();
-    const who = (list) => (list.length === 1 ? esc(`${list[0].first} ${list[0].last}`) : nP(list.length));
-    const s = stats(sel);
-    const others = (k, what) => (sel.length - k > 0 ? `${nP(sel.length - k)} ${sel.length - k === 1 ? 'is' : 'are'} ${what} and ${sel.length - k === 1 ? 'stays' : 'stay'} as ${sel.length - k === 1 ? 'it is' : 'they are'}.` : null);
-    if (id === 'pause') {
-      const list = sel.filter((p) => p.status === 'active'); const N = list.length;
-      const ex = pauseExtra();
-      const dlg = nxImpactDialog(dlgCommon({
-        title: `Pause ${who(list)} in ${QSEQ}?`, tone: 'primary', icon: NX.IMG('pause-circle.svg'),
-        rows: [{ key: 'active', label: 'Still in progress', value: N }, { key: 'soon', label: 'Email scheduled in the next hour', value: s.soon, sub: true }],
-        sentence: sentenceFor(N), note: others(N, 'not in progress'), extra: ex,
-        consequence: 'Sending to them stops until the pause ends or you resume them. You can undo this for 10 seconds.',
-        primaryLabel: N === 1 ? 'Pause prospect' : `Pause ${nP(N)}`,
-        failMessage: { title: 'We couldn\'t pause these prospects because the sequence was deleted.', body: 'Refresh the page.' },
-        ...(N === 1 ? oneProspect(list[0]) : {}),
-        onConfirm: (days) => changeStatus(list, 'paused', { message: days ? `Paused ${nP(N)} for ${days} ${plural(days, 'day', 'days')}` : `Paused ${nP(N)} until you resume them`, undone: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} in progress again` }),
-      }));
-      ex.ctrl = dlg.ctrl;
-      return dlg;
-    }
-    if (id === 'resume') {
-      const list = sel.filter((p) => p.status === 'paused'); const N = list.length;
-      return nxImpactDialog(dlgCommon({
-        title: `Resume ${who(list)} in ${QSEQ}?`, tone: 'primary', icon: NX.IMG('play-circle.svg'),
-        rows: [{ key: 'paused', label: 'Paused', value: N }, { key: 'today', label: 'Will send today', value: s.today, sub: true }],
-        sentence: sentenceFor(N), note: others(N, 'not paused'),
-        consequence: 'They pick up from their current step. You can undo this for 10 seconds.',
-        primaryLabel: N === 1 ? 'Resume prospect' : `Resume ${nP(N)}`,
-        failMessage: { title: 'We couldn\'t resume these prospects because the sequence was deleted.', body: 'Refresh the page.' },
-        ...(N === 1 ? oneProspect(list[0]) : {}),
-        onConfirm: () => changeStatus(list, 'active', { message: `Resumed ${nP(N)}`, undone: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} paused again` }),
-      }));
-    }
-    if (id === 'replied' || id === 'finished') {
-      const list = sel.filter((p) => p.status !== id); const N = list.length;
-      const word = id === 'replied' ? 'replied' : 'finished';
-      const ss = stats(list);
-      return nxImpactDialog(dlgCommon({
-        title: `Mark ${who(list)} as ${word} in ${QSEQ}?`, tone: 'primary',
-        rows: [{ key: 'active', label: 'Still in progress', value: ss.active }, { key: 'soon', label: 'Email scheduled in the next hour', value: ss.soon, sub: true }, { key: 'replied', label: 'Replied', value: ss.replied }, { key: 'paused', label: 'Paused', value: ss.paused }],
-        sentence: sentenceFor(N), note: others(N, id === 'replied' ? 'already marked as replied' : 'already finished'),
-        consequence: 'The sequence stops for them. You can undo this for 10 seconds.',
-        primaryLabel: N === 1 ? `Mark prospect as ${word}` : `Mark ${nP(N)} as ${word}`,
-        failMessage: { title: `We couldn't mark these prospects as ${word} because the sequence was deleted.`, body: 'Refresh the page.' },
-        ...(N === 1 ? oneProspect(list[0]) : {}),
-        onConfirm: () => changeStatus(list, id, { message: `Marked ${nP(N)} as ${word}`, undone: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} back to ${N === 1 ? 'its' : 'their'} earlier status` }),
-      }));
+    const skip = (n, who) => (n > 0 ? `Prospects who are ${who} will be skipped.` : null);
+    const fail = (verb) => `We couldn't ${verb} these prospects because the sequence was deleted.`;
+    if (id === 'remove') {
+      const list = sel; const N = list.length;
+      const every = N >= inSeq().length;
+      return shortDialog({
+        name: 'Remove from sequence', glyph: GLYPH.remove, danger: true, primaryLabel: 'Remove',
+        body: 'Selected prospects stop getting emails from this sequence and their progress is deleted.' + (every ? ' This leaves the sequence empty.' : ''),
+        failTitle: fail('remove'),
+        onConfirm: () => {
+          const ids = list.map((p) => p.id);
+          ids.forEach((i) => hidden.add(i));
+          clearSel(); render();
+          nxUndoToast({
+            message: `Removed ${nP(N)} from ${QSEQ}`, undoneMessage: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} back`,
+            onUndo: () => { ids.forEach((i) => hidden.delete(i)); clearSel(); render(); },
+            onCommit: () => { const set = new Set(ids); DATA = DATA.filter((p) => !set.has(p.id)); ids.forEach((i) => hidden.delete(i)); render(); },
+          });
+        },
+      });
     }
     if (id === 'unsubscribe') {
       const list = sel.filter((p) => p.status !== 'unsubscribed'); const N = list.length;
-      const ss = stats(list);
-      return nxImpactDialog(dlgCommon({
-        title: `Unsubscribe ${who(list)} from every sequence?`, tone: 'danger', undoable: { n: N, all: isEverything() }, icon: NX.IMG('unsubscribe-ban.svg'),
-        rows: [{ key: 'active', label: 'Still in progress', value: ss.active }, { key: 'replied', label: 'Replied', value: ss.replied }, { key: 'paused', label: 'Paused', value: ss.paused }, { key: 'other', label: 'Also in other sequences, which stop too', value: ss.other }],
-        sentence: sentenceFor(N), note: others(N, 'already unsubscribed'),
-        consequence: 'No sequence will email them again. You can undo this for 10 seconds.',
-        primaryLabel: N === 1 ? 'Unsubscribe prospect' : `Unsubscribe ${nP(N)}`,
-        failMessage: { title: 'We couldn\'t unsubscribe these prospects because the sequence was deleted.', body: 'Refresh the page.' },
-        ...(N === 1 ? oneProspect(list[0], list[0].other ? ' and is in other sequences, which stop too' : '') : {}),
-        onConfirm: () => changeStatus(list, 'unsubscribed', { message: `Unsubscribed ${nP(N)}`, undone: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} subscribed again` }),
-      }));
+      return shortDialog({
+        name: 'Unsubscribe', glyph: GLYPH.unsubscribe, danger: true, primaryLabel: 'Unsubscribe',
+        body: 'Selected prospects will not get emails from any sequence again.',
+        excl: skip(sel.length - N, 'already unsubscribed'), cant: 'To email them again, remove them from the sequence and add them again.', failTitle: fail('unsubscribe'),
+        onConfirm: () => changeStatus(list, 'unsubscribed', { message: `Unsubscribed ${nP(N)}` }, false),
+      });
+    }
+    if (id === 'replied') {
+      const list = sel.filter((p) => p.status !== 'replied'); const N = list.length;
+      return shortDialog({
+        name: 'Mark as replied', glyph: GLYPH.replied, primaryLabel: 'Mark as replied',
+        body: 'The sequence stops for selected prospects.',
+        excl: skip(sel.length - N, 'already marked as replied'), failTitle: fail('mark as replied'),
+        onConfirm: () => changeStatus(list, 'replied', { message: `Marked ${nP(N)} as replied`, undone: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} back to ${N === 1 ? 'its' : 'their'} earlier status` }, true),
+      });
+    }
+    if (id === 'finished') {
+      const list = sel.filter((p) => p.status !== 'finished'); const N = list.length;
+      return shortDialog({
+        name: 'Mark as finished', glyph: GLYPH.finished, primaryLabel: 'Mark as finished',
+        body: 'The sequence stops for selected prospects.',
+        excl: skip(sel.length - N, 'already finished'), cant: 'To bring them back, remove them from the sequence and add them again.', failTitle: fail('mark as finished'),
+        onConfirm: () => changeStatus(list, 'finished', { message: `Marked ${nP(N)} as finished` }, false),
+      });
+    }
+    if (id === 'resume') {
+      const list = sel.filter((p) => p.status === 'paused'); const N = list.length;
+      return shortDialog({
+        name: 'Resume', glyph: GLYPH.resume, primaryLabel: 'Resume',
+        body: 'Selected prospects continue from their current step.',
+        excl: skip(sel.length - N, 'not paused'), failTitle: fail('resume'),
+        onConfirm: () => changeStatus(list, 'active', { message: `Resumed ${nP(N)}` }, false),
+      });
+    }
+    if (id === 'pause') {
+      const list = sel.filter((p) => p.status === 'active'); const N = list.length;
+      const ex = pauseExtra();
+      const dlg = shortDialog({
+        name: 'Pause', glyph: GLYPH.pause, primaryLabel: 'Pause', extra: ex,
+        body: 'Emails to selected prospects stop until the pause ends or you resume them.',
+        excl: skip(sel.length - N, 'not in progress'), failTitle: fail('pause'),
+        onConfirm: (days) => changeStatus(list, 'paused', { message: days ? `Paused ${nP(N)} for ${days} ${plural(days, 'day', 'days')}` : `Paused ${nP(N)} until you resume them` }, false),
+      });
+      ex.ctrl = dlg;
+      return dlg;
     }
     return null;
   }
@@ -428,27 +415,32 @@
   /* ───────── screenshot states ───────── */
   function run(state) {
     const firstN = (k) => { visible().slice(0, k).forEach((p) => S.sel.add(p.id)); render(); };
-    const bar = (id) => root.querySelector(`.nx-act[data-id="${id}"]`);
-    const statusMenu = () => openStatusMenu(bar('status') || bar('more'), { focus: false });
+    const fin = (fn) => () => { firstN(S.size === '7' ? 7 : 25); fn(); };
     const steps = {
+      'bar': () => firstN(S.size === '7' ? 4 : 3),
+      'dlg-remove': fin(() => openAction('remove')),
+      'dlg-remove-all': () => { S.all = true; render(); openAction('remove'); },
+      'dlg-unsub': () => { firstN(7); selectedList().slice(0, 2).forEach((p) => { p.status = 'unsubscribed'; }); render(); selectedList(); openAction('unsubscribe'); },
+      'dlg-replied': fin(() => openAction('replied')),
+      'dlg-finished': fin(() => openAction('finished')),
+      'dlg-resume': fin(() => openAction('resume')),
+      'dlg-pause': fin(() => openAction('pause')),
       'sel-part': () => firstN(3),
       'sel-page': () => firstN(PAGE),
       'sel-all': () => { S.all = true; render(); },
       'sel-tab': () => { S.tab = 'replied'; S.all = true; render(); },
       'sel-cap': () => { S.all = true; render(); },
-      'menu': () => { firstN(S.size === '7' ? 4 : 3); statusMenu(); },
-      'menu-paused': () => { const ps = visible().filter((p) => p.status === 'paused').slice(0, 1); ps.forEach((p) => S.sel.add(p.id)); render(); statusMenu(); },
-      'dialog-remove': () => { S.all = S.size !== '7' ? false : true; if (!S.all) firstN(PAGE); else render(); openRemove(); },
-      'dialog-remove-all': () => { S.all = true; render(); openRemove(); },
-      'dialog-remove-submitting': () => { S.all = true; render(); const d = openRemove(); setTimeout(() => d.confirm(), window.SP_BD + 50); },
-      'dialog-remove-error': () => { S.result = 'fail'; S.all = true; render(); const d = openRemove(); setTimeout(() => d.confirm(), (window.SP_BD || 0) + 50); },
-      'dialog-pause': () => { firstN(S.size === '7' ? 7 : 25); openStatus('pause'); },
-      'dialog-resume': () => { firstN(S.size === '7' ? 7 : 25); openStatus('resume'); },
-      'dialog-replied': () => { firstN(S.size === '7' ? 7 : 25); openStatus('replied'); },
-      'dialog-unsubscribe': () => { firstN(S.size === '7' ? 7 : 25); openStatus('unsubscribe'); },
-      'dialog-single': () => { firstN(1); openRemove(); },
-      'toast': () => { S.all = true; render(); const d = openRemove(); setTimeout(() => d.confirm(), (window.SP_BD || 0) + 50); },
-      'undone': () => { S.all = true; render(); const d = openRemove(); setTimeout(() => { d.confirm(); setTimeout(() => document.querySelector('.message-undo').click(), 1000); }, (window.SP_BD || 0) + 50); },
+      'dialog-remove': () => { S.all = S.size !== '7' ? false : true; if (!S.all) firstN(PAGE); else render(); openAction('remove'); },
+      'dialog-remove-all': () => { S.all = true; render(); openAction('remove'); },
+      'dialog-remove-submitting': () => { S.all = true; render(); const d = openAction('remove'); setTimeout(() => d.confirm(), window.SP_BD + 50); },
+      'dialog-remove-error': () => { S.result = 'fail'; S.all = true; render(); const d = openAction('remove'); setTimeout(() => d.confirm(), (window.SP_BD || 0) + 50); },
+      'dialog-pause': () => { firstN(S.size === '7' ? 7 : 25); openAction('pause'); },
+      'dialog-resume': () => { firstN(S.size === '7' ? 7 : 25); openAction('resume'); },
+      'dialog-replied': () => { firstN(S.size === '7' ? 7 : 25); openAction('replied'); },
+      'dialog-unsubscribe': () => { firstN(S.size === '7' ? 7 : 25); openAction('unsubscribe'); },
+      'dialog-single': () => { firstN(1); openAction('remove'); },
+      'toast': () => { S.all = true; render(); const d = openAction('remove'); setTimeout(() => d.confirm(), (window.SP_BD || 0) + 50); },
+      'undone': () => { S.all = true; render(); const d = openAction('remove'); setTimeout(() => { d.confirm(); setTimeout(() => document.querySelector('.message-undo').click(), 1000); }, (window.SP_BD || 0) + 50); },
       'today': () => { S.view = 'today'; shell.setControl('view', 'today'); firstN(S.size === '7' ? 7 : 3); },
       'today-pause': () => { S.view = 'today'; shell.setControl('view', 'today'); firstN(7); window.SP_TODAY_PAUSE(() => {}); },
     };

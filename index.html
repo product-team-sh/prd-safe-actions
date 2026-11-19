@@ -218,7 +218,7 @@ figure img{width:100%;height:auto}
 <td>Confirm in place on the button: a double-click goes straight through</td>
 </tr>
 <tr>
-<td>One impact dialog on every risky action; typed verb on every red one</td>
+<td>One dialog on every risky action, saying what happens</td>
 <td>Skipping the dialog for small or undoable actions: that is how the 7-prospect sequence was emptied</td>
 </tr>
 <tr>
@@ -237,7 +237,7 @@ figure img{width:100%;height:auto}
 
 <ol>
 <li>Every bulk table says how much is selected relative to everything; risky actions are labelled and set apart.</li>
-<li>Every risky action, from one item to 25,000, opens a dialog that names the count or item, breaks down what is affected, and says what is lost. Red dialogs (data is lost) also require typing the action's verb.</li>
+<li>Every risky action, from one item to 25,000, opens a dialog that says what happens and what is lost. On Sequence &gt; Prospects the dialog is short: the action's icon and name, the consequence, who is skipped, and "This can't be undone" only when that is true.</li>
 <li>Changes that lose nothing outside Saleshandy can be undone for 10 seconds. Security switches need the password, spends show the total, plan cuts let the user pick what goes.</li>
 </ol>
 <p><strong>Invariant:</strong> nothing that deletes, removes, stops sending, spends or weakens security fires on a single click.</p>
@@ -282,8 +282,8 @@ figure img{width:100%;height:auto}
 <section id="5-decisions" class="sec"><div class="sec-head"><span class="sec-num">5</span><h2>Decisions</h2></div>
 
 <p><strong>D1 – The impact dialog appears on every risky action, including a single item.</strong> <strong>Consequence to accept:</strong> one extra step on frequent clean-up work.</p>
-<p><strong>D2 – Every red dialog requires typing the action's verb</strong> ("Confirm by typing remove"), extending today's typed "delete" on sequence, subsequence, step and variant delete. Blue dialogs do not. <strong>Consequence to accept:</strong> removing prospects or deleting conversations now takes a few keystrokes each time.</p>
-<p><strong>D3 – Undo lasts 10 seconds; there is no restore after that.</strong> No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). <strong>Consequence to accept:</strong> a mistake noticed later stays unrecoverable; the reported customer noticed after 4 minutes.</p>
+<p><strong>D2 – Typing to confirm stays only where production asks for it today</strong> (typed "delete" on sequence, subsequence, step and variant delete). The Sequence &gt; Prospects dialogs never ask to type. Whether other new red dialogs ask to type is Q5. <strong>Consequence to accept:</strong> on Sequence &gt; Prospects, one click on the red button inside the dialog removes or unsubscribes.</p>
+<p><strong>D3 – Undo lasts 10 seconds; there is no restore after that.</strong> No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). No undo on Unsubscribe: a prospect is shared across sequences, so the system can't tell a user's resubscribe from the recipient's own unsubscribe, a compliance risk. No undo on Mark as finished: undoing would send the remaining steps. Both dialogs say so and give the way back: remove from the sequence and add again (engineering review, 19 Nov 2026). <strong>Consequence to accept:</strong> a mistake noticed later stays unrecoverable; the reported customer noticed after 4 minutes.</p>
 </section>
 <section id="6-surfaces" class="sec"><div class="sec-head"><span class="sec-num">6</span><h2>Surfaces</h2></div>
 
@@ -291,10 +291,12 @@ figure img{width:100%;height:auto}
 <h3 id="6-1-sequence-prospects-rows-1-4">6.1 Sequence &gt; Prospects (rows 1-4)</h3>
 <figure><figcaption>Today</figcaption><img src="screens/01-seqp-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
 <p><strong>Why.</strong> The remove action is an X among seven similar icons and fires at once; the banner hides that the selection is the whole sequence.</p>
-<figure><figcaption>Proposed: bar and banner</figcaption><img src="screens/02-seqp-bar.png" style="max-width:885px" alt="Proposed: bar and banner" loading="lazy"></figure>
-<figure><figcaption>Proposed: Change status replaces five icons</figcaption><img src="screens/03-seqp-menu.png" style="max-width:885px" alt="Proposed: Change status replaces five icons" loading="lazy"></figure>
-<figure><figcaption>Proposed: remove dialog</figcaption><img src="screens/04-seqp-remove.png" style="max-width:885px" alt="Proposed: remove dialog" loading="lazy"></figure>
-<figure><figcaption>Proposed: undo</figcaption><img src="screens/05-seqp-undo.png" style="max-width:885px" alt="Proposed: undo" loading="lazy"></figure>
+<p><strong>Bar, icons only with a tooltip each, left to right:</strong> Tags | Add to sequence, Pause, Resume | Mark as replied, Mark as finished | Unsubscribe, Remove (both red). The Change status menu is dropped. With nothing selected the icons are disabled with "Select prospects first".</p>
+<figure><figcaption>Proposed: icon bar and banner</figcaption><img src="screens/02-seqp-bar.png" style="max-width:885px" alt="Proposed: icon bar and banner" loading="lazy"></figure>
+<figure><figcaption>Proposed: remove dialog, whole sequence selected</figcaption><img src="screens/04-seqp-remove.png" style="max-width:885px" alt="Proposed: remove dialog, whole sequence selected" loading="lazy"></figure>
+<figure><figcaption>Proposed: unsubscribe dialog, can't be undone</figcaption><img src="screens/03-seqp-unsub.png" style="max-width:885px" alt="Proposed: unsubscribe dialog, can't be undone" loading="lazy"></figure>
+<figure><figcaption>Proposed: undo after remove</figcaption><img src="screens/05-seqp-undo.png" style="max-width:885px" alt="Proposed: undo after remove" loading="lazy"></figure>
+<p><strong>Dialogs.</strong> Title = the action's name with its bar icon; no count, no breakdown, no routine undo line, no typing. Copy per action is in the <a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md#sequence--prospects-dialogs">spec</a>.</p>
 <div class="tbl-wrap"><table>
 <thead>
 <tr>
@@ -314,25 +316,37 @@ figure img{width:100%;height:auto}
 <tr>
 <td>SP-2</td>
 <td>Remove with all selected</td>
-<td>Title "Remove all 7 prospects from “SaaS founders, Oct”?"; "This empties the sequence."; primary disabled until "remove" is typed</td>
+<td>Title "Remove from sequence"; body ends "This leaves the sequence empty."; Cancel / Remove (red); no typed field</td>
 <td>P0</td>
 </tr>
 <tr>
 <td>SP-3</td>
-<td>Confirm, then Undo within 10 s</td>
+<td>Remove, confirm, then Undo within 10 s</td>
 <td>All 7 rows return with the same step, status and outcome; no email went out in between</td>
 <td>P0</td>
 </tr>
 <tr>
 <td>SP-4</td>
-<td>Confirm, wait 10 s</td>
+<td>Remove, confirm, wait 10 s</td>
 <td>Removal commits; Undo gone</td>
 <td>P0</td>
 </tr>
 <tr>
 <td>SP-5</td>
-<td>Mark as replied on prospects that already replied</td>
-<td>Option disabled with its reason</td>
+<td>Unsubscribe or Mark as finished, confirm</td>
+<td>Dialog said "This can't be undone." and the way back; toast has no Undo</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SP-6</td>
+<td>Selection includes prospects already in the target state (e.g. already unsubscribed)</td>
+<td>Dialog adds "Prospects who are already unsubscribed will be skipped."; line absent when nobody is skipped</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>SP-7</td>
+<td>Mark as replied, Pause, Resume</td>
+<td>Dialog states the consequence; Pause keeps today's duration picker; replied gets the 10 s undo</td>
 <td>P1</td>
 </tr>
 </tbody>
@@ -682,6 +696,10 @@ figure img{width:100%;height:auto}
 <td>Kept, inside the impact dialog</td>
 </tr>
 <tr>
+<td>Seven unlabelled icons on the Sequence &gt; Prospects bar, X for remove</td>
+<td>Same actions regrouped; trash for remove; Unsubscribe and Remove red at the end</td>
+</tr>
+<tr>
 <td>Tasks single Skip / Complete undo (5 s)</td>
 <td>10 s</td>
 </tr>
@@ -708,7 +726,7 @@ figure img{width:100%;height:auto}
 <tbody>
 <tr>
 <td>Counting</td>
-<td>Dialog opens at once with title and count; placeholder rows; primary enabled</td>
+<td>Dialogs with a breakdown open at once with title and count; placeholder rows; primary enabled</td>
 </tr>
 <tr>
 <td>Breakdown fails</td>
@@ -724,7 +742,7 @@ figure img{width:100%;height:auto}
 </tr>
 <tr>
 <td>Typed verb</td>
-<td>Red dialogs only; verb = first word of the red button; enabled only when it matches (trim, any case) and every other condition holds; Enter submits</td>
+<td>Where D2 keeps it; verb = first word of the red button; enabled only when it matches (trim, any case) and every other condition holds; Enter submits</td>
 </tr>
 <tr>
 <td>Colour</td>
@@ -732,7 +750,7 @@ figure img{width:100%;height:auto}
 </tr>
 <tr>
 <td>Keyboard</td>
-<td>Esc and outside click cancel; focus on the typed field (red) or the primary (blue)</td>
+<td>Esc and outside click cancel; focus on the typed field when there is one, else Cancel on red dialogs and the primary on blue</td>
 </tr>
 <tr>
 <td>Undo</td>
@@ -898,6 +916,11 @@ figure img{width:100%;height:auto}
 <td>Q4</td>
 <td>Add a 30-day restore later?</td>
 <td>Revisit with 90 days of undo and ticket data</td>
+</tr>
+<tr>
+<td>Q5</td>
+<td>Do the short dialog and no-typing rules apply to the other 10 screens?</td>
+<td>Yes, for one consistent pattern; keep production's typed "delete"</td>
 </tr>
 </tbody>
 </table></div>

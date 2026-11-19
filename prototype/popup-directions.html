@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulk bar popups: directions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+html, body { height: auto; overflow: auto; }
+body { margin: 0; background: #f9fafb; color: #1f2937; font: 14px/20px Inter, sans-serif; }
+main { max-width: 1360px; margin: 0 auto; padding: 40px 32px 80px; }
+h1 { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0 0 4px; }
+h2 { font-size: 16px; line-height: 24px; font-weight: 600; margin: 48px 0 12px; }
+p.l { margin: 0 0 8px; color: #4b5563; }
+table.t { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid #e5e7eb; }
+table.t th, table.t td { text-align: left; vertical-align: top; padding: 8px 12px; border-top: 1px solid #e5e7eb; font-size: 14px; line-height: 20px; }
+table.t th { font-size: 12px; line-height: 16px; font-weight: 600; color: #4b5563; background: #f3f4f6; border-top: 0; }
+table.t td.n { white-space: nowrap; font-weight: 600; font-variant-numeric: tabular-nums; }
+.rec { background: #fff; border: 1px solid #1d4ed8; border-radius: 4px; padding: 16px; margin: 16px 0 0; }
+.rec b { color: #1d4ed8; }
+.dir { background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 24px; margin-bottom: 24px; }
+.dir-h { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 16px; }
+.dir-h h3 { margin: 0 0 4px; font-size: 16px; line-height: 24px; font-weight: 600; }
+.dir-h p { margin: 0; color: #4b5563; max-width: 880px; }
+.score { flex-shrink: 0; text-align: right; font-size: 20px; line-height: 28px; font-weight: 600; color: #1f2937; font-variant-numeric: tabular-nums; }
+.score small { display: block; font-size: 12px; line-height: 16px; font-weight: 400; color: #4b5563; }
+.pair { display: flex; gap: 24px; align-items: flex-start; background: #6b728033; padding: 32px 24px; border-radius: 4px; flex-wrap: wrap; }
+.cap { margin: 0 0 8px; font-weight: 500; font-size: 12px; line-height: 16px; color: #4b5563; }
+.opt-dlg { position: static !important; display: block !important; opacity: 1 !important; overflow: visible !important; }
+.opt-dlg .modal-dialog { margin: 0 !important; transform: none !important; }
+.opt-dlg .modal-content { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+.sp-title-glyph { font-size: 24px; line-height: 24px; width: 24px; height: 24px; flex-shrink: 0; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; }
+.sp-title-glyph.sp-red { color: #b91c1c; }
+.nx-impact { gap: 12px; }
+
+/* B: compact. Narrower card, no header rule, tighter vertical rhythm */
+.dB .opt-dlg .modal-dialog { width: 28rem !important; }
+.dB .modal-header { border-bottom: 0 !important; padding-bottom: 0 !important; }
+.dB .modal-body { padding-top: 8px !important; padding-bottom: 8px !important; }
+.dB .modal-footer { border-top: 0 !important; padding-top: 8px !important; }
+.dB .modal-footer .bs-modal-footer-action-buttons { justify-content: flex-end; }
+.dB .modal-footer .bs-modal-footer-action-buttons button { width: auto; min-width: 88px; }
+
+/* C: consequence rows */
+.dC .opt-dlg .modal-dialog { width: 32rem !important; }
+.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rows li { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 20px; color: #1f2937; }
+.rows li i { font-size: 16px; line-height: 20px; width: 16px; height: 20px; color: #6b7280; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+
+/* D: quiet irreversibility note, grey, only for can't-undo */
+.dD .opt-dlg .modal-dialog { width: 32rem !important; }
+.qnote { display: flex; gap: 8px; align-items: flex-start; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 12px; line-height: 16px; color: #4b5563; }
+.qnote i { font-size: 16px; width: 16px; height: 16px; line-height: 16px; color: #4b5563; flex-shrink: 0; }
+.qnote b { font-weight: 600; color: #1f2937; }
+.dD .modal-header { border-bottom: 0 !important; padding-bottom: 0 !important; }
+.dD .modal-footer { border-top: 0 !important; }
+.dD .modal-footer .bs-modal-footer-action-buttons { justify-content: flex-end; }
+.dD .modal-footer .bs-modal-footer-action-buttons button { width: auto; min-width: 88px; }
+.nx-note { font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Sequence > Prospects: confirmation popup directions</h1>
+<p class="l">Exploration, 19 Nov 2026. Same two popups in four directions: Remove from sequence with all 7 prospects selected (empties the sequence), and Mark as finished with 1 already finished. Production tokens: kit dialog on ConfirmationModalV3, production buttons, Inter 12/14/16, red #B91C1C only for Remove and Unsubscribe.</p>
+
+<h2>1. Critique of today's six popups</h2>
+<p class="l">Scored with the ux-psychology rubric. Score is for the popup set as it ships in the prototype now.</p>
+<table class="t">
+<tr><th style="width:44px">#</th><th style="width:210px">Issue</th><th style="width:250px">Principle</th><th>Problem and fix</th></tr>
+<tr><td class="n">1</td><td>Body opens with "They" and nothing in the title or body says who</td><td>Mental Model (#33), Cognitive Load (#4)</td><td>The count was dropped on purpose, so the pronoun lost its antecedent. Open with "Selected prospects ..." and the subject is named once, in plain words.</td></tr>
+<tr><td class="n">2</td><td>Exclusion lines read like errors ("2 already unsubscribed are excluded", "Only paused prospects resume; 5 others are excluded")</td><td>Feedforward (#52), Loss Aversion (#65)</td><td>"Excluded" next to a grey note reads as something went wrong. State it as information and a result: "Prospects who are already finished will be skipped." No count, no semicolon rule explanation.</td></tr>
+<tr><td class="n">3</td><td>Mark as finished says it can't be undone but gives no way back</td><td>Forgiveness and Feedback, Second-Order Effect (#86)</td><td>The one real exit (remove, then add again) is the product decision from the review and is missing. Add it as a single clause.</td></tr>
+<tr><td class="n">4</td><td>Remove loses the "this empties the sequence" fact when everyone is selected</td><td>Loss Aversion (#65), Feedforward (#52)</td><td>The incident that started this work was a delete that wiped everything. The all-selected case needs its own sentence, shown only then.</td></tr>
+<tr><td class="n">5</td><td>Heavy header rule and a 640px modal for one sentence</td><td>Aesthetic-Usability (#29), Visual Hierarchy (#13), Occam's Razor (#53)</td><td>The title, rule, body and footer rule make four bands around about 15 words. Drop the rule and narrow the card for short copy, keep production type and buttons.</td></tr>
+<tr><td class="n">6</td><td>"This can't be undone" carries the same weight as the rest of the sentence</td><td>Von Restorff (#12), Selective Attention (#14)</td><td>The one serious fact is buried mid-sentence in Unsubscribe and Finished. Separate it so it is findable without colour.</td></tr>
+<tr><td class="n">7</td><td>Primary button repeats the title ("Mark as finished" under "Mark as finished")</td><td>Cognitive Load (#4)</td><td>Fine for scanning and matches the Tasks Skip pattern's verb-led button. Keep, but it is the one item that does not need fixing.</td></tr>
+<tr><td class="n">8</td><td>Red used correctly on Remove and Unsubscribe only; icons are the action's own</td><td>Signifiers (#18), Contrast (#19)</td><td>Working. Keep as is in every direction.</td></tr>
+</table>
+<table class="t" style="margin-top:12px">
+<tr><th style="width:140px">Popup</th><th style="width:70px">Score</th><th>Why</th></tr>
+<tr><td>Remove</td><td class="n">5 / 10</td><td>Loses the empty-sequence case (#4); "They" has no subject (#1).</td></tr>
+<tr><td>Unsubscribe</td><td class="n">6 / 10</td><td>Irreversibility is mid-sentence (#6); exclusion reads as an error (#2).</td></tr>
+<tr><td>Mark as replied</td><td class="n">7 / 10</td><td>Shortest and clearest; only "They" and the exclusion wording (#1, #2).</td></tr>
+<tr><td>Mark as finished</td><td class="n">4 / 10</td><td>Two clauses plus a warning, no way back (#3), buried warning (#6).</td></tr>
+<tr><td>Resume</td><td class="n">6 / 10</td><td>"Only paused prospects resume; 5 others are excluded" explains a rule instead of stating a result (#2).</td></tr>
+<tr><td>Pause</td><td class="n">7 / 10</td><td>Duration picker is the content; body is fine but "They" again (#1).</td></tr>
+<tr><td><b>Set</b></td><td class="n"><b>5.8 / 10</b></td><td>Mean of the six.</td></tr>
+</table>
+
+<h2>2. Four directions</h2>
+<div id="dirs"></div>
+
+<h2>3. Recommendation</h2>
+<div class="rec">
+<p style="margin:0 0 8px"><b>Recommended: D, quiet irreversibility note, on a 32rem card with no header rule.</b> It is the only direction where the one serious fact (can't be undone, and the way back) stands apart from the consequence without colour, matches the review's rule "mention can't be undone only where true", and still reads like production's Snooze: title, short body, two buttons. It borrows B's no-rule, narrower card and A's wording discipline. C is scannable but turns every popup into a list, which fights "one sentence is enough".</p>
+<p style="margin:0"><b>What breaks / what you will be challenged on.</b> (1) The note row is new UI that Tasks' Snooze does not have; production puts "cannot be undone" inline, so engineering will ask why this is not the Snooze sentence (answer: A is the fallback and costs nothing). (2) A narrower card and no header rule are production deviations (ConfirmationModalV3 is 40rem with a rule), so shipping them means changing the shared modal or a new variant, not only these six. (3) The empty-sequence line needs the app to know "all prospects of the sequence are selected" at confirm time, which is a data condition, not copy. (4) Without a count, a user who selected 1 sees "Selected prospects", which reads slightly off; the title and bar already show the selection.</p>
+</div>
+
+<h2>4. Copy deck under D</h2>
+<p class="l">Rules: lead with who is affected, no count, at most 2 sentences in the body, sentence case, no em dashes. Exclusions use "will be skipped" and the plural group form ("Prospects who are already finished"), so there is no count and no is/are logic. Skipped over "excluded" because it says what happens to those prospects as a plain action (a 12-year-old reads it as "not touched"), whereas "excluded" is selection jargon and read as an error in the review. Exclusion line only appears when it applies. The note row appears only for Unsubscribe and Mark as finished.</p>
+<table class="t">
+<tr><th style="width:150px">Title (icon)</th><th>Body</th><th style="width:300px">Exclusion line (only when it applies)</th><th style="width:300px">Note row (can't-undo only)</th><th style="width:190px">Buttons</th></tr>
+<tr><td><b>Remove from sequence</b> (trash, red)</td><td>Selected prospects stop getting emails from this sequence and their progress is deleted. <i>If every prospect is selected, add:</i> This leaves the sequence empty.</td><td>none</td><td>none (10 s undo toast follows)</td><td>Cancel / <b>Remove</b> (red)</td></tr>
+<tr><td><b>Unsubscribe</b> (unavailable, red)</td><td>Selected prospects will not get emails from any sequence again.</td><td>Prospects who are already unsubscribed will be skipped.</td><td><b>This can't be undone.</b> To email them again, remove them from the sequence and add them again.</td><td>Cancel / <b>Unsubscribe</b> (red)</td></tr>
+<tr><td><b>Mark as replied</b> (round-corner-arrow-back)</td><td>The sequence stops for selected prospects.</td><td>Prospects who are already marked as replied will be skipped.</td><td>none</td><td>Cancel / <b>Mark as replied</b></td></tr>
+<tr><td><b>Mark as finished</b> (circle-check)</td><td>The sequence stops for selected prospects and they cannot be added back to this sequence.</td><td>Prospects who are already finished will be skipped.</td><td><b>This can't be undone.</b> To bring them back, remove them from the sequence and add them again.</td><td>Cancel / <b>Mark as finished</b></td></tr>
+<tr><td><b>Resume</b> (right-arrow)</td><td>Selected prospects continue from their current step.</td><td>Prospects who are not paused will be skipped.</td><td>none</td><td>Cancel / <b>Resume</b></td></tr>
+<tr><td><b>Pause</b> (pause-circle)</td><td>Emails to selected prospects stop until the pause ends or you resume them. (Duration picker stays as today.)</td><td>Prospects who are not in progress will be skipped.</td><td>none</td><td>Cancel / <b>Pause</b></td></tr>
+</table>
+<p class="l" style="margin-top:12px">Verified: layout and classes render from the kit's nxDialog (production ConfirmationModalV3). Assumed: the can't-undo facts for Unsubscribe and Finished come from the 19 Nov review notes, not from the backend; "add them again" after unsubscribe is the review's stated workaround and re-adding an unsubscribed prospect may be blocked by compliance, so Dhruv or Chintan should confirm it before it ships in copy.</p>
+</main>
+<script src="kit/kit.js"></script>
+<script src="sequence-prospects-markup.js"></script>
+<script>
+(function () {
+  const { h } = NX;
+  // copy per popup per direction. Remove: all 7 selected. Finished: 1 already finished.
+  const REM = { name: 'Remove from sequence', glyph: 'trash', danger: true, primary: 'Remove' };
+  const FIN = { name: 'Mark as finished', glyph: 'circle-check', primary: 'Mark as finished' };
+
+  function dialog(o, bodyEl) {
+    const c = nxDialog({ title: o.name, tone: o.danger ? 'danger' : 'primary', icon: NX.IMG('info-circle-blue.svg'), body: bodyEl, primaryLabel: o.primary, typeToConfirm: false });
+    const img = c.el.querySelector('.confirmation-modal-v3--title img');
+    img.replaceWith(h(`<i class="sh-${o.glyph} sp-title-glyph${o.danger ? ' sp-red' : ''}" aria-hidden="true"></i>`));
+    const modal = c.el.querySelector('.modal');
+    modal.className = 'confirmation-modal-v3 nx-dialog opt-dlg show';
+    c.el.remove();
+    document.activeElement && document.activeElement.blur();
+    return modal;
+  }
+  const p = (cls, t) => h(`<p class="${cls}">${t}</p>`);
+  function wrapOf(parts) { const w = h('<div class="nx-impact"></div>'); parts.forEach((x) => w.appendChild(x)); return w; }
+
+  const DIRS = [
+    { k: 'A', score: '6.5', title: 'A. Production Snooze match',
+      why: 'The Tasks snooze modal exactly: 40rem card, header rule, one paragraph, grey exclusion sentence. Only the copy changes.',
+      trade: 'Trade-off: zero new UI and instantly familiar, but the can\'t-undo fact and the way back stay inside a paragraph, and the card is large for two sentences.',
+      rem: () => wrapOf([p('nx-consequence', 'Selected prospects stop getting emails from this sequence and their progress is deleted. This leaves the sequence empty.')]),
+      fin: () => wrapOf([p('nx-consequence', 'The sequence stops for selected prospects and they cannot be added back to this sequence. This cannot be undone. To bring them back, remove them from the sequence and add them again.'), p('nx-note', 'Prospects who are already finished will be skipped.')]) },
+    { k: 'B', score: '7.5', title: 'B. Compact',
+      why: 'Narrow 28rem card, no header or footer rule, right-aligned buttons. Scope is stated once as "selected prospects", exclusion as one short grey line.',
+      trade: 'Trade-off: calm and quick to read, but it is a new modal variant (production is 40rem with rules), and the can\'t-undo sentence is still inline.',
+      rem: () => wrapOf([p('nx-consequence', 'Selected prospects stop getting emails and their progress is deleted. This leaves the sequence empty.')]),
+      fin: () => wrapOf([p('nx-consequence', 'The sequence stops for selected prospects. This cannot be undone. To bring them back, remove them and add them again.'), p('nx-note', 'Prospects who are already finished will be skipped.')]) },
+    { k: 'C', score: '6.5', title: 'C. Consequence rows',
+      why: 'Two to three "what happens" rows, each with a small grey icon: stops emails, progress deleted, cannot be undone. Scannable at a glance.',
+      trade: 'Trade-off: best for scanning, but it turns a sentence into a list, repeats the title in row one, and reads close to the breakdown table the review removed.',
+      rem: () => wrapOf([h('<ul class="rows"><li><i class="sh-mail"></i>Selected prospects stop getting emails from this sequence</li><li><i class="sh-trash-empty"></i>Their progress in it is deleted</li><li><i class="sh-list"></i>The sequence is left empty</li></ul>')]),
+      fin: () => wrapOf([h('<ul class="rows"><li><i class="sh-pause-circle"></i>The sequence stops for selected prospects</li><li><i class="sh-lock"></i>They cannot be added back to this sequence. This cannot be undone</li><li><i class="sh-refresh"></i>To bring them back, remove them and add them again</li></ul>'), p('nx-note', 'Prospects who are already finished will be skipped.')]) },
+    { k: 'D', score: '8.5', title: 'D. Irreversibility note',
+      why: 'Normal one-sentence body. Only actions that cannot be undone get a separate quiet grey note under a hairline, with the way back. No colour, no icon change.',
+      trade: 'Trade-off: the serious fact stands out and the body stays short; costs one new, small component, and Remove (which has an undo toast) correctly gets no note.',
+      rem: () => wrapOf([p('nx-consequence', 'Selected prospects stop getting emails from this sequence and their progress is deleted. This leaves the sequence empty.')]),
+      fin: () => wrapOf([p('nx-consequence', 'The sequence stops for selected prospects and they cannot be added back to this sequence.'), p('nx-note', 'Prospects who are already finished will be skipped.'), h('<div class="qnote"><i class="sh-info"></i><span><b>This can\'t be undone.</b> To bring them back, remove them from the sequence and add them again.</span></div>')]) },
+  ];
+
+  const root = document.getElementById('dirs');
+  DIRS.forEach((d) => {
+    const sec = h(`<section class="dir d${d.k}"><div class="dir-h"><div><h3>${d.title}</h3><p>${d.why}</p><p>${d.trade}</p></div><div class="score">${d.score} / 10<small>critique rubric</small></div></div><div class="pair"><div><p class="cap">Remove from sequence, all 7 selected</p><div class="s1"></div></div><div><p class="cap">Mark as finished, 1 already finished</p><div class="s2"></div></div></div></section>`);
+    root.appendChild(sec);
+    sec.querySelector('.s1').appendChild(dialog(REM, d.rem()));
+    sec.querySelector('.s2').appendChild(dialog(FIN, d.fin()));
+  });
+})();
+</script>
+</body>
+</html>

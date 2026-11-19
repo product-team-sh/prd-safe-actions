@@ -10,6 +10,7 @@ Companion to the clickable prototype in [prototype/](prototype/index.html). Sour
 | At the click | **F** impact dialog on every risky action, from one item to 25,000. Every red F dialog also asks the user to type the action's verb, extending today's typed "delete" (23 Oct 2026) | Tiered rule, plain dialog, typing on blue dialogs |
 | After the click | **H** 10-second undo, backed by a delayed, cancellable job | 30-day restore, activity record |
 | Guard the account | **K** prove it is you, **L** total cost before any spend, **M** plan changes name what stops | |
+| Sequence > Prospects (engineering review, 19 Nov 2026) | Icon-only bar in a fixed order; short dialogs (see [Sequence > Prospects dialogs](#sequence--prospects-dialogs)); no typing; no undo on Unsubscribe and Mark as finished | Change status menu, breakdown, count in the title, routine undo line, typed verb |
 
 Everything below states the required outcome. How it is built is dev's call.
 
@@ -33,7 +34,7 @@ Applies to every table with bulk select: Sequence > Prospects, CRM prospects, em
 
 | Rule | Detail |
 |---|---|
-| Labels | Every bulk action shows a text label when the bar has room. Icon-only is allowed for safe actions only, with a tooltip |
+| Labels | Every bulk action shows a text label when the bar has room. Icon-only is allowed for safe actions only, with a tooltip. Exception: Sequence > Prospects is icon-only throughout, risky icons red at the end |
 | Distance | Risky actions sit at the right end of the bar, after a divider |
 | Count | The risky button is a plain verb ("Remove", "Delete") with no number (23 Oct 2026). The count lives in the selection banner and in the dialog's title and primary button ("Remove 7 prospects") |
 | Colour | Red text only when data is lost: delete, remove with history, unsubscribe. Nothing else on the bar is red |
@@ -42,7 +43,7 @@ Applies to every table with bulk select: Sequence > Prospects, CRM prospects, em
 
 ## C. One "Change status" menu that explains
 
-Replaces the five status icons on Sequence > Prospects (Replied, Unsubscribe, Finished, Pause, Resume).
+**Not used on Sequence > Prospects** (19 Nov 2026): that bar keeps each action as its own icon, in this order: Tags | Add to sequence, Pause, Resume | Mark as replied, Mark as finished | Unsubscribe, Remove. The menu below stays the pattern for other bars with several status actions.
 
 | Order | Option | One-line description | Then |
 |---|---|---|---|
@@ -79,6 +80,21 @@ States every dialog must cover:
 | Typed verb | Red dialogs only: "Confirm by typing <verb>" under the consequence, verb = first word of the red button (remove, delete, unsubscribe, import). Primary enabled only when it matches and every other condition holds |
 | Keyboard | Esc and clicking outside = Cancel. Initial focus on the typed field for red dialogs, on the primary for blue |
 
+### Sequence > Prospects dialogs
+
+Short form of F. Card 32rem. Title = action name with its bar icon. Body = consequence, then the exclusion line only when somebody is skipped, then the grey note only when the action can't be undone. No count, breakdown, routine undo line or typed field. Focus starts on Cancel for red dialogs.
+
+| Action | Colour | Body | Skipped line | Note | Undo |
+|---|---|---|---|---|---|
+| Remove from sequence | Red, trash | "Selected prospects stop getting emails from this sequence and their progress is deleted." Whole sequence selected: adds "This leaves the sequence empty." | | | 10 s |
+| Unsubscribe | Red, ban | "Selected prospects will not get emails from any sequence again." | "Prospects who are already unsubscribed will be skipped." | "**This can't be undone.** To email them again, remove them from the sequence and add them again." | None |
+| Mark as replied | Blue | "The sequence stops for selected prospects." | "Prospects who are already marked as replied will be skipped." | | 10 s |
+| Mark as finished | Blue | "The sequence stops for selected prospects." | "Prospects who are already finished will be skipped." | "**This can't be undone.** To bring them back, remove them from the sequence and add them again." | None |
+| Pause | Blue | "Emails to selected prospects stop until the pause ends or you resume them." Today's duration picker kept | "Prospects who are not in progress will be skipped." | | 10 s |
+| Resume | Blue | "Selected prospects continue from their current step." | "Prospects who are not paused will be skipped." | | 10 s |
+
+Buttons: Cancel and the action's name ("Remove", "Unsubscribe", "Mark as replied").
+
 ## H. 10-second undo
 
 | Rule | Detail |
@@ -91,7 +107,7 @@ States every dialog must cover:
 | Two actions in a row | The second toast replaces the first; the first commits immediately |
 | Required backend outcome | The real change starts only after 10 seconds and can be cancelled before then. Several of these actions already run as background jobs ("Estimated time: 30 minutes"), which makes the delay a scheduling change, not a rewrite |
 
-Not offered for: spends (credits, plan changes), security switches, account deletion, disconnecting integrations or mailboxes (side effects outside Saleshandy happen at once). These rely on F, K, L, M.
+Not offered for: spends (credits, plan changes), security switches, account deletion, disconnecting integrations or mailboxes (side effects outside Saleshandy happen at once), Unsubscribe (a prospect is shared, so a resubscribe can't be told from the recipient's own unsubscribe) and Mark as finished (undoing would send the remaining steps). These rely on F, K, L, M.
 
 ## K. Prove it is you
 
@@ -128,10 +144,10 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 
 | # | Surface | Action | Patterns | Breakdown / data the dialog needs | Undo | Prototype page |
 |---|---|---|---|---|---|---|
-| 1 | Sequence > Prospects | Remove from sequence | A B F H | By status: in progress, email scheduled within the hour, replied, paused | Yes | sequence-prospects.html |
-| 2 | Sequence > Prospects | Unsubscribe | A C F H | By status; plus "also in N other sequences" | Yes | sequence-prospects.html |
-| 3 | Sequence > Prospects | Mark as replied, Mark as finished | A C F H | By status | Yes | sequence-prospects.html |
-| 4 | Sequence > Prospects | Pause, Resume | A C F H | Pause: in progress, scheduled within the hour. Resume: paused, will send today | Yes | sequence-prospects.html |
+| 1 | Sequence > Prospects | Remove from sequence | A B F H | None (short dialog) | Yes | sequence-prospects.html |
+| 2 | Sequence > Prospects | Unsubscribe | A B F | None; count of already unsubscribed for the skipped line | No | sequence-prospects.html |
+| 3 | Sequence > Prospects | Mark as replied, Mark as finished | A F, H on replied only | None; count already in that state for the skipped line | Replied yes, finished no | sequence-prospects.html |
+| 4 | Sequence > Prospects | Pause, Resume | A F H | None; count not in progress (pause) or not paused (resume) for the skipped line | Yes | sequence-prospects.html |
 | 5 | Sequence list | Bulk pause / resume (up to 100) | A B F H | Sequences named (first 3 + "and N more"), active prospects affected, subsequences | Yes | sequence-list.html |
 | 6 | Sequence > Steps | Delete step (keeps today's typed "delete" inside F) | F | Prospects currently on this step, emails scheduled from it, where those prospects go next | No | sequence-steps.html |
 | 7 | Sequence > Settings | Remove email account from sequence | F | Account named, prospects whose next email was due from it, follow-ups that stop | No | sequence-steps.html |

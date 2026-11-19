@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulk bar and popups: options</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prod/index.css">
+<link rel="stylesheet" href="kit/kit.css">
+<style>
+html, body { height: auto; overflow: auto; }
+body { margin: 0; background: #f9fafb; color: #1f2937; font: 14px/20px Inter, sans-serif; }
+main { max-width: 1360px; margin: 0 auto; padding: 40px 32px 80px; }
+h1 { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0 0 4px; }
+h2 { font-size: 16px; line-height: 24px; font-weight: 600; margin: 48px 0 16px; }
+p.l { margin: 0 0 8px; color: #4b5563; }
+.bar-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; margin-bottom: 24px; width: 1296px; max-width: 100%; }
+.bar-wrap .sequence-prospect-actions { height: auto !important; padding: 16px 24px !important; display: flex; align-items: center; }
+.bar-wrap .sequence-prospect-search-bar-and-filter { width: 100% !important; }
+.bar-wrap .search-input { width: 216px; }
+.cap { margin: 0 0 8px; font-weight: 500; }
+.sp-bar { display: flex; align-items: center; gap: .8rem; }
+.sp-bar .sp-div { margin: 0; flex-shrink: 0; }
+.sp-bar .bulk-action-icon-button.sp-danger i { color: #b91c1c; }
+.sp-bar .bulk-action-icon-button.sp-danger:hover:not(.disabled) { background-color: #fee2e2 !important; }
+.sp-bar .bulk-action-icon-button.sp-danger:hover:not(.disabled) i { color: #b91c1c; }
+.sp-bar .bulk-action-icon-button.disabled { pointer-events: auto; }
+.sp-title-glyph { font-size: 24px; line-height: 24px; width: 24px; height: 24px; flex-shrink: 0; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; }
+.sp-title-glyph.sp-red { color: #b91c1c; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 32px 24px; }
+.opt-dlg { position: static !important; display: block !important; opacity: 1 !important; overflow: visible !important; width: 512px; max-width: 100%; }
+.opt-dlg .modal-dialog { margin: 0 !important; transform: none !important; }
+.opt-dlg .modal-content { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+.nx-pause { display: flex; flex-direction: column; gap: 12px; }
+.nx-pause .form-check { display: flex; align-items: center; padding-left: 0; margin: 0; }
+.nx-pause .form-check-input { position: static; margin: 0; width: 16px; height: 16px; accent-color: #1d4ed8; }
+.nx-pause .form-check-label { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: #1f2937; margin-left: 8px; }
+.nx-pause .bs-input-number { min-width: 0 !important; height: 32px; display: flex; align-items: center; }
+.nx-pause .bs-input-number-container { display: inline-block; width: 4.125rem; }
+.nx-pause .bs-input-number-input { width: 100%; text-align: left; border: 0; outline: 0; padding: 0 8px; font: 14px/20px Inter, sans-serif; background: transparent; }
+.nx-impact { gap: 12px; }
+.nx-note { font-size: 14px; }
+.opt-dlg .modal-dialog { width: 32rem !important; }
+.opt-dlg .modal-header { border-bottom: 0 !important; padding-bottom: 0 !important; }
+.opt-dlg .modal-footer { border-top: 0 !important; }
+.opt-dlg .modal-footer .bs-modal-footer-action-buttons { justify-content: flex-end; }
+.opt-dlg .modal-footer .bs-modal-footer-action-buttons button { width: auto; min-width: 88px; }
+.nx-qnote { display: flex; gap: 8px; align-items: flex-start; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 12px; line-height: 16px; color: #4b5563; }
+.nx-qnote i { font-size: 16px; width: 16px; height: 16px; line-height: 16px; color: #4b5563; flex-shrink: 0; }
+.nx-qnote b { font-weight: 600; color: #1f2937; }
+</style>
+</head>
+<body>
+<main>
+<h1>Sequence > Prospects: bulk bar and popups</h1>
+<p class="l">Options from the 19 Nov 2026 review. Actual size at 1440 wide. Hover an icon for its tooltip.</p>
+
+<h2>Bulk bar</h2>
+<p class="cap">Today: production icons in production order, no grouping, no confirmation</p>
+<div class="bar-wrap" id="today"></div>
+<p class="cap">New: icon-only, grouped. Tags | Add to sequence, Pause, Resume | Replied, Finished | Unsubscribe, Remove from sequence (red)</p>
+<div class="bar-wrap" id="new1"></div>
+
+<h2>Mark as finished: icon choices</h2>
+<p class="cap">1. Circle with a check (used)</p>
+<div class="bar-wrap" id="fin1"></div>
+<p class="cap">2. Skip to the end (jumps to the last step)</p>
+<div class="bar-wrap" id="fin2"></div>
+<p class="cap">3. Check in a rounded square</p>
+<div class="bar-wrap" id="fin3"></div>
+<p class="cap" style="color:#4b5563;font-weight:400">Today's flag was found unclear in the review.</p>
+
+<h2>Popups</h2>
+<div class="grid" id="dlgs"></div>
+</main>
+<script src="kit/kit.js"></script>
+<script src="sequence-prospects-markup.js"></script>
+<script>
+(function () {
+  const { h, esc } = NX;
+  const wrapBar = (inner) => `<div class="sequence-container"><div class="sequence-components"><div class="contact-list-container container-fluid"><div class="sequence-prospect-actions"><div class="sequence-prospect-search-bar-and-filter"><form onsubmit="return false"><span class="bs-input-affix-wrapper bs-input-affix-wrapper-md input-default search-input"><span class="mx-1 d-flex input-icons-left"><span class="bs-input-prefix"><i class="sh-search"></i></span></span><input placeholder="Search" class="bs-input-md bs-input"></span></form><div class="prospect-filter-icon-container"><i class="sh-filter icon"></i></div><div class="sequence-prospect-separator"></div>${inner}</div></div></div></div></div>`;
+  const btn = (ic, tip, cls = '', dis = false) => `<button type="button" class="btn-icon-md bulk-action-icon-button btn-ghost btn-ghost-default btn-ghost-md${cls}${dis ? ' disabled' : ''}" aria-label="${tip}" data-nx-tip="${tip}"><span><i class="sh-${ic}"></i></span></button>`;
+  const div = '<span class="divider-vertical sp-div"></span>';
+  // today (contact-list-header.tsx): the tag control is production's grey round button
+  const tagToday = `<div class="tag-button-container" role="button" aria-label="Tags" data-nx-tip="Tags"><div class="tag-icon d-flex align-items-center justify-content-center ">${window.SP_TAG_ICON}</div></div>`;
+  document.getElementById('today').innerHTML = wrapBar(['send', 'tag', 'close', 'round-corner-arrow-back', 'unavailable', 'flag', 'pause-circle', 'right-arrow'].map((ic) => ic === 'tag' ? tagToday : btn(ic, ({ send: 'Add to Sequence', close: 'Remove From Sequence', 'round-corner-arrow-back': 'Mark as Replied', unavailable: 'Mark as Unsubscribe', flag: 'Mark as finished', 'pause-circle': 'Mark as Paused', 'right-arrow': 'Mark as Resume' })[ic])).join('').replace(/^/, '<div style="display:contents">') + '</div>');
+  const newBar = (fin, dis) => wrapBar(`<div class="sp-bar">${btn('tag', 'Tags')}${div}${btn('send', 'Add to sequence')}${btn('pause-circle', 'Pause')}${btn('right-arrow', 'Resume')}${div}${btn('round-corner-arrow-back', 'Mark as replied')}${btn(fin, 'Mark as finished')}${div}${btn('unavailable', 'Unsubscribe', ' sp-danger')}${btn('trash', 'Remove from sequence', ' sp-danger')}</div>`);
+  document.getElementById('new1').innerHTML = newBar('circle-check');
+  document.getElementById('fin1').innerHTML = newBar('circle-check');
+  document.getElementById('fin2').innerHTML = newBar('play-track-next');
+  document.getElementById('fin3').innerHTML = newBar('check-r');
+
+  // static popups: build with the kit's dialog, then lift the card out of the overlay
+  function card(label, o) {
+    const fig = h(`<div><p class="cap">${label}</p><div class="slot"></div></div>`);
+    document.getElementById('dlgs').appendChild(fig);
+    const wrap = h('<div class="nx-impact"></div>');
+    wrap.appendChild(h(`<p class="nx-consequence">${o.body}</p>`));
+    if (o.excl) wrap.appendChild(h(`<p class="nx-note">${o.excl}</p>`));
+    if (o.cant) wrap.appendChild(h(`<div class="nx-qnote"><i class="sh-info"></i><span><b>This can't be undone.</b> ${o.cant}</span></div>`));
+    if (o.pause) { const ex = h('<div class="nx-extra"></div>'); window.SP_PAUSE_PICKER(ex, () => {}, 14); wrap.appendChild(ex); }
+    const c = nxDialog({ title: o.name, tone: o.danger ? 'danger' : 'primary', icon: NX.IMG('info-circle-blue.svg'), body: wrap, primaryLabel: o.primary, typeToConfirm: false });
+    const img = c.el.querySelector('.confirmation-modal-v3--title img');
+    img.replaceWith(h(`<i class="sh-${o.glyph} sp-title-glyph${o.danger ? ' sp-red' : ''}" aria-hidden="true"></i>`));
+    const modal = c.el.querySelector('.modal');
+    modal.className = 'confirmation-modal-v3 nx-dialog opt-dlg show';
+    fig.querySelector('.slot').appendChild(modal);
+    c.el.remove();
+    document.activeElement && document.activeElement.blur();
+  }
+  card('Remove from sequence. Red, no typing. Undo toast for 10 seconds after. The empty-sequence line shows only when every prospect is selected.', { name: 'Remove from sequence', glyph: 'trash', danger: true, primary: 'Remove', body: 'Selected prospects stop getting emails from this sequence and their progress is deleted. This leaves the sequence empty.' });
+  card('Unsubscribe. Red, no typing, no undo, so the grey note row. Shown with some already unsubscribed.', { name: 'Unsubscribe', glyph: 'unavailable', danger: true, primary: 'Unsubscribe', body: 'Selected prospects will not get emails from any sequence again.', excl: 'Prospects who are already unsubscribed will be skipped.', cant: 'To email them again, remove them from the sequence and add them again.' });
+  card('Mark as replied. Undo toast for 10 seconds after.', { name: 'Mark as replied', glyph: 'round-corner-arrow-back', primary: 'Mark as replied', body: 'The sequence stops for selected prospects.', excl: 'Prospects who are already marked as replied will be skipped.' });
+  card('Mark as finished. No undo, so the grey note row.', { name: 'Mark as finished', glyph: 'circle-check', primary: 'Mark as finished', body: 'The sequence stops for selected prospects.', excl: 'Prospects who are already finished will be skipped.', cant: 'To bring them back, remove them from the sequence and add them again.' });
+  card('Resume.', { name: 'Resume', glyph: 'right-arrow', primary: 'Resume', body: 'Selected prospects continue from their current step.', excl: 'Prospects who are not paused will be skipped.' });
+  card("Pause. Today's duration picker kept.", { name: 'Pause', glyph: 'pause-circle', primary: 'Pause', body: 'Emails to selected prospects stop until the pause ends or you resume them.', excl: 'Prospects who are not in progress will be skipped.', pause: true });
+})();
+</script>
+</body>
+</html>

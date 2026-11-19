@@ -13,7 +13,7 @@ Bulk actions act on up to 25,000 records per click. On 6 bulk bars the destructi
 | Picked | Rejected |
 |---|---|
 | Show the real selection scope; label risky actions and set them apart | Confirm in place on the button: a double-click goes straight through |
-| One impact dialog on every risky action; typed verb on every red one | Skipping the dialog for small or undoable actions: that is how the 7-prospect sequence was emptied |
+| One dialog on every risky action, saying what happens | Skipping the dialog for small or undoable actions: that is how the 7-prospect sequence was emptied |
 | 10-second undo | 30-day restore: large backend change, prevalence not measured |
 | Identity re-check, credit totals, plan-change picker | Second-admin approval: too slow |
 
@@ -22,7 +22,7 @@ About 110 risky actions audited: about 35 unconfirmed, about 35 with a confirmat
 ## 3. What we're building
 
 1. Every bulk table says how much is selected relative to everything; risky actions are labelled and set apart.
-2. Every risky action, from one item to 25,000, opens a dialog that names the count or item, breaks down what is affected, and says what is lost. Red dialogs (data is lost) also require typing the action's verb.
+2. Every risky action, from one item to 25,000, opens a dialog that says what happens and what is lost. On Sequence > Prospects the dialog is short: the action's icon and name, the consequence, who is skipped, and "This can't be undone" only when that is true.
 3. Changes that lose nothing outside Saleshandy can be undone for 10 seconds. Security switches need the password, spends show the total, plan cuts let the user pick what goes.
 
 **Invariant:** nothing that deletes, removes, stops sending, spends or weakens security fires on a single click.
@@ -42,9 +42,9 @@ About 110 risky actions audited: about 35 unconfirmed, about 35 with a confirmat
 
 **D1 – The impact dialog appears on every risky action, including a single item.** **Consequence to accept:** one extra step on frequent clean-up work.
 
-**D2 – Every red dialog requires typing the action's verb** ("Confirm by typing remove"), extending today's typed "delete" on sequence, subsequence, step and variant delete. Blue dialogs do not. **Consequence to accept:** removing prospects or deleting conversations now takes a few keystrokes each time.
+**D2 – Typing to confirm stays only where production asks for it today** (typed "delete" on sequence, subsequence, step and variant delete). The Sequence > Prospects dialogs never ask to type. Whether other new red dialogs ask to type is Q5. **Consequence to accept:** on Sequence > Prospects, one click on the red button inside the dialog removes or unsubscribes.
 
-**D3 – Undo lasts 10 seconds; there is no restore after that.** No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). **Consequence to accept:** a mistake noticed later stays unrecoverable; the reported customer noticed after 4 minutes.
+**D3 – Undo lasts 10 seconds; there is no restore after that.** No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). No undo on Unsubscribe: a prospect is shared across sequences, so the system can't tell a user's resubscribe from the recipient's own unsubscribe, a compliance risk. No undo on Mark as finished: undoing would send the remaining steps. Both dialogs say so and give the way back: remove from the sequence and add again (engineering review, 19 Nov 2026). **Consequence to accept:** a mistake noticed later stays unrecoverable; the reported customer noticed after 4 minutes.
 
 ## 6. Surfaces
 
@@ -56,21 +56,27 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 
 **Why.** The remove action is an X among seven similar icons and fires at once; the banner hides that the selection is the whole sequence.
 
-![Proposed: bar and banner](screens/02-seqp-bar.png)
+**Bar, icons only with a tooltip each, left to right:** Tags | Add to sequence, Pause, Resume | Mark as replied, Mark as finished | Unsubscribe, Remove (both red). The Change status menu is dropped. With nothing selected the icons are disabled with "Select prospects first".
 
-![Proposed: Change status replaces five icons](screens/03-seqp-menu.png)
+![Proposed: icon bar and banner](screens/02-seqp-bar.png)
 
-![Proposed: remove dialog](screens/04-seqp-remove.png)
+![Proposed: remove dialog, whole sequence selected](screens/04-seqp-remove.png)
 
-![Proposed: undo](screens/05-seqp-undo.png)
+![Proposed: unsubscribe dialog, can't be undone](screens/03-seqp-unsub.png)
+
+![Proposed: undo after remove](screens/05-seqp-undo.png)
+
+**Dialogs.** Title = the action's name with its bar icon; no count, no breakdown, no routine undo line, no typing. Copy per action is in the [spec](https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md#sequence--prospects-dialogs).
 
 | ID | Case | Expected | P |
 |---|---|---|---|
 | SP-1 | 7 prospects, header checkbox ticked | Banner reads "All 7 prospects in this sequence are selected." | P0 |
-| SP-2 | Remove with all selected | Title "Remove all 7 prospects from “SaaS founders, Oct”?"; "This empties the sequence."; primary disabled until "remove" is typed | P0 |
-| SP-3 | Confirm, then Undo within 10 s | All 7 rows return with the same step, status and outcome; no email went out in between | P0 |
-| SP-4 | Confirm, wait 10 s | Removal commits; Undo gone | P0 |
-| SP-5 | Mark as replied on prospects that already replied | Option disabled with its reason | P1 |
+| SP-2 | Remove with all selected | Title "Remove from sequence"; body ends "This leaves the sequence empty."; Cancel / Remove (red); no typed field | P0 |
+| SP-3 | Remove, confirm, then Undo within 10 s | All 7 rows return with the same step, status and outcome; no email went out in between | P0 |
+| SP-4 | Remove, confirm, wait 10 s | Removal commits; Undo gone | P0 |
+| SP-5 | Unsubscribe or Mark as finished, confirm | Dialog said "This can't be undone." and the way back; toast has no Undo | P0 |
+| SP-6 | Selection includes prospects already in the target state (e.g. already unsubscribed) | Dialog adds "Prospects who are already unsubscribed will be skipped."; line absent when nobody is skipped | P1 |
+| SP-7 | Mark as replied, Pause, Resume | Dialog states the consequence; Pause keeps today's duration picker; replied gets the 10 s undo | P1 |
 
 **Sign off by name (owner: QA lead, unassigned):** SP-3. Its failure loses customer data while telling the user it is safe.
 
@@ -236,6 +242,7 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 | Single "Remove from sequence" alert (AL-2724) | The impact dialog, same as bulk |
 | CRM delete modal and "Wait! No need to delete" upsell | Impact dialog; the upsell stays as one line inside it |
 | Typed "delete" on sequence, subsequence, step and variant delete | Kept, inside the impact dialog |
+| Seven unlabelled icons on the Sequence > Prospects bar, X for remove | Same actions regrouped; trash for remove; Unsubscribe and Remove red at the end |
 | Tasks single Skip / Complete undo (5 s) | 10 s |
 | "Action Stats" modal after bulk pause / resume | Dropped; failures become a toast with a count and reason |
 | Slot input floored at what is in use | Replaced by the picker |
@@ -244,13 +251,13 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 
 | Rule | Behaviour |
 |---|---|
-| Counting | Dialog opens at once with title and count; placeholder rows; primary enabled |
+| Counting | Dialogs with a breakdown open at once with title and count; placeholder rows; primary enabled |
 | Breakdown fails | "We couldn't load the details. You can still continue." Action allowed |
 | Submitting | Spinner; further clicks ignored |
 | Action fails | Dialog stays open with what happened and what to do |
-| Typed verb | Red dialogs only; verb = first word of the red button; enabled only when it matches (trim, any case) and every other condition holds; Enter submits |
+| Typed verb | Where D2 keeps it; verb = first word of the red button; enabled only when it matches (trim, any case) and every other condition holds; Enter submits |
 | Colour | Red when data is lost (delete, remove with history, unsubscribe); blue otherwise |
-| Keyboard | Esc and outside click cancel; focus on the typed field (red) or the primary (blue) |
+| Keyboard | Esc and outside click cancel; focus on the typed field when there is one, else Cancel on red dialogs and the primary on blue |
 | Undo | Rows leave at once; 10 s; pauses on hover; restores position and status; a second action commits the first; leaving the page still commits |
 
 ## 9. Implementation notes
@@ -301,6 +308,7 @@ No stage ships before undo works for its surfaces.
 | Q2 | Where does a deleted user's data go? | Prototype assumes the owner; confirm before stage 3 |
 | Q3 | Does a scheduled reply still send after its thread is deleted? **Blocks Unified Inbox.** | If yes, deleting must cancel it |
 | Q4 | Add a 30-day restore later? | Revisit with 90 days of undo and ticket data |
+| Q5 | Do the short dialog and no-typing rules apply to the other 10 screens? | Yes, for one consistent pattern; keep production's typed "delete" |
 
 ## Appendix
 
