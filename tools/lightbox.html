@@ -1,0 +1,102 @@
+<style>
+figure a.zoom{display:block;cursor:zoom-in;border-radius:var(--radius-md)}
+figure a.zoom img{transition:border-color .15s ease-out,box-shadow .15s ease-out}
+figure a.zoom:hover img{border-color:#93C5FD;box-shadow:0 4px 16px rgba(17,24,39,.08)}
+figure a.zoom:focus-visible{outline:2px solid #1D4ED8;outline-offset:3px}
+.lb{position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:rgba(17,24,39,.92);color:#F9FAFB;display:none;flex-direction:column;overscroll-behavior:contain}
+.lb[open]{display:flex}
+.lb::backdrop{background:transparent}
+.lb-bar{display:flex;align-items:center;gap:16px;padding:12px 16px 12px 24px;flex-shrink:0}
+.lb-cap{margin:0;flex:1;min-width:0;font-size:14px;line-height:20px;font-weight:500;color:#F9FAFB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-count{font-size:13px;line-height:20px;color:#9CA3AF;font-variant-numeric:tabular-nums;flex-shrink:0}
+.lb-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.lb-sep{width:1px;height:20px;background:rgba(249,250,251,.16);margin:0 6px}
+.lb-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:var(--radius-md);background:transparent;color:#E5E7EB;cursor:pointer;text-decoration:none;font:500 12px/1 inherit}
+.lb-btn:hover{background:rgba(249,250,251,.12);color:#fff;text-decoration:none}
+.lb-btn:focus-visible{outline:2px solid #93C5FD;outline-offset:1px}
+.lb-btn:disabled{opacity:.35;cursor:default;background:transparent}
+.lb-btn svg{width:20px;height:20px}
+.lb-pct{min-width:48px;text-align:center;font-size:13px;color:#D1D5DB;font-variant-numeric:tabular-nums}
+.lb-stage{flex:1;min-height:0;overflow:auto;display:flex;padding:0 24px 24px}
+.lb-img{margin:auto;display:block;border-radius:var(--radius-md);box-shadow:0 12px 40px rgba(0,0,0,.45);background:#fff;cursor:zoom-in;user-select:none;-webkit-user-drag:none}
+.lb.fit .lb-img{max-width:100%;max-height:100%;object-fit:contain}
+.lb.zoomed .lb-img{max-width:none;max-height:none;cursor:grab}
+.lb.dragging .lb-img{cursor:grabbing}
+.lb-hint{font-size:12px;line-height:16px;color:#9CA3AF;text-align:center;padding:0 16px 12px;flex-shrink:0}
+@media (max-width:600px){.lb-bar{padding:8px 8px 8px 16px;gap:8px}.lb-count,.lb-hint,.lb-sep,.lb-pct{display:none}.lb-stage{padding:0 8px 8px}.lb-btn{width:40px;height:40px}}
+@media (prefers-reduced-motion:reduce){figure a.zoom img{transition:none}}
+</style>
+<dialog class="lb fit" aria-label="Screenshot viewer">
+  <div class="lb-bar">
+    <p class="lb-cap"></p>
+    <span class="lb-count"></span>
+    <div class="lb-actions">
+      <button class="lb-btn" data-act="prev" aria-label="Previous screenshot" title="Previous (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="lb-btn" data-act="next" aria-label="Next screenshot" title="Next (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      <span class="lb-sep" aria-hidden="true"></span>
+      <button class="lb-btn" data-act="out" aria-label="Zoom out" title="Zoom out (−)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-4-4"/></svg></button>
+      <span class="lb-pct" aria-live="polite">Fit</span>
+      <button class="lb-btn" data-act="in" aria-label="Zoom in" title="Zoom in (+)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-4-4"/></svg></button>
+      <span class="lb-sep" aria-hidden="true"></span>
+      <a class="lb-btn" data-act="open" target="_blank" rel="noopener" aria-label="Open image in a new tab" title="Open in a new tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+      <button class="lb-btn" data-act="close" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+  <div class="lb-stage"><img class="lb-img" alt=""></div>
+  <p class="lb-hint">Click the image to zoom, drag to move around, ← → for the next screen, Esc to close</p>
+</dialog>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('figure a.zoom'));
+  if (!links.length) return;
+  var lb = document.querySelector('.lb'), img = lb.querySelector('.lb-img'), stage = lb.querySelector('.lb-stage');
+  var cap = lb.querySelector('.lb-cap'), count = lb.querySelector('.lb-count'), pct = lb.querySelector('.lb-pct');
+  var open = lb.querySelector('[data-act="open"]'), prev = lb.querySelector('[data-act="prev"]'), next = lb.querySelector('[data-act="next"]');
+  var zOut = lb.querySelector('[data-act="out"]'), zIn = lb.querySelector('[data-act="in"]');
+  var STEPS = [0, 1, 1.5, 2, 3], step = 0, idx = 0, opener = null;
+  function setZoom(s, cx, cy) {
+    var r = stage.getBoundingClientRect(), ir = img.getBoundingClientRect();
+    var fx = cx == null ? 0.5 : (cx - ir.left) / ir.width, fy = cy == null ? 0.5 : (cy - ir.top) / ir.height;
+    step = Math.max(0, Math.min(STEPS.length - 1, s));
+    var z = STEPS[step];
+    lb.classList.toggle('fit', z === 0); lb.classList.toggle('zoomed', z !== 0);
+    img.style.width = z ? (img.naturalWidth * z) + 'px' : '';
+    pct.textContent = z ? Math.round(z * 100) + '%' : 'Fit';
+    zOut.disabled = step === 0; zIn.disabled = step === STEPS.length - 1;
+    if (z) { stage.scrollLeft = img.offsetWidth * fx - r.width / 2 + img.offsetLeft - stage.clientLeft; stage.scrollTop = img.offsetHeight * fy - r.height / 2 + img.offsetTop - stage.clientTop; }
+  }
+  function show(i) {
+    idx = (i + links.length) % links.length;
+    var a = links[idx], t = a.querySelector('img');
+    img.src = a.getAttribute('href'); img.alt = t.alt;
+    cap.textContent = t.alt; count.textContent = (idx + 1) + ' of ' + links.length;
+    open.href = a.getAttribute('href'); setZoom(0);
+  }
+  links.forEach(function (a, i) {
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault(); opener = a; show(i); lb.showModal(); document.documentElement.style.overflow = 'hidden';
+    });
+  });
+  lb.addEventListener('close', function () { document.documentElement.style.overflow = ''; img.removeAttribute('src'); if (opener) opener.focus(); });
+  lb.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (b) { var act = b.dataset.act;
+      if (act === 'close') lb.close(); else if (act === 'prev') show(idx - 1); else if (act === 'next') show(idx + 1);
+      else if (act === 'in') setZoom(step + 1); else if (act === 'out') setZoom(step - 1);
+      return; }
+    if (e.target === stage) lb.close();
+  });
+  var drag = null, moved = false;
+  img.addEventListener('pointerdown', function (e) { moved = false; if (STEPS[step] === 0) return; drag = { x: e.clientX, y: e.clientY, l: stage.scrollLeft, t: stage.scrollTop }; img.setPointerCapture(e.pointerId); lb.classList.add('dragging'); });
+  img.addEventListener('pointermove', function (e) { if (!drag) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) moved = true; stage.scrollLeft = drag.l - dx; stage.scrollTop = drag.t - dy; });
+  img.addEventListener('pointerup', function (e) { var was = drag; drag = null; lb.classList.remove('dragging'); if (moved) return; setZoom(STEPS[step] === 0 ? 3 : 0, e.clientX, e.clientY); });
+  lb.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+    else if (e.key === '+' || e.key === '=') setZoom(step + 1);
+    else if (e.key === '-') setZoom(step - 1);
+    else if (e.key === '0') setZoom(0);
+  });
+})();
+</script>

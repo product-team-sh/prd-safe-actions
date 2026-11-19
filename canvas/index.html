@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safe actions canvas</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#ffffff;--bg-secondary:#F9FAFB;--bg-tertiary:#F3F4F6;--border:#E5E7EB;--border-strong:#D1D5DB;
+  --ink:#111827;--ink-secondary:#374151;--ink-tertiary:#6B7280;--ink-quiet:#9CA3AF;--primary:#1D4ED8;--primary-hover:#1E40AF;
+  --radius-md:8px;--radius-lg:12px}
+*{box-sizing:border-box}
+html{color-scheme:light}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--bg-tertiary);color:var(--ink);font:14px/20px Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+::selection{background:#BFDBFE}
+a{color:var(--primary);text-decoration:none} a:hover{text-decoration:underline;text-underline-offset:2px}
+.cv-top{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;gap:16px;padding:0 16px 0 24px;background:var(--bg);border-bottom:1px solid var(--border);z-index:2}
+.cv-top h1{margin:0;font-size:15px;line-height:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cv-meta{color:var(--ink-tertiary);font-size:13px;white-space:nowrap}
+.cv-back{font-size:13px;font-weight:500;white-space:nowrap}
+.cv-sp{flex:1}
+.cv-tools{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.cv-btn{height:32px;min-width:32px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg);color:var(--ink-secondary);font:500 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.cv-btn:hover{background:var(--bg-secondary);border-color:var(--border-strong);color:var(--ink)}
+.cv-btn:focus-visible,.zoom:focus-visible,.cv-proto:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.cv-btn svg{width:16px;height:16px}
+.cv-pct{min-width:52px;text-align:center;font-size:13px;color:var(--ink-secondary);font-variant-numeric:tabular-nums}
+.cv-vp{position:fixed;top:56px;left:0;right:0;bottom:0;overflow:hidden;cursor:grab;touch-action:none;
+  background-image:radial-gradient(circle,#D1D5DB 1px,transparent 1px);background-size:24px 24px}
+.cv-vp.drag{cursor:grabbing}
+.cv-board{position:absolute;top:0;left:0;transform-origin:0 0;padding:64px;display:flex;flex-direction:column;gap:56px;width:max-content}
+.cv-row{display:flex;gap:40px;align-items:flex-start}
+.cv-label{width:220px;flex-shrink:0;padding-top:28px}
+.cv-num{display:block;font-size:13px;line-height:16px;font-weight:600;color:var(--ink-quiet);font-variant-numeric:tabular-nums}
+.cv-label h2{margin:6px 0 4px;font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
+.cv-label p{margin:0 0 12px;font-size:13px;line-height:18px;color:var(--ink-tertiary)}
+.cv-proto{font-size:13px;font-weight:500}
+.cv-frames{display:flex;gap:24px;align-items:flex-start}
+.cv-frame{margin:0;width:480px}
+.cv-frame figcaption{margin:0 0 8px;font-size:13px;line-height:18px;font-weight:500;color:var(--ink-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cv-frame .zoom{display:block;border-radius:var(--radius-md);cursor:zoom-in}
+.cv-frame img{display:block;width:480px;height:300px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg);box-shadow:0 1px 2px rgba(17,24,39,.06);transition:border-color .15s ease-out,box-shadow .15s ease-out}
+.cv-frame .zoom:hover img{border-color:#93C5FD;box-shadow:0 6px 20px rgba(17,24,39,.10)}
+.cv-vp.drag .zoom{cursor:grabbing}
+@media (max-width:700px){.cv-meta,.cv-back-long{display:none} .cv-top{padding:0 8px 0 16px;gap:8px} .cv-pct{min-width:44px}}
+@media (prefers-reduced-motion:reduce){.cv-frame img{transition:none}}
+</style>
+</head>
+<body>
+<header class="cv-top">
+  <a class="cv-back" href="../index.html">&larr; <span class="cv-back-long">Back to </span>PRD</a>
+  <h1>Safe actions: no risky action on one click</h1>
+  <span class="cv-meta">35 screens, 11 surfaces</span>
+  <span class="cv-sp"></span>
+  <div class="cv-tools">
+    <button class="cv-btn" data-z="out" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+    <span class="cv-pct" aria-live="polite">100%</span>
+    <button class="cv-btn" data-z="in" aria-label="Zoom in" title="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button class="cv-btn" data-z="fit" title="Fit every screen in view">Fit all</button>
+  </div>
+</header>
+<main class="cv-vp" aria-label="Canvas of every screen. Drag to move, Ctrl or Cmd and scroll to zoom, click a screen to open it">
+  <div class="cv-board">
+<section class="cv-row" id="surface-6-1"><header class="cv-label"><span class="cv-num">6.1</span><h2>Sequence &gt; Prospects</h2><p>Rows 1-4</p><a class="cv-proto" href="../prototype/sequence-prospects.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/01-seqp-today.png" aria-label="View larger: Sequence &gt; Prospects, Today"><img src="../screens/01-seqp-today.png" alt="Sequence &gt; Prospects: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: icon bar and banner</figcaption><a class="zoom" href="../screens/02-seqp-bar.png" aria-label="View larger: Sequence &gt; Prospects, Proposed: icon bar and banner"><img src="../screens/02-seqp-bar.png" alt="Sequence &gt; Prospects: Proposed: icon bar and banner" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: remove dialog, whole sequence selected</figcaption><a class="zoom" href="../screens/04-seqp-remove.png" aria-label="View larger: Sequence &gt; Prospects, Proposed: remove dialog, whole sequence selected"><img src="../screens/04-seqp-remove.png" alt="Sequence &gt; Prospects: Proposed: remove dialog, whole sequence selected" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: unsubscribe dialog, can&#x27;t be undone</figcaption><a class="zoom" href="../screens/03-seqp-unsub.png" aria-label="View larger: Sequence &gt; Prospects, Proposed: unsubscribe dialog, can&#x27;t be undone"><img src="../screens/03-seqp-unsub.png" alt="Sequence &gt; Prospects: Proposed: unsubscribe dialog, can&#x27;t be undone" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: undo after remove</figcaption><a class="zoom" href="../screens/05-seqp-undo.png" aria-label="View larger: Sequence &gt; Prospects, Proposed: undo after remove"><img src="../screens/05-seqp-undo.png" alt="Sequence &gt; Prospects: Proposed: undo after remove" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-2"><header class="cv-label"><span class="cv-num">6.2</span><h2>Sequence list</h2><p>Rows 5, 37</p><a class="cv-proto" href="../prototype/sequence-list.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/06-seql-today.png" aria-label="View larger: Sequence list, Today"><img src="../screens/06-seql-today.png" alt="Sequence list: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: pause</figcaption><a class="zoom" href="../screens/07-seql-pause.png" aria-label="View larger: Sequence list, Proposed: pause"><img src="../screens/07-seql-pause.png" alt="Sequence list: Proposed: pause" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: delete</figcaption><a class="zoom" href="../screens/08-seql-delete.png" aria-label="View larger: Sequence list, Proposed: delete"><img src="../screens/08-seql-delete.png" alt="Sequence list: Proposed: delete" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-3"><header class="cv-label"><span class="cv-num">6.3</span><h2>Sequence &gt; Steps and Settings</h2><p>Rows 6, 7</p><a class="cv-proto" href="../prototype/sequence-steps.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today: delete step</figcaption><a class="zoom" href="../screens/09-steps-today.png" aria-label="View larger: Sequence &gt; Steps and Settings, Today: delete step"><img src="../screens/09-steps-today.png" alt="Sequence &gt; Steps and Settings: Today: delete step" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: delete step</figcaption><a class="zoom" href="../screens/10-steps-delete.png" aria-label="View larger: Sequence &gt; Steps and Settings, Proposed: delete step"><img src="../screens/10-steps-delete.png" alt="Sequence &gt; Steps and Settings: Proposed: delete step" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Today: remove email account</figcaption><a class="zoom" href="../screens/11-steps-remove-today.png" aria-label="View larger: Sequence &gt; Steps and Settings, Today: remove email account"><img src="../screens/11-steps-remove-today.png" alt="Sequence &gt; Steps and Settings: Today: remove email account" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: remove email account</figcaption><a class="zoom" href="../screens/12-steps-remove.png" aria-label="View larger: Sequence &gt; Steps and Settings, Proposed: remove email account"><img src="../screens/12-steps-remove.png" alt="Sequence &gt; Steps and Settings: Proposed: remove email account" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-4"><header class="cv-label"><span class="cv-num">6.4</span><h2>Unified Inbox</h2><p>Rows 8-10</p><a class="cv-proto" href="../prototype/unified-inbox.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/13-inbox-today.png" aria-label="View larger: Unified Inbox, Today"><img src="../screens/13-inbox-today.png" alt="Unified Inbox: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: delete</figcaption><a class="zoom" href="../screens/14-inbox-delete.png" aria-label="View larger: Unified Inbox, Proposed: delete"><img src="../screens/14-inbox-delete.png" alt="Unified Inbox: Proposed: delete" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: assign outcome</figcaption><a class="zoom" href="../screens/15-inbox-outcome.png" aria-label="View larger: Unified Inbox, Proposed: assign outcome"><img src="../screens/15-inbox-outcome.png" alt="Unified Inbox: Proposed: assign outcome" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-5"><header class="cv-label"><span class="cv-num">6.5</span><h2>Tasks</h2><p>Row 11</p><a class="cv-proto" href="../prototype/tasks.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/16-tasks-today.png" aria-label="View larger: Tasks, Today"><img src="../screens/16-tasks-today.png" alt="Tasks: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed</figcaption><a class="zoom" href="../screens/17-tasks-skip.png" aria-label="View larger: Tasks, Proposed"><img src="../screens/17-tasks-skip.png" alt="Tasks: Proposed" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-6"><header class="cv-label"><span class="cv-num">6.6</span><h2>CRM prospects and AI columns</h2><p>Rows 12-14, 16</p><a class="cv-proto" href="../prototype/crm-prospects.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/18-crm-today.png" aria-label="View larger: CRM prospects and AI columns, Today"><img src="../screens/18-crm-today.png" alt="CRM prospects and AI columns: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: delete</figcaption><a class="zoom" href="../screens/19-crm-delete.png" aria-label="View larger: CRM prospects and AI columns, Proposed: delete"><img src="../screens/19-crm-delete.png" alt="CRM prospects and AI columns: Proposed: delete" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: AI column cost</figcaption><a class="zoom" href="../screens/20-crm-ai.png" aria-label="View larger: CRM prospects and AI columns, Proposed: AI column cost"><img src="../screens/20-crm-ai.png" alt="CRM prospects and AI columns: Proposed: AI column cost" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-7"><header class="cv-label"><span class="cv-num">6.7</span><h2>Import CSV</h2><p>Row 15</p><a class="cv-proto" href="../prototype/csv-import.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/21-csv-today.png" aria-label="View larger: Import CSV, Today"><img src="../screens/21-csv-today.png" alt="Import CSV: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed</figcaption><a class="zoom" href="../screens/22-csv-dialog.png" aria-label="View larger: Import CSV, Proposed"><img src="../screens/22-csv-dialog.png" alt="Import CSV: Proposed" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-8"><header class="cv-label"><span class="cv-num">6.8</span><h2>Email accounts</h2><p>Rows 17-20</p><a class="cv-proto" href="../prototype/email-accounts.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/23-ea-today.png" aria-label="View larger: Email accounts, Today"><img src="../screens/23-ea-today.png" alt="Email accounts: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: delete</figcaption><a class="zoom" href="../screens/24-ea-delete.png" aria-label="View larger: Email accounts, Proposed: delete"><img src="../screens/24-ea-delete.png" alt="Email accounts: Proposed: delete" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: pause switch</figcaption><a class="zoom" href="../screens/25-ea-pause.png" aria-label="View larger: Email accounts, Proposed: pause switch"><img src="../screens/25-ea-pause.png" alt="Email accounts: Proposed: pause switch" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-9"><header class="cv-label"><span class="cv-num">6.9</span><h2>Lead Finder and Email Verifier</h2><p>Rows 21-25</p><a class="cv-proto" href="../prototype/lead-finder.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/26-lf-today.png" aria-label="View larger: Lead Finder and Email Verifier, Today"><img src="../screens/26-lf-today.png" alt="Lead Finder and Email Verifier: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: reveal</figcaption><a class="zoom" href="../screens/27-lf-reveal.png" aria-label="View larger: Lead Finder and Email Verifier, Proposed: reveal"><img src="../screens/27-lf-reveal.png" alt="Lead Finder and Email Verifier: Proposed: reveal" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: Email Verifier</figcaption><a class="zoom" href="../screens/28-lf-verify.png" aria-label="View larger: Lead Finder and Email Verifier, Proposed: Email Verifier"><img src="../screens/28-lf-verify.png" alt="Lead Finder and Email Verifier: Proposed: Email Verifier" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-10"><header class="cv-label"><span class="cv-num">6.10</span><h2>Settings</h2><p>Rows 26-32</p><a class="cv-proto" href="../prototype/settings.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Today</figcaption><a class="zoom" href="../screens/29-set-today.png" aria-label="View larger: Settings, Today"><img src="../screens/29-set-today.png" alt="Settings: Today" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: delete user</figcaption><a class="zoom" href="../screens/30-set-user.png" aria-label="View larger: Settings, Proposed: delete user"><img src="../screens/30-set-user.png" alt="Settings: Proposed: delete user" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: CRM disconnect</figcaption><a class="zoom" href="../screens/31-set-crm.png" aria-label="View larger: Settings, Proposed: CRM disconnect"><img src="../screens/31-set-crm.png" alt="Settings: Proposed: CRM disconnect" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+<section class="cv-row" id="surface-6-11"><header class="cv-label"><span class="cv-num">6.11</span><h2>Admin settings, profile and billing</h2><p>Rows 33-36</p><a class="cv-proto" href="../prototype/admin-billing.html" target="_blank" rel="noopener">Open in prototype</a></header><div class="cv-frames"><figure class="cv-frame"><figcaption>Proposed: email codes off</figcaption><a class="zoom" href="../screens/32-ab-mfa.png" aria-label="View larger: Admin settings, profile and billing, Proposed: email codes off"><img src="../screens/32-ab-mfa.png" alt="Admin settings, profile and billing: Proposed: email codes off" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Today: slots</figcaption><a class="zoom" href="../screens/33-ab-slots-today.png" aria-label="View larger: Admin settings, profile and billing, Today: slots"><img src="../screens/33-ab-slots-today.png" alt="Admin settings, profile and billing: Today: slots" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: slots</figcaption><a class="zoom" href="../screens/34-ab-slots.png" aria-label="View larger: Admin settings, profile and billing, Proposed: slots"><img src="../screens/34-ab-slots.png" alt="Admin settings, profile and billing: Proposed: slots" width="480" height="300" loading="lazy" draggable="false"></a></figure><figure class="cv-frame"><figcaption>Proposed: delete account, Google user</figcaption><a class="zoom" href="../screens/35-ab-delete.png" aria-label="View larger: Admin settings, profile and billing, Proposed: delete account, Google user"><img src="../screens/35-ab-delete.png" alt="Admin settings, profile and billing: Proposed: delete account, Google user" width="480" height="300" loading="lazy" draggable="false"></a></figure></div></section>
+  </div>
+</main>
+<script>
+(function () {
+  var vp = document.querySelector('.cv-vp'), board = document.querySelector('.cv-board'), pct = document.querySelector('.cv-pct');
+  var s = 1, x = 0, y = 0, MIN = 0.1, MAX = 2;
+  function apply() { board.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; pct.textContent = Math.round(s * 100) + '%'; }
+  function zoomAt(ns, cx, cy) { ns = Math.max(MIN, Math.min(MAX, ns)); x = cx - (cx - x) * ns / s; y = cy - (cy - y) * ns / s; s = ns; apply(); }
+  function fit() { var w = board.offsetWidth, h = board.offsetHeight, W = vp.clientWidth, H = vp.clientHeight;
+    s = Math.max(MIN, Math.min(1, W / w, H / h)); x = (W - w * s) / 2; y = Math.max(0, (H - h * s) / 2); apply(); }
+  document.querySelector('.cv-tools').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-z]'); if (!b) return; var W = vp.clientWidth / 2, H = vp.clientHeight / 2;
+    if (b.dataset.z === 'fit') fit(); else zoomAt(s * (b.dataset.z === 'in' ? 1.25 : 0.8), W, H); });
+  vp.addEventListener('wheel', function (ev) {
+    ev.preventDefault(); var r = vp.getBoundingClientRect();
+    if (ev.ctrlKey || ev.metaKey) zoomAt(s * Math.exp(-ev.deltaY * 0.0015), ev.clientX - r.left, ev.clientY - r.top);
+    else { x -= ev.shiftKey ? ev.deltaY : ev.deltaX; y -= ev.shiftKey ? 0 : ev.deltaY; apply(); }
+  }, { passive: false });
+  var d = null, moved = false;
+  vp.addEventListener('pointerdown', function (ev) { if (ev.button !== 0) return; d = { px: ev.clientX, py: ev.clientY, x: x, y: y, id: ev.pointerId }; moved = false; });
+  window.addEventListener('pointermove', function (ev) { if (!d) return; var dx = ev.clientX - d.px, dy = ev.clientY - d.py;
+    if (!moved && Math.abs(dx) + Math.abs(dy) > 4) { moved = true; vp.classList.add('drag'); try { vp.setPointerCapture(d.id); } catch (_) {} }
+    if (moved) { x = d.x + dx; y = d.y + dy; apply(); } });
+  window.addEventListener('pointerup', function () { d = null; vp.classList.remove('drag'); });
+  vp.addEventListener('click', function (ev) { if (moved) { ev.preventDefault(); ev.stopImmediatePropagation(); moved = false; } }, true);
+  document.addEventListener('keydown', function (ev) { if (document.querySelector('.lb[open]')) return;
+    var W = vp.clientWidth / 2, H = vp.clientHeight / 2;
+    if (ev.key === '+' || ev.key === '=') zoomAt(s * 1.25, W, H); else if (ev.key === '-') zoomAt(s * 0.8, W, H); else if (ev.key === '0') fit(); });
+  function fitWidth() { var w = board.offsetWidth, W = vp.clientWidth; s = Math.max(MIN, Math.min(1, W / w)); x = Math.max(0, (W - w * s) / 2); y = 0; apply(); }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitWidth); fitWidth();
+})();
+</script>
+<style>
+figure a.zoom{display:block;cursor:zoom-in;border-radius:var(--radius-md)}
+figure a.zoom img{transition:border-color .15s ease-out,box-shadow .15s ease-out}
+figure a.zoom:hover img{border-color:#93C5FD;box-shadow:0 4px 16px rgba(17,24,39,.08)}
+figure a.zoom:focus-visible{outline:2px solid #1D4ED8;outline-offset:3px}
+.lb{position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:rgba(17,24,39,.92);color:#F9FAFB;display:none;flex-direction:column;overscroll-behavior:contain}
+.lb[open]{display:flex}
+.lb::backdrop{background:transparent}
+.lb-bar{display:flex;align-items:center;gap:16px;padding:12px 16px 12px 24px;flex-shrink:0}
+.lb-cap{margin:0;flex:1;min-width:0;font-size:14px;line-height:20px;font-weight:500;color:#F9FAFB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-count{font-size:13px;line-height:20px;color:#9CA3AF;font-variant-numeric:tabular-nums;flex-shrink:0}
+.lb-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.lb-sep{width:1px;height:20px;background:rgba(249,250,251,.16);margin:0 6px}
+.lb-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:var(--radius-md);background:transparent;color:#E5E7EB;cursor:pointer;text-decoration:none;font:500 12px/1 inherit}
+.lb-btn:hover{background:rgba(249,250,251,.12);color:#fff;text-decoration:none}
+.lb-btn:focus-visible{outline:2px solid #93C5FD;outline-offset:1px}
+.lb-btn:disabled{opacity:.35;cursor:default;background:transparent}
+.lb-btn svg{width:20px;height:20px}
+.lb-pct{min-width:48px;text-align:center;font-size:13px;color:#D1D5DB;font-variant-numeric:tabular-nums}
+.lb-stage{flex:1;min-height:0;overflow:auto;display:flex;padding:0 24px 24px}
+.lb-img{margin:auto;display:block;border-radius:var(--radius-md);box-shadow:0 12px 40px rgba(0,0,0,.45);background:#fff;cursor:zoom-in;user-select:none;-webkit-user-drag:none}
+.lb.fit .lb-img{max-width:100%;max-height:100%;object-fit:contain}
+.lb.zoomed .lb-img{max-width:none;max-height:none;cursor:grab}
+.lb.dragging .lb-img{cursor:grabbing}
+.lb-hint{font-size:12px;line-height:16px;color:#9CA3AF;text-align:center;padding:0 16px 12px;flex-shrink:0}
+@media (max-width:600px){.lb-bar{padding:8px 8px 8px 16px;gap:8px}.lb-count,.lb-hint,.lb-sep,.lb-pct{display:none}.lb-stage{padding:0 8px 8px}.lb-btn{width:40px;height:40px}}
+@media (prefers-reduced-motion:reduce){figure a.zoom img{transition:none}}
+</style>
+<dialog class="lb fit" aria-label="Screenshot viewer">
+  <div class="lb-bar">
+    <p class="lb-cap"></p>
+    <span class="lb-count"></span>
+    <div class="lb-actions">
+      <button class="lb-btn" data-act="prev" aria-label="Previous screenshot" title="Previous (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="lb-btn" data-act="next" aria-label="Next screenshot" title="Next (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      <span class="lb-sep" aria-hidden="true"></span>
+      <button class="lb-btn" data-act="out" aria-label="Zoom out" title="Zoom out (−)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-4-4"/></svg></button>
+      <span class="lb-pct" aria-live="polite">Fit</span>
+      <button class="lb-btn" data-act="in" aria-label="Zoom in" title="Zoom in (+)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-4-4"/></svg></button>
+      <span class="lb-sep" aria-hidden="true"></span>
+      <a class="lb-btn" data-act="open" target="_blank" rel="noopener" aria-label="Open image in a new tab" title="Open in a new tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+      <button class="lb-btn" data-act="close" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+  <div class="lb-stage"><img class="lb-img" alt=""></div>
+  <p class="lb-hint">Click the image to zoom, drag to move around, ← → for the next screen, Esc to close</p>
+</dialog>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('figure a.zoom'));
+  if (!links.length) return;
+  var lb = document.querySelector('.lb'), img = lb.querySelector('.lb-img'), stage = lb.querySelector('.lb-stage');
+  var cap = lb.querySelector('.lb-cap'), count = lb.querySelector('.lb-count'), pct = lb.querySelector('.lb-pct');
+  var open = lb.querySelector('[data-act="open"]'), prev = lb.querySelector('[data-act="prev"]'), next = lb.querySelector('[data-act="next"]');
+  var zOut = lb.querySelector('[data-act="out"]'), zIn = lb.querySelector('[data-act="in"]');
+  var STEPS = [0, 1, 1.5, 2, 3], step = 0, idx = 0, opener = null;
+  function setZoom(s, cx, cy) {
+    var r = stage.getBoundingClientRect(), ir = img.getBoundingClientRect();
+    var fx = cx == null ? 0.5 : (cx - ir.left) / ir.width, fy = cy == null ? 0.5 : (cy - ir.top) / ir.height;
+    step = Math.max(0, Math.min(STEPS.length - 1, s));
+    var z = STEPS[step];
+    lb.classList.toggle('fit', z === 0); lb.classList.toggle('zoomed', z !== 0);
+    img.style.width = z ? (img.naturalWidth * z) + 'px' : '';
+    pct.textContent = z ? Math.round(z * 100) + '%' : 'Fit';
+    zOut.disabled = step === 0; zIn.disabled = step === STEPS.length - 1;
+    if (z) { stage.scrollLeft = img.offsetWidth * fx - r.width / 2 + img.offsetLeft - stage.clientLeft; stage.scrollTop = img.offsetHeight * fy - r.height / 2 + img.offsetTop - stage.clientTop; }
+  }
+  function show(i) {
+    idx = (i + links.length) % links.length;
+    var a = links[idx], t = a.querySelector('img');
+    img.src = a.getAttribute('href'); img.alt = t.alt;
+    cap.textContent = t.alt; count.textContent = (idx + 1) + ' of ' + links.length;
+    open.href = a.getAttribute('href'); setZoom(0);
+  }
+  links.forEach(function (a, i) {
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault(); opener = a; show(i); lb.showModal(); document.documentElement.style.overflow = 'hidden';
+    });
+  });
+  lb.addEventListener('close', function () { document.documentElement.style.overflow = ''; img.removeAttribute('src'); if (opener) opener.focus(); });
+  lb.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (b) { var act = b.dataset.act;
+      if (act === 'close') lb.close(); else if (act === 'prev') show(idx - 1); else if (act === 'next') show(idx + 1);
+      else if (act === 'in') setZoom(step + 1); else if (act === 'out') setZoom(step - 1);
+      return; }
+    if (e.target === stage) lb.close();
+  });
+  var drag = null, moved = false;
+  img.addEventListener('pointerdown', function (e) { moved = false; if (STEPS[step] === 0) return; drag = { x: e.clientX, y: e.clientY, l: stage.scrollLeft, t: stage.scrollTop }; img.setPointerCapture(e.pointerId); lb.classList.add('dragging'); });
+  img.addEventListener('pointermove', function (e) { if (!drag) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) moved = true; stage.scrollLeft = drag.l - dx; stage.scrollTop = drag.t - dy; });
+  img.addEventListener('pointerup', function (e) { var was = drag; drag = null; lb.classList.remove('dragging'); if (moved) return; setZoom(STEPS[step] === 0 ? 3 : 0, e.clientX, e.clientY); });
+  lb.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+    else if (e.key === '+' || e.key === '=') setZoom(step + 1);
+    else if (e.key === '-') setZoom(step - 1);
+    else if (e.key === '0') setZoom(0);
+  });
+})();
+</script>
+
+</body>
+</html>

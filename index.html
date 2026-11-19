@@ -197,7 +197,7 @@ figure img{width:100%;height:auto}
   </nav>
   <main class="main">
 <header class="doc-header"><p class="eyebrow">Product Requirements Document</p><h1>Safe actions: no risky action on one click</h1></header>
-<p><strong>Design of record:</strong> <a href="prototype/index.html">clickable prototype</a> · <strong>Status:</strong> Ready for review</p>
+<p><strong>Design of record:</strong> <a href="prototype/index.html">clickable prototype</a> · <a href="canvas/index.html">every screen on one canvas</a> · <strong>Status:</strong> Ready for review</p>
 <p>Copy, breakdown rows and states for every surface: <a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md">spec</a>.</p>
 <section id="1-problem" class="sec"><div class="sec-head"><span class="sec-num">1</span><h2>Problem</h2></div>
 
@@ -289,13 +289,13 @@ figure img{width:100%;height:auto}
 
 <p>Every state below opens from the prototype's demo bar, with a Today / Proposed switch on each screen.</p>
 <h3 id="6-1-sequence-prospects-rows-1-4">6.1 Sequence &gt; Prospects (rows 1-4)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/01-seqp-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/01-seqp-today.png" aria-label="View larger: Today"><img src="screens/01-seqp-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
 <p><strong>Why.</strong> The remove action is an X among seven similar icons and fires at once; the banner hides that the selection is the whole sequence.</p>
 <p><strong>Bar, icons only with a tooltip each, left to right:</strong> Tags | Add to sequence, Pause, Resume | Mark as replied, Mark as finished | Unsubscribe, Remove (both red). The Change status menu is dropped. With nothing selected the icons are disabled with "Select prospects first".</p>
-<figure><figcaption>Proposed: icon bar and banner</figcaption><img src="screens/02-seqp-bar.png" style="max-width:885px" alt="Proposed: icon bar and banner" loading="lazy"></figure>
-<figure><figcaption>Proposed: remove dialog, whole sequence selected</figcaption><img src="screens/04-seqp-remove.png" style="max-width:885px" alt="Proposed: remove dialog, whole sequence selected" loading="lazy"></figure>
-<figure><figcaption>Proposed: unsubscribe dialog, can't be undone</figcaption><img src="screens/03-seqp-unsub.png" style="max-width:885px" alt="Proposed: unsubscribe dialog, can't be undone" loading="lazy"></figure>
-<figure><figcaption>Proposed: undo after remove</figcaption><img src="screens/05-seqp-undo.png" style="max-width:885px" alt="Proposed: undo after remove" loading="lazy"></figure>
+<figure><figcaption>Proposed: icon bar and banner</figcaption><a class="zoom" href="screens/02-seqp-bar.png" aria-label="View larger: Proposed: icon bar and banner"><img src="screens/02-seqp-bar.png" style="max-width:885px" alt="Proposed: icon bar and banner" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: remove dialog, whole sequence selected</figcaption><a class="zoom" href="screens/04-seqp-remove.png" aria-label="View larger: Proposed: remove dialog, whole sequence selected"><img src="screens/04-seqp-remove.png" style="max-width:885px" alt="Proposed: remove dialog, whole sequence selected" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: unsubscribe dialog, can't be undone</figcaption><a class="zoom" href="screens/03-seqp-unsub.png" aria-label="View larger: Proposed: unsubscribe dialog, can't be undone"><img src="screens/03-seqp-unsub.png" style="max-width:885px" alt="Proposed: unsubscribe dialog, can't be undone" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: undo after remove</figcaption><a class="zoom" href="screens/05-seqp-undo.png" aria-label="View larger: Proposed: undo after remove"><img src="screens/05-seqp-undo.png" style="max-width:885px" alt="Proposed: undo after remove" loading="lazy"></a></figure>
 <p><strong>Dialogs.</strong> Title = the action's name with its bar icon; no count, no breakdown, no routine undo line, no typing. Copy per action is in the <a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md#sequence--prospects-dialogs">spec</a>.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -353,10 +353,10 @@ figure img{width:100%;height:auto}
 </table></div>
 <p><strong>Sign off by name (owner: QA lead, unassigned):</strong> SP-3. Its failure loses customer data while telling the user it is safe.</p>
 <h3 id="6-2-sequence-list-rows-5-37">6.2 Sequence list (rows 5, 37)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/06-seql-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/06-seql-today.png" aria-label="View larger: Today"><img src="screens/06-seql-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Bulk pause names neither the sequences nor how many prospects stop; delete says nothing about what is lost.</p>
-<figure><figcaption>Proposed: pause</figcaption><img src="screens/07-seql-pause.png" style="max-width:885px" alt="Proposed: pause" loading="lazy"></figure>
-<figure><figcaption>Proposed: delete</figcaption><img src="screens/08-seql-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></figure>
+<figure><figcaption>Proposed: pause</figcaption><a class="zoom" href="screens/07-seql-pause.png" aria-label="View larger: Proposed: pause"><img src="screens/07-seql-pause.png" style="max-width:885px" alt="Proposed: pause" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: delete</figcaption><a class="zoom" href="screens/08-seql-delete.png" aria-label="View larger: Proposed: delete"><img src="screens/08-seql-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></a></figure>
 <div class="tbl-wrap"><table>
 <thead>
 <tr>
@@ -388,10 +388,10 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-3-sequence-steps-and-settings-rows-6-7">6.3 Sequence &gt; Steps and Settings (rows 6, 7)</h3>
-<figure><figcaption>Today: delete step</figcaption><img src="screens/09-steps-today.png" style="max-width:885px" alt="Today: delete step" loading="lazy"></figure>
-<figure><figcaption>Proposed: delete step</figcaption><img src="screens/10-steps-delete.png" style="max-width:885px" alt="Proposed: delete step" loading="lazy"></figure>
-<figure><figcaption>Today: remove email account</figcaption><img src="screens/11-steps-remove-today.png" style="max-width:885px" alt="Today: remove email account" loading="lazy"></figure>
-<figure><figcaption>Proposed: remove email account</figcaption><img src="screens/12-steps-remove.png" style="max-width:885px" alt="Proposed: remove email account" loading="lazy"></figure>
+<figure><figcaption>Today: delete step</figcaption><a class="zoom" href="screens/09-steps-today.png" aria-label="View larger: Today: delete step"><img src="screens/09-steps-today.png" style="max-width:885px" alt="Today: delete step" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: delete step</figcaption><a class="zoom" href="screens/10-steps-delete.png" aria-label="View larger: Proposed: delete step"><img src="screens/10-steps-delete.png" style="max-width:885px" alt="Proposed: delete step" loading="lazy"></a></figure>
+<figure><figcaption>Today: remove email account</figcaption><a class="zoom" href="screens/11-steps-remove-today.png" aria-label="View larger: Today: remove email account"><img src="screens/11-steps-remove-today.png" style="max-width:885px" alt="Today: remove email account" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: remove email account</figcaption><a class="zoom" href="screens/12-steps-remove.png" aria-label="View larger: Proposed: remove email account"><img src="screens/12-steps-remove.png" style="max-width:885px" alt="Proposed: remove email account" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Deleting a step or removing a sender moves or stops live prospects, and neither dialog says so.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -418,9 +418,9 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-4-unified-inbox-rows-8-10">6.4 Unified Inbox (rows 8-10)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/13-inbox-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
-<figure><figcaption>Proposed: delete</figcaption><img src="screens/14-inbox-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></figure>
-<figure><figcaption>Proposed: assign outcome</figcaption><img src="screens/15-inbox-outcome.png" style="max-width:885px" alt="Proposed: assign outcome" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/13-inbox-today.png" aria-label="View larger: Today"><img src="screens/13-inbox-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: delete</figcaption><a class="zoom" href="screens/14-inbox-delete.png" aria-label="View larger: Proposed: delete"><img src="screens/14-inbox-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: assign outcome</figcaption><a class="zoom" href="screens/15-inbox-outcome.png" aria-label="View larger: Proposed: assign outcome"><img src="screens/15-inbox-outcome.png" style="max-width:885px" alt="Proposed: assign outcome" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Bulk actions reach 10,000 threads; the copy is written for one.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -453,8 +453,8 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-5-tasks-row-11">6.5 Tasks (row 11)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/16-tasks-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
-<figure><figcaption>Proposed</figcaption><img src="screens/17-tasks-skip.png" style="max-width:885px" alt="Proposed" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/16-tasks-today.png" aria-label="View larger: Today"><img src="screens/16-tasks-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
+<figure><figcaption>Proposed</figcaption><a class="zoom" href="screens/17-tasks-skip.png" aria-label="View larger: Proposed"><img src="screens/17-tasks-skip.png" style="max-width:885px" alt="Proposed" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Bulk skip moves up to 25,000 prospects on, with no count and no undo.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -481,9 +481,9 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-6-crm-prospects-and-ai-columns-rows-12-14-16">6.6 CRM prospects and AI columns (rows 12-14, 16)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/18-crm-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
-<figure><figcaption>Proposed: delete</figcaption><img src="screens/19-crm-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></figure>
-<figure><figcaption>Proposed: AI column cost</figcaption><img src="screens/20-crm-ai.png" style="max-width:885px" alt="Proposed: AI column cost" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/18-crm-today.png" aria-label="View larger: Today"><img src="screens/18-crm-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: delete</figcaption><a class="zoom" href="screens/19-crm-delete.png" aria-label="View larger: Proposed: delete"><img src="screens/19-crm-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: AI column cost</figcaption><a class="zoom" href="screens/20-crm-ai.png" aria-label="View larger: Proposed: AI column cost"><img src="screens/20-crm-ai.png" style="max-width:885px" alt="Proposed: AI column cost" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Delete is permanent at up to 25,000; the AI column spends credits with no total.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -516,8 +516,8 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-7-import-csv-row-15">6.7 Import CSV (row 15)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/21-csv-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
-<figure><figcaption>Proposed</figcaption><img src="screens/22-csv-dialog.png" style="max-width:885px" alt="Proposed" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/21-csv-today.png" aria-label="View larger: Today"><img src="screens/21-csv-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
+<figure><figcaption>Proposed</figcaption><a class="zoom" href="screens/22-csv-dialog.png" aria-label="View larger: Proposed"><img src="screens/22-csv-dialog.png" style="max-width:885px" alt="Proposed" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Update All Fields and Overwrite both let a blank cell erase an existing value (measured, edge <code>4617c54</code>); today only a tooltip warns.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -544,9 +544,9 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-8-email-accounts-rows-17-20">6.8 Email accounts (rows 17-20)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/23-ea-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
-<figure><figcaption>Proposed: delete</figcaption><img src="screens/24-ea-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></figure>
-<figure><figcaption>Proposed: pause switch</figcaption><img src="screens/25-ea-pause.png" style="max-width:885px" alt="Proposed: pause switch" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/23-ea-today.png" aria-label="View larger: Today"><img src="screens/23-ea-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: delete</figcaption><a class="zoom" href="screens/24-ea-delete.png" aria-label="View larger: Proposed: delete"><img src="screens/24-ea-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: pause switch</figcaption><a class="zoom" href="screens/25-ea-pause.png" aria-label="View larger: Proposed: pause switch"><img src="screens/25-ea-pause.png" style="max-width:885px" alt="Proposed: pause switch" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Deleting or pausing a mailbox stops every sequence that sends from it; the pause switch has no confirmation.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -573,9 +573,9 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-9-lead-finder-and-email-verifier-rows-21-25">6.9 Lead Finder and Email Verifier (rows 21-25)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/26-lf-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
-<figure><figcaption>Proposed: reveal</figcaption><img src="screens/27-lf-reveal.png" style="max-width:885px" alt="Proposed: reveal" loading="lazy"></figure>
-<figure><figcaption>Proposed: Email Verifier</figcaption><img src="screens/28-lf-verify.png" style="max-width:885px" alt="Proposed: Email Verifier" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/26-lf-today.png" aria-label="View larger: Today"><img src="screens/26-lf-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: reveal</figcaption><a class="zoom" href="screens/27-lf-reveal.png" aria-label="View larger: Proposed: reveal"><img src="screens/27-lf-reveal.png" style="max-width:885px" alt="Proposed: reveal" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: Email Verifier</figcaption><a class="zoom" href="screens/28-lf-verify.png" aria-label="View larger: Proposed: Email Verifier"><img src="screens/28-lf-verify.png" style="max-width:885px" alt="Proposed: Email Verifier" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Credits are spent without a total; the Email Verifier spends and clears the input on click.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -602,9 +602,9 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-10-settings-rows-26-32">6.10 Settings (rows 26-32)</h3>
-<figure><figcaption>Today</figcaption><img src="screens/29-set-today.png" style="max-width:885px" alt="Today" loading="lazy"></figure>
-<figure><figcaption>Proposed: delete user</figcaption><img src="screens/30-set-user.png" style="max-width:885px" alt="Proposed: delete user" loading="lazy"></figure>
-<figure><figcaption>Proposed: CRM disconnect</figcaption><img src="screens/31-set-crm.png" style="max-width:885px" alt="Proposed: CRM disconnect" loading="lazy"></figure>
+<figure><figcaption>Today</figcaption><a class="zoom" href="screens/29-set-today.png" aria-label="View larger: Today"><img src="screens/29-set-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: delete user</figcaption><a class="zoom" href="screens/30-set-user.png" aria-label="View larger: Proposed: delete user"><img src="screens/30-set-user.png" style="max-width:885px" alt="Proposed: delete user" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: CRM disconnect</figcaption><a class="zoom" href="screens/31-set-crm.png" aria-label="View larger: Proposed: CRM disconnect"><img src="screens/31-set-crm.png" style="max-width:885px" alt="Proposed: CRM disconnect" loading="lazy"></a></figure>
 <p><strong>Why.</strong> These name neither the item nor what depends on it; CRM disconnect and client password reset fire on one click.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -637,10 +637,10 @@ figure img{width:100%;height:auto}
 </tbody>
 </table></div>
 <h3 id="6-11-admin-settings-profile-and-billing-rows-33-36">6.11 Admin settings, profile and billing (rows 33-36)</h3>
-<figure><figcaption>Proposed: email codes off</figcaption><img src="screens/32-ab-mfa.png" style="max-width:885px" alt="Proposed: email codes off" loading="lazy"></figure>
-<figure><figcaption>Today: slots</figcaption><img src="screens/33-ab-slots-today.png" style="max-width:885px" alt="Today: slots" loading="lazy"></figure>
-<figure><figcaption>Proposed: slots</figcaption><img src="screens/34-ab-slots.png" style="max-width:885px" alt="Proposed: slots" loading="lazy"></figure>
-<figure><figcaption>Proposed: delete account, Google user</figcaption><img src="screens/35-ab-delete.png" style="max-width:885px" alt="Proposed: delete account, Google user" loading="lazy"></figure>
+<figure><figcaption>Proposed: email codes off</figcaption><a class="zoom" href="screens/32-ab-mfa.png" aria-label="View larger: Proposed: email codes off"><img src="screens/32-ab-mfa.png" style="max-width:885px" alt="Proposed: email codes off" loading="lazy"></a></figure>
+<figure><figcaption>Today: slots</figcaption><a class="zoom" href="screens/33-ab-slots-today.png" aria-label="View larger: Today: slots"><img src="screens/33-ab-slots-today.png" style="max-width:885px" alt="Today: slots" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: slots</figcaption><a class="zoom" href="screens/34-ab-slots.png" aria-label="View larger: Proposed: slots"><img src="screens/34-ab-slots.png" style="max-width:885px" alt="Proposed: slots" loading="lazy"></a></figure>
+<figure><figcaption>Proposed: delete account, Google user</figcaption><a class="zoom" href="screens/35-ab-delete.png" aria-label="View larger: Proposed: delete account, Google user"><img src="screens/35-ab-delete.png" style="max-width:885px" alt="Proposed: delete account, Google user" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Security switches flip on one click; reducing slots is a dead end; Google users delete their account with no warning.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -959,6 +959,109 @@ figure img{width:100%;height:auto}
     });
   }, {rootMargin: '-10% 0px -75% 0px'});
   targets.forEach(function(t){ io.observe(t); });
+})();
+</script>
+
+<style>
+figure a.zoom{display:block;cursor:zoom-in;border-radius:var(--radius-md)}
+figure a.zoom img{transition:border-color .15s ease-out,box-shadow .15s ease-out}
+figure a.zoom:hover img{border-color:#93C5FD;box-shadow:0 4px 16px rgba(17,24,39,.08)}
+figure a.zoom:focus-visible{outline:2px solid #1D4ED8;outline-offset:3px}
+.lb{position:fixed;inset:0;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:rgba(17,24,39,.92);color:#F9FAFB;display:none;flex-direction:column;overscroll-behavior:contain}
+.lb[open]{display:flex}
+.lb::backdrop{background:transparent}
+.lb-bar{display:flex;align-items:center;gap:16px;padding:12px 16px 12px 24px;flex-shrink:0}
+.lb-cap{margin:0;flex:1;min-width:0;font-size:14px;line-height:20px;font-weight:500;color:#F9FAFB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-count{font-size:13px;line-height:20px;color:#9CA3AF;font-variant-numeric:tabular-nums;flex-shrink:0}
+.lb-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.lb-sep{width:1px;height:20px;background:rgba(249,250,251,.16);margin:0 6px}
+.lb-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:var(--radius-md);background:transparent;color:#E5E7EB;cursor:pointer;text-decoration:none;font:500 12px/1 inherit}
+.lb-btn:hover{background:rgba(249,250,251,.12);color:#fff;text-decoration:none}
+.lb-btn:focus-visible{outline:2px solid #93C5FD;outline-offset:1px}
+.lb-btn:disabled{opacity:.35;cursor:default;background:transparent}
+.lb-btn svg{width:20px;height:20px}
+.lb-pct{min-width:48px;text-align:center;font-size:13px;color:#D1D5DB;font-variant-numeric:tabular-nums}
+.lb-stage{flex:1;min-height:0;overflow:auto;display:flex;padding:0 24px 24px}
+.lb-img{margin:auto;display:block;border-radius:var(--radius-md);box-shadow:0 12px 40px rgba(0,0,0,.45);background:#fff;cursor:zoom-in;user-select:none;-webkit-user-drag:none}
+.lb.fit .lb-img{max-width:100%;max-height:100%;object-fit:contain}
+.lb.zoomed .lb-img{max-width:none;max-height:none;cursor:grab}
+.lb.dragging .lb-img{cursor:grabbing}
+.lb-hint{font-size:12px;line-height:16px;color:#9CA3AF;text-align:center;padding:0 16px 12px;flex-shrink:0}
+@media (max-width:600px){.lb-bar{padding:8px 8px 8px 16px;gap:8px}.lb-count,.lb-hint,.lb-sep,.lb-pct{display:none}.lb-stage{padding:0 8px 8px}.lb-btn{width:40px;height:40px}}
+@media (prefers-reduced-motion:reduce){figure a.zoom img{transition:none}}
+</style>
+<dialog class="lb fit" aria-label="Screenshot viewer">
+  <div class="lb-bar">
+    <p class="lb-cap"></p>
+    <span class="lb-count"></span>
+    <div class="lb-actions">
+      <button class="lb-btn" data-act="prev" aria-label="Previous screenshot" title="Previous (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="lb-btn" data-act="next" aria-label="Next screenshot" title="Next (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      <span class="lb-sep" aria-hidden="true"></span>
+      <button class="lb-btn" data-act="out" aria-label="Zoom out" title="Zoom out (−)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-4-4"/></svg></button>
+      <span class="lb-pct" aria-live="polite">Fit</span>
+      <button class="lb-btn" data-act="in" aria-label="Zoom in" title="Zoom in (+)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-4-4"/></svg></button>
+      <span class="lb-sep" aria-hidden="true"></span>
+      <a class="lb-btn" data-act="open" target="_blank" rel="noopener" aria-label="Open image in a new tab" title="Open in a new tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+      <button class="lb-btn" data-act="close" aria-label="Close" title="Close (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+  <div class="lb-stage"><img class="lb-img" alt=""></div>
+  <p class="lb-hint">Click the image to zoom, drag to move around, ← → for the next screen, Esc to close</p>
+</dialog>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('figure a.zoom'));
+  if (!links.length) return;
+  var lb = document.querySelector('.lb'), img = lb.querySelector('.lb-img'), stage = lb.querySelector('.lb-stage');
+  var cap = lb.querySelector('.lb-cap'), count = lb.querySelector('.lb-count'), pct = lb.querySelector('.lb-pct');
+  var open = lb.querySelector('[data-act="open"]'), prev = lb.querySelector('[data-act="prev"]'), next = lb.querySelector('[data-act="next"]');
+  var zOut = lb.querySelector('[data-act="out"]'), zIn = lb.querySelector('[data-act="in"]');
+  var STEPS = [0, 1, 1.5, 2, 3], step = 0, idx = 0, opener = null;
+  function setZoom(s, cx, cy) {
+    var r = stage.getBoundingClientRect(), ir = img.getBoundingClientRect();
+    var fx = cx == null ? 0.5 : (cx - ir.left) / ir.width, fy = cy == null ? 0.5 : (cy - ir.top) / ir.height;
+    step = Math.max(0, Math.min(STEPS.length - 1, s));
+    var z = STEPS[step];
+    lb.classList.toggle('fit', z === 0); lb.classList.toggle('zoomed', z !== 0);
+    img.style.width = z ? (img.naturalWidth * z) + 'px' : '';
+    pct.textContent = z ? Math.round(z * 100) + '%' : 'Fit';
+    zOut.disabled = step === 0; zIn.disabled = step === STEPS.length - 1;
+    if (z) { stage.scrollLeft = img.offsetWidth * fx - r.width / 2 + img.offsetLeft - stage.clientLeft; stage.scrollTop = img.offsetHeight * fy - r.height / 2 + img.offsetTop - stage.clientTop; }
+  }
+  function show(i) {
+    idx = (i + links.length) % links.length;
+    var a = links[idx], t = a.querySelector('img');
+    img.src = a.getAttribute('href'); img.alt = t.alt;
+    cap.textContent = t.alt; count.textContent = (idx + 1) + ' of ' + links.length;
+    open.href = a.getAttribute('href'); setZoom(0);
+  }
+  links.forEach(function (a, i) {
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault(); opener = a; show(i); lb.showModal(); document.documentElement.style.overflow = 'hidden';
+    });
+  });
+  lb.addEventListener('close', function () { document.documentElement.style.overflow = ''; img.removeAttribute('src'); if (opener) opener.focus(); });
+  lb.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (b) { var act = b.dataset.act;
+      if (act === 'close') lb.close(); else if (act === 'prev') show(idx - 1); else if (act === 'next') show(idx + 1);
+      else if (act === 'in') setZoom(step + 1); else if (act === 'out') setZoom(step - 1);
+      return; }
+    if (e.target === stage) lb.close();
+  });
+  var drag = null, moved = false;
+  img.addEventListener('pointerdown', function (e) { moved = false; if (STEPS[step] === 0) return; drag = { x: e.clientX, y: e.clientY, l: stage.scrollLeft, t: stage.scrollTop }; img.setPointerCapture(e.pointerId); lb.classList.add('dragging'); });
+  img.addEventListener('pointermove', function (e) { if (!drag) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) moved = true; stage.scrollLeft = drag.l - dx; stage.scrollTop = drag.t - dy; });
+  img.addEventListener('pointerup', function (e) { var was = drag; drag = null; lb.classList.remove('dragging'); if (moved) return; setZoom(STEPS[step] === 0 ? 3 : 0, e.clientX, e.clientY); });
+  lb.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+    else if (e.key === '+' || e.key === '=') setZoom(step + 1);
+    else if (e.key === '-') setZoom(step - 1);
+    else if (e.key === '0') setZoom(0);
+  });
 })();
 </script>
 

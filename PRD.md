@@ -1,6 +1,6 @@
 # Safe actions: no risky action on one click
 
-**Design of record:** [clickable prototype](prototype/index.html) · **Status:** Ready for review
+**Design of record:** [clickable prototype](prototype/index.html) · [every screen on one canvas](canvas/index.html) · **Status:** Ready for review
 
 Copy, breakdown rows and states for every surface: [spec](https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md).
 
