@@ -281,7 +281,7 @@ figure img{width:100%;height:auto}
 </section>
 <section id="5-decisions" class="sec"><div class="sec-head"><span class="sec-num">5</span><h2>Decisions</h2></div>
 
-<p><strong>D1 – The impact dialog appears on every risky action, including a single item.</strong> <strong>Consequence to accept:</strong> one extra step on frequent clean-up work.</p>
+<p><strong>D1 – The impact dialog appears on every risky action, including a single item.</strong> It never lists the names of the selected items, since the selection stays visible behind it, and never counts what is due in a time window (next hour, today, next 24 hours). <strong>Consequence to accept:</strong> one extra step on frequent clean-up work.</p>
 <p><strong>D2 – Typing to confirm stays only where production asks for it today</strong> (typed "delete" on sequence, subsequence, step and variant delete). The Sequence &gt; Prospects dialogs never ask to type. Whether other new red dialogs ask to type is Q5. <strong>Consequence to accept:</strong> on Sequence &gt; Prospects, one click on the red button inside the dialog removes or unsubscribes.</p>
 <p><strong>D3 – Undo lasts 10 seconds; there is no restore after that.</strong> No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). No undo on Remove from sequence: their progress in the sequence is deleted. No undo on Unsubscribe: a prospect is shared across sequences, so the system can't tell a user's resubscribe from the recipient's own unsubscribe, a compliance risk. No undo on Mark as finished: undoing would send the remaining steps. All three dialogs say so and give the way back: add them to the sequence again (engineering review, 19 Nov 2026). <strong>Consequence to accept:</strong> a mistake noticed later stays unrecoverable; on Sequence &gt; Prospects the dialog is the only guard for Remove, Unsubscribe and Mark as finished.</p>
 </section>
@@ -346,7 +346,7 @@ figure img{width:100%;height:auto}
 </table></div>
 <h3 id="6-2-sequence-list-rows-5-37">6.2 Sequence list (rows 5, 37)</h3>
 <figure><figcaption>Today</figcaption><a class="zoom" href="screens/06-seql-today.png" aria-label="View larger: Today"><img src="screens/06-seql-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
-<p><strong>Why.</strong> Bulk pause names neither the sequences nor how many prospects stop; delete says nothing about what is lost.</p>
+<p><strong>Why.</strong> Bulk pause does not say how many prospects stop; delete says nothing about what is lost.</p>
 <figure><figcaption>Proposed: pause</figcaption><a class="zoom" href="screens/07-seql-pause.png" aria-label="View larger: Proposed: pause"><img src="screens/07-seql-pause.png" style="max-width:885px" alt="Proposed: pause" loading="lazy"></a></figure>
 <figure><figcaption>Proposed: delete</figcaption><a class="zoom" href="screens/08-seql-delete.png" aria-label="View larger: Proposed: delete"><img src="screens/08-seql-delete.png" style="max-width:885px" alt="Proposed: delete" loading="lazy"></a></figure>
 <div class="tbl-wrap"><table>
@@ -362,13 +362,13 @@ figure img{width:100%;height:auto}
 <tr>
 <td>SL-1</td>
 <td>Pause 12</td>
-<td>Rows: prospects who stop getting emails, emails in the next hour, subsequences; undo 10 s</td>
+<td>Rows: prospects who stop getting emails, subsequences; no list of sequence names (the selection stays visible behind the dialog); undo 10 s</td>
 <td>P0</td>
 </tr>
 <tr>
 <td>SL-2</td>
 <td>Delete 3</td>
-<td>Breakdown and "This can't be undone."; primary disabled until "delete" is typed; no undo</td>
+<td>Rows: prospects in progress, subsequences deleted with them; no names list; "This can't be undone."; primary disabled until "delete" is typed; no undo</td>
 <td>P0</td>
 </tr>
 <tr>
@@ -553,7 +553,7 @@ figure img{width:100%;height:auto}
 <tr>
 <td>EA-1</td>
 <td>Delete 6</td>
-<td>Rows: active sequences that pause, emails scheduled today; no undo</td>
+<td>Rows: active sequences that pause, sequences that keep sending; no list of account names; no undo</td>
 <td>P0</td>
 </tr>
 <tr>

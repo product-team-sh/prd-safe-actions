@@ -117,9 +117,9 @@
       { key: 'view', label: 'View', value: S.view, options: [['today', 'Today'], ['proposed', 'Proposed']], onChange: (v) => { S.view = v; if (v === 'today' && S.all) { S.all = false; list().slice(0, CAP).forEach((s) => S.sel.add(s.id)); } render(); } },
     ],
     devNotes: {
-      intro: 'Spec row 5. The bulk bar acts on up to 100 sequences (constants.SELECTED_SEQUENCE_LIMIT). The breakdown counts (prospects in progress, emails scheduled in the next hour, subsequences) come from the backend before the dialog opens. Undo needs the bulk pause or resume to start only after 10 seconds and be cancellable until then; the bulk endpoints already return per-sequence success and failure counts.',
+      intro: 'Spec row 5. The bulk bar acts on up to 100 sequences (constants.SELECTED_SEQUENCE_LIMIT). The breakdown counts (prospects in progress, subsequences) come from the backend before the dialog opens. Undo needs the bulk pause or resume to start only after 10 seconds and be cancellable until then; the bulk endpoints already return per-sequence success and failure counts.',
       rows: [
-        { n: 5, surface: 'Sequence list', action: 'Bulk Pause, bulk Resume, row switch', patterns: 'A B F H', breakdown: 'Sequences named (first 3, then "and N more"). Pause: prospects in progress who stop getting emails, emails scheduled in the next hour, subsequences (keep sending, or pause too when the checkbox is on). Resume: prospects in progress who start getting emails again, emails that go out today. Sequences the action does not apply to are named in a note, including any that cannot resume because their email account is disconnected.', undo: 'Yes, 10 seconds',
+        { n: 5, surface: 'Sequence list', action: 'Bulk Pause, bulk Resume, row switch', patterns: 'A B F H', breakdown: 'No names list: the selected rows stay visible behind the dialog. Pause: prospects in progress who stop getting emails, subsequences (keep sending, or pause too when the checkbox is on). Resume: prospects in progress who start getting emails again. Sequences the action does not apply to are named in a note, including any that cannot resume because their email account is disconnected.', undo: 'Yes, 10 seconds',
           code: [
             { label: 'sequence-list-filter-bar.tsx L180-218 (icon-only Pause and Resume, red "Delete N Sequences")', url: FB + '#L180-L218' },
             { label: 'pause-resume-sequence-modal.tsx L38-67 ("Are you sure you want to pause the Sequence?", Yes / No)', url: MD + '#L38-L67' },
@@ -238,18 +238,8 @@
   const q = (s) => `“${esc(s.title)}”`;
   const nS = (n) => `${fmt(n)} ${plural(n, 'sequence', 'sequences')}`;
   const sum = (arr, k) => arr.reduce((a, s) => a + s[k], 0);
-  const names = (arr) => {
-    const first = arr.slice(0, 3).map(q);
-    const more = arr.length - first.length;
-    if (!more) return first.length === 1 ? first[0] : `${first.slice(0, -1).join(', ')} and ${first[first.length - 1]}`;
-    return `${first.join(', ')} and ${fmt(more)} more`;
-  };
   const isEverything = (arr) => arr.length === list().length;
   const dlgCommon = (o) => Object.assign({ breakdown: S.breakdown, submit: S.result, breakdownDelay: window.SL_BD, submitDelay: window.SL_SD }, o);
-  function addNames(dlg, arr) { // the sequences, named, sit above the breakdown
-    const box = dlg.el.querySelector('.nx-impact');
-    box.prepend(h(`<p class="sl-names">${names(arr)}</p>`));
-  }
   /* Today's "Pause the subsequences as well" checkbox, kept; it now carries the count and updates the breakdown row */
   function subExtra(count, row) {
     let on = false;
@@ -300,9 +290,9 @@
       tone: 'primary', icon: NX.IMG('pause-circle.svg'),
       rows: [
         { key: 'active', label: 'Prospects in progress who stop getting emails', value: sum(arr, 'inProgress') },
-        { key: 'soon', label: 'Emails scheduled in the next hour', value: sum(arr, 'nextHour'), sub: true },
         subRow,
       ],
+      sentence: (r) => (r.key === 'active' ? `${fmt(r.value)} ${plural(r.value, 'prospect is', 'prospects are')} in progress and ${r.value === 1 ? 'stops' : 'stop'} getting emails.` : `${fmt(r.value)} ${plural(r.value, 'subsequence keeps', 'subsequences keep')} sending.`),
       note: skipped ? `${nS(skipped)} ${skipped === 1 ? 'is' : 'are'} already paused and ${skipped === 1 ? 'stays' : 'stay'} as ${skipped === 1 ? 'it is' : 'they are'}.` : null,
       extra: subs ? subExtra(subs, subRow) : null,
       consequence: `They stop sending until you resume them.${allActive ? ' Nothing sends from this account until then.' : ''} You can undo this for 10 seconds.`,
@@ -318,12 +308,11 @@
       // one sequence: no lookup; the breakdown becomes one sentence from the row's own counts
       o.rows = [{ key: 'one', label: '', value: 1 }];
       o.breakdown = 'ok'; o.breakdownDelay = 0;
-      o.sentence = `${fmt(s.inProgress)} ${plural(s.inProgress, 'prospect is', 'prospects are')} in progress${s.nextHour ? `, with ${fmt(s.nextHour)} ${plural(s.nextHour, 'email', 'emails')} scheduled in the next hour` : ''}. ${s.subs.length ? `Its ${s.subs.length === 1 ? 'subsequence keeps' : `${s.subs.length} subsequences keep`} sending unless you pause ${s.subs.length === 1 ? 'it' : 'them'} too.` : ''}`;
+      o.sentence = `${fmt(s.inProgress)} ${plural(s.inProgress, 'prospect is', 'prospects are')} in progress. ${s.subs.length ? `Its ${s.subs.length === 1 ? 'subsequence keeps' : `${s.subs.length} subsequences keep`} sending unless you pause ${s.subs.length === 1 ? 'it' : 'them'} too.` : ''}`;
       o.consequence = `It stops sending until you resume it. You can undo this for 10 seconds.`;
       o.onConfirm = (withSubs) => commitStatus(arr, 'paused', withSubs, { message: `Paused ${q(s)}`, undone: `Undone. ${q(s)} is active again` });
     }
     const dlg = nxImpactDialog(o);
-    if (!one) addNames(dlg, arr);
     return dlg;
   }
 
@@ -343,8 +332,8 @@
       tone: 'primary', icon: NX.IMG('play-circle.svg'),
       rows: [
         { key: 'inprog', label: 'Prospects in progress who start getting emails again', value: sum(arr, 'inProgress') },
-        { key: 'today', label: 'Emails that go out today', value: sum(arr, 'sendToday'), sub: true },
       ],
+      sentence: (r) => `${fmt(r.value)} ${plural(r.value, 'prospect is', 'prospects are')} in progress and ${r.value === 1 ? 'starts' : 'start'} getting emails again.`,
       note: notes.join(' ') || null,
       consequence: `They pick up where they stopped. You can undo this for 10 seconds.`,
       primaryLabel: one ? 'Resume sequence' : `Resume ${nS(N)}`,
@@ -358,11 +347,10 @@
       const s = arr[0];
       o.rows = [{ key: 'one', label: '', value: 1 }];
       o.breakdown = 'ok'; o.breakdownDelay = 0;
-      o.sentence = `${fmt(s.inProgress)} ${plural(s.inProgress, 'prospect is', 'prospects are')} still in progress${s.sendToday ? `; ${fmt(s.sendToday)} ${plural(s.sendToday, 'email goes', 'emails go')} out today` : ''}.`;
+      o.sentence = `${fmt(s.inProgress)} ${plural(s.inProgress, 'prospect is', 'prospects are')} still in progress.`;
       o.consequence = 'It picks up where it stopped. You can undo this for 10 seconds.';
     }
     const dlg = nxImpactDialog(o);
-    if (!one) addNames(dlg, arr);
     return dlg;
   }
 
@@ -386,9 +374,9 @@
         tone: 'danger',
         rows: [
           { key: 'active', label: 'Prospects in progress', value: sum(sel, 'inProgress') },
-          { key: 'soon', label: 'Emails scheduled in the next hour', value: sum(sel, 'nextHour') },
           { key: 'subs', label: 'Subsequences deleted with them', value: subs },
         ],
+        sentence: (r) => (r.key === 'active' ? `${fmt(r.value)} ${plural(r.value, 'prospect is', 'prospects are')} in progress.` : `${fmt(r.value)} ${plural(r.value, 'subsequence is', 'subsequences are')} deleted with them.`),
         consequence: `${one ? 'Its' : 'Their'} steps, prospects' progress and stats are deleted. This can't be undone.`,
         primaryLabel: one ? 'Delete sequence' : `Delete ${nS(N)}`, typeToConfirm: 'delete',
         failMessage: { title: `We couldn't delete ${one ? 'this sequence' : 'these sequences'} because ${one ? 'it was' : 'one of them was'} already deleted by a teammate.`, body: 'Refresh the page and try again.' },
@@ -402,10 +390,9 @@
         const x = sel[0];
         o.rows = [{ key: 'one', label: '', value: 1 }];
         o.breakdown = 'ok'; o.breakdownDelay = 0;
-        o.sentence = `${fmt(x.inProgress)} ${plural(x.inProgress, 'prospect is', 'prospects are')} in progress${x.nextHour ? `, with ${fmt(x.nextHour)} ${plural(x.nextHour, 'email', 'emails')} scheduled in the next hour` : ''}.${x.subs.length ? ` Its ${x.subs.length === 1 ? 'subsequence is' : `${fmt(x.subs.length)} subsequences are`} deleted with it.` : ''}`;
+        o.sentence = `${fmt(x.inProgress)} ${plural(x.inProgress, 'prospect is', 'prospects are')} in progress.${x.subs.length ? ` Its ${x.subs.length === 1 ? 'subsequence is' : `${fmt(x.subs.length)} subsequences are`} deleted with it.` : ''}`;
       }
       const dlg = nxImpactDialog(o);
-      if (!one) addNames(dlg, sel);
       return dlg;
     }
     return window.SL_DELETE(sel.length, () => {

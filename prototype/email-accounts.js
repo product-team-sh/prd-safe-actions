@@ -104,17 +104,17 @@
       { key: 'reset', label: 'Data', value: '', options: [['reset', 'Reset']], onChange: () => { DATA = build(); gone.clear(); applySel(S.sel); render(); shell.setControl('reset', ''); } },
     ],
     devNotes: {
-      intro: 'Spec rows 17 to 20. Counts in every dialog come from the backend when it opens (one call, also for a single account: emails scheduled today are not on the row). Delete and Disconnect have no undo because they act on Google, Microsoft or the SMTP server at once. Pause and Remove tags need the real change to start only after 10 seconds and be cancellable until then.',
+      intro: 'Spec rows 17 to 20. Counts in every dialog come from the backend when it opens (one call, also for a single account). Delete and Disconnect have no undo because they act on Google, Microsoft or the SMTP server at once. Pause and Remove tags need the real change to start only after 10 seconds and be cancellable until then.',
       rows: [
         { n: 17, surface: 'Email accounts', action: 'Bulk Delete, bulk Disconnect (up to 25,000)', patterns: 'A B F',
-          breakdown: 'Accounts named (first 3 and "and N more"). Sequences that pause because no other sender is left; sequences that keep sending from other accounts; emails scheduled today from these accounts; accounts whose warm-up stops (Delete only). Sequences that pause are named in a note. The title counts what changes: Disconnect skips accounts that are already paused or disconnected and says so. Delete of everything says "all" and adds "No email accounts will be left to send from."',
+          breakdown: 'No names list: the selected rows stay visible behind the dialog. Sequences that pause because no other sender is left; sequences that keep sending from other accounts; accounts whose warm-up stops (Delete only). Sequences that pause are named in a note. The title counts what changes: Disconnect skips accounts that are already paused or disconnected and says so. Delete of everything says "all" and adds "No email accounts will be left to send from."',
           undo: 'No', code: [{ label: 'email-accounts-actions.tsx L163-207 (icon-only bar, tooltips only)', url: ACT + '#L163-L207' }, { label: 'email-accounts-actions.tsx L684-740 (both modals, "Yes")', url: ACT + '#L684-L740' }, { label: 'en.ts L1647-1650 ("all the selected email accounts")', url: LOC + '#L1647-L1650' }, { label: 'helper.ts L52-55 ("6 Email Account(s) selected.")', url: BAN + '#L52-L55' }],
           v3: 'saleshandy-app b39fe37 has no Email Accounts page (src/features has none), so nothing to change there yet.' },
         { n: 18, surface: 'Email accounts', action: 'Single Delete, Disconnect (row menu)', patterns: 'F',
           breakdown: 'Account named in the title. Same rows as bulk for that one account; sequences that pause are named.', undo: 'No',
           code: [{ label: 'email-accounts-table.tsx L194-258 (row menu)', url: TBL + '#L194-L258' }, { label: 'delete-email-account-modal.tsx L16-41 (account not named)', url: EA + 'components/delete-email-account-modal/delete-email-account-modal.tsx#L16-L41' }, { label: 'disconnect-email-account-modal.tsx', url: EA + 'components/disconnect-email-account-modal/disconnect-email-account-modal.tsx' }] },
         { n: 19, surface: 'Email accounts', action: 'Status switch to Pause', patterns: 'F H',
-          breakdown: 'Sequences that pause (no other sender left), sequences that keep sending, emails scheduled today from it.', undo: 'Yes, 10 seconds',
+          breakdown: 'Sequences that pause (no other sender left), sequences that keep sending.', undo: 'Yes, 10 seconds',
           code: [{ label: 'get-email-accounts-columns.tsx L250-263 (switch)', url: COL + '#L250-L263' }, { label: 'email-accounts-content.tsx L1062-1068, L800-806 (fires at once)', url: CNT + '#L1062-L1068' }, { label: 'email-accounts-content.tsx L474 ("Email account paused successfully")', url: CNT + '#L474' }] },
         { n: 20, surface: 'Email accounts', action: 'Remove tags', patterns: 'A F H',
           breakdown: 'Tags on the selected accounts, each with how many of them carry it; the picker is the breakdown. The consequence counts the accounts that lose at least one tag.', undo: 'Yes, 10 seconds',
@@ -248,10 +248,6 @@
     if (q.length <= 3) return q.length === 1 ? q[0] : `${q.slice(0, -1).join(', ')} and ${q[q.length - 1]}`;
     return `${q.slice(0, 3).join(', ')} and ${q.length - 3} more`;
   };
-  const namesLine = (accts) => {
-    const e = accts.map((a) => esc(a.email));
-    return e.length <= 3 ? `${e.slice(0, -1).join(', ')} and ${e[e.length - 1]}` : `${e.slice(0, 3).join(', ')} and ${e.length - 3} more`;
-  };
   function addLead(d, html) {
     const imp = d.el.querySelector('.nx-impact');
     if (imp) imp.prepend(h(`<p class="ea-lead nx-new">${html}</p>`));
@@ -262,17 +258,15 @@
     return [
       { key: 'stop', label: 'Sequences that pause, no other sender left', value: imp.stop.length },
       { key: 'keep', label: 'Sequences that keep sending from other accounts', value: imp.keep.length },
-      { key: 'today', label: `Emails scheduled today from ${one ? 'it' : 'these accounts'}`, value: imp.today },
       ...(withWarm ? [{ key: 'warm', label: 'Accounts whose warm-up stops', value: one ? 0 : imp.warm }] : []),
     ];
   }
   const sentenceFor = (one) => (r) => ({
     stop: `${r.value === 1 ? '1 sequence pauses' : `${fmt(r.value)} sequences pause`}; no other sender is left.`,
     keep: `${nS(r.value)} keep${r.value === 1 ? 's' : ''} sending from other accounts.`,
-    today: `${fmt(r.value)} ${plural(r.value, 'email is', 'emails are')} scheduled today from ${one ? 'it' : 'these accounts'}.`,
     warm: one ? 'Its warm-up stops.' : `Warm-up stops on ${nE(r.value)}.`,
   }[r.key]);
-  const hasImpact = (imp, warm) => imp.stop.length + imp.keep.length + imp.today + (warm ? imp.warm : 0) > 0;
+  const hasImpact = (imp, warm) => imp.stop.length + imp.keep.length + (warm ? imp.warm : 0) > 0;
   const stopNote = (imp) => (imp.stop.length ? `${quoteList(imp.stop)} ${imp.stop.length === 1 ? 'has' : 'have'} no other sender.` : null);
 
   function openBulk(kind) {
@@ -302,7 +296,6 @@
         : { title: "We couldn't disconnect these email accounts because Google and Microsoft did not respond in time.", body: 'Nothing changed. Try again in a minute.' },
       onConfirm: () => done(kind, targets),
     }));
-    addLead(d, namesLine(targets));
     return d;
   }
 

@@ -40,7 +40,7 @@ About 110 risky actions audited: about 35 unconfirmed, about 35 with a confirmat
 
 ## 5. Decisions
 
-**D1 – The impact dialog appears on every risky action, including a single item.** **Consequence to accept:** one extra step on frequent clean-up work.
+**D1 – The impact dialog appears on every risky action, including a single item.** It never lists the names of the selected items, since the selection stays visible behind it, and never counts what is due in a time window (next hour, today, next 24 hours). **Consequence to accept:** one extra step on frequent clean-up work.
 
 **D2 – Typing to confirm stays only where production asks for it today** (typed "delete" on sequence, subsequence, step and variant delete). The Sequence > Prospects dialogs never ask to type. Whether other new red dialogs ask to type is Q5. **Consequence to accept:** on Sequence > Prospects, one click on the red button inside the dialog removes or unsubscribes.
 
@@ -79,7 +79,7 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 
 ![Today](screens/06-seql-today.png)
 
-**Why.** Bulk pause names neither the sequences nor how many prospects stop; delete says nothing about what is lost.
+**Why.** Bulk pause does not say how many prospects stop; delete says nothing about what is lost.
 
 ![Proposed: pause](screens/07-seql-pause.png)
 
@@ -87,8 +87,8 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 
 | ID | Case | Expected | P |
 |---|---|---|---|
-| SL-1 | Pause 12 | Rows: prospects who stop getting emails, emails in the next hour, subsequences; undo 10 s | P0 |
-| SL-2 | Delete 3 | Breakdown and "This can't be undone."; primary disabled until "delete" is typed; no undo | P0 |
+| SL-1 | Pause 12 | Rows: prospects who stop getting emails, subsequences; no list of sequence names (the selection stays visible behind the dialog); undo 10 s | P0 |
+| SL-2 | Delete 3 | Rows: prospects in progress, subsequences deleted with them; no names list; "This can't be undone."; primary disabled until "delete" is typed; no undo | P0 |
 | SL-3 | Resume includes a sequence with a disconnected mailbox | That sequence is left out and named in a note | P1 |
 
 ### 6.3 Sequence > Steps and Settings (rows 6, 7)
@@ -178,7 +178,7 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 
 | ID | Case | Expected | P |
 |---|---|---|---|
-| EA-1 | Delete 6 | Rows: active sequences that pause, emails scheduled today; no undo | P0 |
+| EA-1 | Delete 6 | Rows: active sequences that pause, sequences that keep sending; no list of account names; no undo | P0 |
 | EA-2 | Pause switch | Dialog names the account; undo 10 s | P1 |
 
 ### 6.9 Lead Finder and Email Verifier (rows 21-25)

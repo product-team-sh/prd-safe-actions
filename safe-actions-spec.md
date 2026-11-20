@@ -63,7 +63,7 @@ One dialog pattern for every risky action. Anatomy, top to bottom:
 | Part | Rule | Example |
 |---|---|---|
 | Title | Verb + count + noun + where, as a question. Single item: name it | "Remove 7 prospects from "SaaS founders, Oct"?" / "Delete the custom field "Industry"?" |
-| Breakdown | Up to 4 rows describing **what is affected**: the selection split by status, or the knock-on (sequences that pause, prospects that lose a value). Rows with 0 are hidden. If only one row would show, write it as a sentence instead | Still in progress 1,906 / Email scheduled in the next hour 214 / Replied 312 / Paused 122 |
+| Breakdown | Up to 4 rows describing **what is affected**: the selection split by status, or the knock-on (sequences that pause, prospects that lose a value). Rows with 0 are hidden. If only one row would show, write it as a sentence instead. Never list the names of selected items: the selection stays visible behind the dialog. No rows that count what is due in a time window (next hour, today, next 24 hours) | Still in progress 1,906 / Replied 312 / Paused 122 |
 | Consequence | One or two short sentences: what stops, what is lost, and whether it can be undone | "Its value is cleared on 2,340 prospects. This can't be undone." |
 | Buttons | Secondary "Cancel". Primary = verb + count + noun, never "Yes" or "OK". When one item is named in the title, verb + noun with no "1" | "Remove 7 prospects" / "Remove prospect" |
 | Colour | Red primary when data is lost: something is deleted, removed with its history (remove from sequence), or can never be undone (unsubscribe). Blue when nothing is lost and it can be redone by hand: pause, resume, assign outcome, skip, remove tags, remove from a list | |
@@ -148,8 +148,8 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 | 2 | Sequence > Prospects | Unsubscribe | A B F | None; count of already unsubscribed for the skipped line | No | sequence-prospects.html |
 | 3 | Sequence > Prospects | Mark as replied, Mark as finished | A F, H on replied only | None; count already in that state for the skipped line | Replied yes, finished no | sequence-prospects.html |
 | 4 | Sequence > Prospects | Pause, Resume | A F | None; count not in progress (pause) or not paused (resume) for the skipped line | No | sequence-prospects.html |
-| 5 | Sequence list | Bulk pause / resume (up to 100) | A B F H | Sequences named (first 3 + "and N more"), active prospects affected, subsequences | Yes | sequence-list.html |
-| 6 | Sequence > Steps | Delete step (keeps today's typed "delete" inside F) | F | Prospects currently on this step, emails scheduled from it, where those prospects go next | No | sequence-steps.html |
+| 5 | Sequence list | Bulk pause / resume (up to 100) | A B F H | Active prospects affected, subsequences. No names list: the selection stays visible behind the dialog | Yes | sequence-list.html |
+| 6 | Sequence > Steps | Delete step (keeps today's typed "delete" inside F) | F | Prospects currently on this step, where those prospects go next | No | sequence-steps.html |
 | 7 | Sequence > Settings | Remove email account from sequence | F | Account named, prospects whose next email was due from it, follow-ups that stop | No | sequence-steps.html |
 | 8 | Unified Inbox | Bulk delete conversation | A B F H | Conversations, of which from active sequence prospects | Yes | unified-inbox.html |
 | 9 | Unified Inbox | Bulk unsubscribe | A B F H | Prospects, of which in active sequences | Yes | unified-inbox.html |
@@ -160,9 +160,9 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 | 14 | CRM prospects | Remove tags | A F H | Prospects, tags being removed | Yes | crm-prospects.html |
 | 15 | CRM > Import CSV | Update All Fields / Overwrite | F | Existing prospects that will change, values that will be cleared (blank cells clear values for **both** options: [edge L2890-2903](https://github.com/saleshandy/saleshandy-edge/blob/4617c54245290552db5483f112542b98d6901fc9/src/contacts/services/contacts-import.service.ts#L2890-L2903); the Overwrite option text does not say so), new prospects added | No | csv-import.html |
 | 16 | CRM > AI column | Run (new column), run on existing column | L (+F for overwrite) | Rows, credits, values replaced | No | crm-prospects.html |
-| 17 | Email accounts | Bulk delete / disconnect | A B F | Accounts, active sequences that pause, emails scheduled today | No | email-accounts.html |
+| 17 | Email accounts | Bulk delete / disconnect | A B F | Active sequences that pause, sequences that keep sending; no names list | No | email-accounts.html |
 | 18 | Email accounts | Single delete / disconnect | F | Account named, sequences that pause | No | email-accounts.html |
-| 19 | Email accounts | Status switch to Pause | F H | Sequences using it, emails scheduled today | Yes | email-accounts.html |
+| 19 | Email accounts | Status switch to Pause | F H | Sequences using it | Yes | email-accounts.html |
 | 20 | Email accounts | Remove tags | A F H | Accounts, tags | Yes | email-accounts.html |
 | 21 | Lead Finder | Bulk reveal email / phone | A L | Credits by type | No | lead-finder.html |
 | 22 | Lead Finder | Save to list, Add to sequence with reveal | L | Credits | No | lead-finder.html |
@@ -180,7 +180,7 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 | 34 | Admin settings | Account-wide integration events | F | Users whose events start flowing | No | admin-billing.html |
 | 35 | Profile | Delete account (Google/Microsoft users) | F + K | Everything erased | No | admin-billing.html |
 | 36 | Billing | Remove slots / seats, downgrade | M | See M | No | admin-billing.html |
-| 37 | Sequence list | Delete sequences (bulk up to 100, and the row menu) | B F | Sequences named (first 3 + "and N more"), prospects in progress, emails scheduled in the next hour, subsequences deleted with them. Keeps today's typed "delete" inside F | No | sequence-list.html |
+| 37 | Sequence list | Delete sequences (bulk up to 100, and the row menu) | B F | Prospects in progress, subsequences deleted with them. No names list. Keeps today's typed "delete" inside F | No | sequence-list.html |
 
 ## Backend asks
 
