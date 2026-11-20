@@ -824,7 +824,12 @@
       : `You have ${cr(o.have)}. <b>${fmt(o.have - uses)}</b> left after this.`;
     const html = o.items.length > 1
       ? `<dl class="nx-rows nx-receipt">${o.items.map((i) => `<div class="nx-row"><dt>${iname(i)}</dt><dd>${fmt(i.credits)}</dd></div>`).join('')}<div class="nx-row nx-total"><dt>Total</dt><dd>${cr(uses)}</dd></div></dl><p class="nx-balance">${bal}</p>`
-      : `<p class="nx-cost-line">This uses <b>${cr(uses)}</b>.</p><p class="nx-balance">${bal}</p>`;
+      : (() => { // one cost: one sentence with cost, balance and what is left; an estimate only adds "about"
+        const about = o.estimate ? 'about ' : '';
+        return short
+          ? `<p class="nx-cost-one">This uses <b>${about}${cr(uses)}</b>. You have ${fmt(o.have)}, so you are <b class="nx-cost-short">${fmt(short)} short</b>.</p>`
+          : `<p class="nx-cost-one">This uses <b>${about}${cr(uses)}</b> of your ${fmt(o.have)}, leaving <b>${fmt(o.have - uses)}</b>.</p>`;
+      })();
     const body = h(`<div class="nx-impact nx-new nx-cost">${html}${o.consequence ? `<p class="nx-consequence">${o.consequence}</p>` : ''}</div>`);
     const run = (fn) => (c) => {
       c.setError(null); c.setBusy(true);
@@ -852,7 +857,7 @@
     let need = 0;
     const picked = new Set();
     if (o.kind === 'downgrade') {
-      body.appendChild(h(`<p>On <b>${o.date}</b>, these stop:</p>`));
+      body.appendChild(h('<p>These stop on that date:</p>')); // the date is in the title
       body.appendChild(h(renderRows(o.stops) || '<span></span>'));
       if (o.list && o.list.items.length) {
         // named list of what pauses, so nothing is a surprise on the date

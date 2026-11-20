@@ -199,7 +199,7 @@
 
     const acc = `${others} email ${plural(others, 'account', 'accounts')}`;
     const consequence = others
-      ? `Its prospects get their next emails from your other ${acc} instead.${a.emailed ? ' Replies and bounces to emails it already sent may stop being tracked.' : ''} This can't be undone.`
+      ? `${a.followups ? '' : `Their next emails come from your other ${acc}. `}${a.emailed ? 'Replies and bounces to emails it already sent may stop being tracked. ' : ''}This can't be undone.` // the follow-up row already says where they go
       : `This is the sequence's only email account, so the sequence pauses until you add another.${a.emailed ? ' Replies and bounces to emails it already sent may stop being tracked.' : ''} This can't be undone.`;
     return nxImpactDialog(dlgCommon({
       title: `Remove ${esc(a.email)} from ${QSEQ}?`, tone: 'danger',

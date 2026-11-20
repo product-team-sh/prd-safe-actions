@@ -249,11 +249,6 @@
         el.querySelector('.bs-checkbox-wrapper').insertAdjacentHTML('beforeend', `<span class="checkbox-label-text">Pause the ${count === 1 ? 'subsequence' : `${fmt(count)} subsequences`} as well</span>`);
         el.querySelector('input').addEventListener('change', (e) => {
           on = e.target.checked;
-          if (row) {
-            row.label = on ? 'Subsequences' : 'Subsequences, which keep sending';
-            const dt = document.querySelector('.nx-dialog .sl-subrow dt');
-            if (dt) dt.textContent = row.label;
-          }
         });
       },
       value() { return on; },
@@ -283,7 +278,7 @@
     const subs = arr.reduce((a, s) => a + s.subs.filter((x) => x.progress === 'active').length, 0);
     const all = !single && isEverything(sel) && skipped === 0;
     const allActive = !single && N === list().filter((s) => s.progress === 'active').length && N > 1;
-    const subRow = { key: 'subs', label: 'Subsequences, which keep sending', value: subs, cls: 'sl-subrow' };
+    const subRow = { key: 'subs', label: 'Subsequences', value: subs, cls: 'sl-subrow' }; // the checkbox under it carries the choice
     const one = N === 1;
     const o = dlgCommon({
       title: one ? `Pause ${q(arr[0])}?` : all ? `Pause all ${nS(N)}?` : `Pause ${nS(N)}?`,

@@ -494,7 +494,7 @@
       title: `Run ${QAI} on ${nR(N)}?`,
       items: [{ label: 'Credits this uses', credits: N * PER_ROW }],
       have,
-      consequence: 'Credits are an estimate; the final count depends on how long each answer is.',
+      estimate: true, // the credit line says "about"
       primaryLabel: `Run on ${nR(N)}`,
       partial: { label: `Run on ${nR(Math.floor(have / PER_ROW))}`, onConfirm: () => startRun(rowsList.slice(0, Math.floor(have / PER_ROW))) },
       onBuy: () => nxToast({ message: 'Opens Billing > AI credits (not part of this prototype)' }),

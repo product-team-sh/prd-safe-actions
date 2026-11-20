@@ -320,7 +320,7 @@
         : { title: `We couldn't disconnect ${esc(a.email)} because ${a.type === 'microsoft' ? 'Microsoft' : a.type === 'google' ? 'Google' : 'the mail server'} did not respond in time.`, body: 'Nothing changed. Try again in a minute.' },
       onConfirm: () => done(kind, [a]),
     }));
-    if (!active) addLead(d, `It is ${a.status} and sends nothing today.`);
+    if (!active) addLead(d, `It is ${a.status}, so nothing sends from it.`);
     else if (!a.seqs.length) addLead(d, 'No active sequence uses it.');
     return d;
   }

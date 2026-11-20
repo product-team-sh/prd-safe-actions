@@ -186,9 +186,10 @@ body { font-family: Inter, sans-serif; background: #fff; color: var(--nx-text); 
 .nx-cost .nx-balance { color: var(--nx-text-2); }
 .nx-cost .nx-balance b { color: var(--nx-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .nx-cost .nx-balance b.nx-cost-short { color: var(--nx-red); }
-.nx-cost .nx-cost-line b { font-weight: 600; }
 .nx-cost .nx-receipt .nx-row.nx-total { background: none; border-top: 1px solid var(--nx-border); }
 .nx-cost .nx-receipt + .nx-balance { margin-top: -4px; }
+.nx-cost .nx-cost-one b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.nx-cost .nx-cost-one b.nx-cost-short { color: var(--nx-red); }
 .nx-rows .react-loading-skeleton { width: 40px; height: 12px; display: block; border-radius: 4px; margin: 4px 0; }
 .nx-rows .nx-row .nx-skel-l { width: 168px; height: 12px; }
 .nx-loadfail { display: flex; gap: 8px; align-items: flex-start; padding: 8px 12px; border: 1px solid var(--nx-border); border-radius: 6px; background: var(--nx-gray-50); color: var(--nx-text-2); font-size: 14px; line-height: 20px; }
@@ -200,8 +201,8 @@ body { font-family: Inter, sans-serif; background: #fff; color: var(--nx-text); 
 .nx-error { display: flex; gap: 8px; align-items: flex-start; padding: 12px; border: 1px solid var(--nx-red-200); border-radius: 6px; background: var(--nx-red-50); color: var(--nx-red); font-size: 14px; line-height: 20px; }
 .nx-error img { width: 20px; height: 20px; flex-shrink: 0; }
 .nx-error b { font-weight: 600; display: block; }
-.nx-field { display: flex; flex-direction: column; gap: 4px; }
-.nx-field label, .nx-field .nx-label { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--nx-text-2); margin: 0; }
+.nx-field { display: flex; flex-direction: column; gap: 8px; }
+.nx-field label, .nx-field .nx-label { font-size: 14px; line-height: 20px; font-weight: 400; color: var(--nx-text); margin: 0; } /* same as "Confirm by typing" */
 .nx-field input[type="password"], .nx-field input[type="text"], .nx-field input[type="number"], .nx-field select { height: 32px; box-sizing: border-box; border: 1px solid var(--nx-border-2); border-radius: 6px; padding: 0 12px; font: 14px/20px Inter, sans-serif; color: var(--nx-text); background: #fff; }
 .nx-field input:focus, .nx-field select:focus { outline: 0; border-color: var(--nx-blue); box-shadow: 0 0 0 3px var(--nx-blue-100); }
 .nx-field.nx-invalid input { border-color: var(--nx-red); }
@@ -285,3 +286,6 @@ main.home-container:focus { outline: none; }
   /* the changelog bolt is the least needed icon at phone width: dropping it leaves the sequence name room (bell and avatar stay) */
   .nx-kit .page-header > .w-auto > .ml-3:first-child { display: none; }
 }
+
+/* no one-word last lines in dialog copy */
+.nx-dialog .modal-body p, .nx-dialog .nx-error, .nx-dialog .nx-rows dt { text-wrap: pretty; }

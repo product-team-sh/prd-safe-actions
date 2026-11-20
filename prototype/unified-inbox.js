@@ -315,11 +315,11 @@
     return nxImpactDialog(common({
       title, tone: 'danger', undoable: { n: N, all: all || (S.all && !stay) },
       rows: [
-        { key: 'n', label: 'Conversations', value: N, cls: 'nx-total' },
-        { key: 'active', label: 'From prospects still in an active sequence', value: s.active, sub: true },
-        { key: 'unread', label: 'With unread replies', value: s.unread, sub: true },
-        { key: 'sd', label: 'With a scheduled reply or a draft', value: s.sd, sub: true },
+        { key: 'active', label: 'From prospects still in an active sequence', value: s.active },
+        { key: 'unread', label: 'With unread replies', value: s.unread },
+        { key: 'sd', label: 'With a scheduled reply or a draft', value: s.sd },
       ],
+      sentence: (r) => ({ active: `${fmt(r.value)} ${r.value === 1 ? 'is' : 'are'} from prospects still in an active sequence.`, unread: `${fmt(r.value)} ${r.value === 1 ? 'has an unread reply' : 'have unread replies'}.`, sd: `${fmt(r.value)} ${r.value === 1 ? 'has' : 'have'} a scheduled reply or a draft.` }[r.key]),
       consequence: `The emails stay in your mailbox; they disappear from Saleshandy. You can undo this for 10 seconds.${all ? ' This empties Unified Inbox.' : ''}${stay ? ` ${fmt(stay)} stay. Run it again for the rest.` : ''}`,
       primaryLabel: N === 1 ? `${VERB.base} conversation` : all && !stay ? `${VERB.base} all ${nC(N)}` : `${VERB.base} ${nC(N)}`,
       failMessage: { title: `We couldn't ${VERB.base.toLowerCase()} ${N === 1 ? 'this conversation' : 'these conversations'} because the connection to Saleshandy dropped.`, body: `Nothing was ${VERB.past.toLowerCase()}. Check your connection and try again.` },
@@ -366,10 +366,10 @@
     return nxImpactDialog(common({
       title, tone: 'danger', undoable: { n: N, all }, icon: NX.IMG('unsubscribe-ban.svg'),
       rows: [
-        { key: 'n', label: 'Prospects', value: N, cls: 'nx-total' },
-        { key: 'act', label: 'Still in an active sequence, which stops', value: act, sub: true },
-        { key: 'oth', label: 'Also in other sequences, which stop too', value: oth, sub: true },
+        { key: 'act', label: 'Still in an active sequence, which stops', value: act },
+        { key: 'oth', label: 'Also in other sequences, which stop too', value: oth },
       ],
+      sentence: (r) => (r.key === 'act' ? `${fmt(r.value)} ${r.value === 1 ? 'is' : 'are'} still in an active sequence, which stops.` : `${fmt(r.value)} ${r.value === 1 ? 'is' : 'are'} also in other sequences, which stop too.`),
       note: notes.length ? notes.join(' ') : null,
       consequence: `No sequence will email ${N === 1 ? first(targets[0]) : 'them'} again. You can undo this for 10 seconds.`,
       primaryLabel: N === 1 ? 'Unsubscribe prospect' : `Unsubscribe ${nP(N)}`,
@@ -426,7 +426,7 @@
     const dlg = nxImpactDialog(common({
       title, tone: 'primary', icon: NX.IMG('tag-blue.svg'),
       rows: base.rows, sentence, extra,
-      consequence: 'Their current outcomes are replaced. You can undo this for 10 seconds.',
+      consequence: 'You can undo this for 10 seconds.',
       primaryLabel: `Assign outcome to ${nC(N)}`,
       failMessage: { title: 'We couldn\'t assign this outcome because it was deleted in Settings a moment ago.', body: 'Refresh the page to get the current outcomes, then try again.' },
       onConfirm: (k) => {
@@ -458,7 +458,7 @@
         noteEl.hidden = !(picked && r.same);
         if (picked && r.same) noteEl.textContent = `${fmt(r.same)} already ${r.same === 1 ? 'has' : 'have'} ${oName(picked)} and ${r.same === 1 ? 'stays' : 'stay'} as ${r.same === 1 ? 'it is' : 'they are'}.`;
       }
-      cons.textContent = r.repN || !loaded ? `${picked === 'unc' ? 'Their current outcomes are removed.' : 'Their current outcomes are replaced.'} You can undo this for 10 seconds.` : 'You can undo this for 10 seconds.';
+      cons.textContent = (r.repN || !loaded) && picked === 'unc' ? 'Their current outcomes are removed. You can undo this for 10 seconds.' : 'You can undo this for 10 seconds.'; // the row already says "replaced"
       if (picked) c.setPrimary({ disabled: false, label: `Assign “${esc(oName(picked))}” to ${nC(N)}` });
     }
     setTimeout(() => extra.sel && extra.sel.bar.focus({ preventScroll: true }), 0);

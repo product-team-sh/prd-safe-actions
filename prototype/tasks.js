@@ -99,7 +99,7 @@
       intro: 'Spec row 11, plus bulk Retry on the Failed tab. Breakdown counts come from the backend before the dialog opens; the client cannot count them for "Select all". Undo needs the skip to start only after 10 seconds and be cancellable until then. Today the single-task skip already calls an undo endpoint (sendGetUndoTasksRequest); bulk has none.',
       rows: [
         { n: 11, surface: 'Tasks (Due Today, Upcoming, Overdue, Failed)', action: 'Bulk skip, up to 25,000', patterns: 'A B F H', undo: 'Yes, 10 seconds',
-          breakdown: 'Tasks by type (Call, LinkedIn, Manual email; zero rows hidden), and "Prospects who move to their next step". A note under the rows counts tasks that are the last step of their sequence (those prospects finish the sequence instead). Title names the tab: "Skip 36 tasks due today?", "Skip all 1,120 tasks due today?", "Skip 8 failed tasks?".',
+          breakdown: 'Tasks by type (Call, LinkedIn, Manual email; zero rows hidden). Where the prospects go is said in the consequence, not as a row. A note under the rows counts tasks that are the last step of their sequence (those prospects finish the sequence instead). Title names the tab: "Skip 36 tasks due today?", "Skip all 1,120 tasks due today?", "Skip 8 failed tasks?".',
           code: [
             { label: 'tasks-content.tsx L2303-2345 (fixed title "Skip task", "No" / "Skip Anyway")', url: C + 'tasks-content.tsx#L2303-L2345' },
             { label: 'tasks-content.tsx L2058-2066 (copy, no count)', url: C + 'tasks-content.tsx#L2058-L2066' },
@@ -260,9 +260,8 @@
         { key: 'call', label: 'Call tasks', value: s.call },
         { key: 'linkedin', label: 'LinkedIn tasks', value: s.linkedin },
         { key: 'email', label: 'Manual email tasks', value: s.email },
-        { key: 'move', label: 'Prospects who move to their next step', value: s.move },
       ],
-      sentence: (r) => (r.key === 'move' ? `All ${fmt(N)} prospects move to their next step.` : `All ${fmt(N)} are ${kind[r.key][1]}.`),
+      sentence: (r) => `All ${fmt(N)} are ${kind[r.key][1]}.`, // rows count tasks only; where prospects go is the consequence
       note: s.last ? `${fmt(s.last)} of these ${s.last === 1 ? 'is the last step in its sequence, so that prospect finishes it' : 'are the last step in their sequence, so those prospects finish it'} instead.` : null,
       consequence: `Each prospect moves on and their next step is scheduled. You can undo this for 10 seconds.${all ? (failed ? ' This clears the Failed list.' : ' This clears your Due Today list.') : ''}`,
       primaryLabel: all ? `Skip all ${nT(N)}` : `Skip ${nT(N)}`,

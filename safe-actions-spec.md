@@ -63,7 +63,7 @@ One dialog pattern for every risky action. Anatomy, top to bottom:
 | Part | Rule | Example |
 |---|---|---|
 | Title | Verb + count + noun + where, as a question. Single item: name it | "Remove 7 prospects from "SaaS founders, Oct"?" / "Delete the custom field "Industry"?" |
-| Breakdown | Up to 4 rows describing **what is affected**: the selection split by status, or the knock-on (sequences that pause, prospects that lose a value). Rows with 0 are hidden. If only one row would show, write it as a sentence instead. Never list the names of selected items: the selection stays visible behind the dialog. No rows that count what is due in a time window (next hour, today, next 24 hours) | Still in progress 1,906 / Replied 312 / Paused 122 |
+| Breakdown | Up to 4 rows describing **what is affected**: the selection split by status, or the knock-on (sequences that pause, prospects that lose a value). Rows with 0 are hidden. If only one row would show, write it as a sentence instead. Never list the names of selected items: the selection stays visible behind the dialog. No row that repeats the count in the title, and no rows mixing units (tasks and prospects). No rows that count what is due in a time window (next hour, today, next 24 hours) | Still in progress 1,906 / Replied 312 / Paused 122 |
 | Consequence | One or two short sentences: what stops, what is lost, and whether it can be undone | "Its value is cleared on 2,340 prospects. This can't be undone." |
 | Buttons | Secondary "Cancel". Primary = verb + count + noun, never "Yes" or "OK". When one item is named in the title, verb + noun with no "1" | "Remove 7 prospects" / "Remove prospect" |
 | Colour | Red primary when data is lost: something is deleted, removed with its history (remove from sequence), or can never be undone (unsubscribe). Blue when nothing is lost and it can be redone by hand: pause, resume, assign outcome, skip, remove tags, remove from a list | |
@@ -126,7 +126,7 @@ The password check already exists in the delete-account flow for password users 
 | Part | Rule |
 |---|---|
 | Title | What is bought: "Reveal work emails for 250 leads?" |
-| Breakdown | One cost: a sentence, "This uses 250 credits." Mixed costs: a receipt, one row per type with its credits ("Phone numbers ... 1,500"), total last. No count × rate: the count is already in the title. The balance sits under it as one line: "You have 4,820 credits. 3,070 left after this." |
+| Breakdown | One cost: one sentence with cost, balance and what is left: "This uses 1,200 credits of your 5,000, leaving 3,800." Short: "This uses 250 credits. You have 190, so you are 60 short." An estimate says "about"; no extra line. Mixed costs: a receipt, one row per type with its credits ("Phone numbers ... 1,500"), total last. No count × rate: the count is already in the title. The balance sits under it as one line: "You have 4,820 credits. 3,070 left after this." |
 | Not enough | The balance line ends with the shortfall in red: "You have 190 credits. 1,560 short." Primary becomes "Buy credits"; a secondary "Reveal 190 emails" spends what is there, if the action supports partial runs |
 | Primary | Verb + count: "Reveal 250 emails", "Verify 1,200 emails", "Run on 480 rows" |
 
@@ -154,7 +154,7 @@ Every P1 and P2 row of the audit, mapped. "Breakdown" lists the rows the F dialo
 | 8 | Unified Inbox | Bulk delete conversation | A B F H | Conversations, of which from active sequence prospects | Yes | unified-inbox.html |
 | 9 | Unified Inbox | Bulk unsubscribe | A B F H | Prospects, of which in active sequences | Yes | unified-inbox.html |
 | 10 | Unified Inbox | Bulk assign outcome | A F H | Conversations, of which already have a different outcome (will be replaced) | Yes | unified-inbox.html |
-| 11 | Tasks | Bulk skip | A B F H | Tasks by type; prospects who move to their next step | Yes | tasks.html |
+| 11 | Tasks | Bulk skip | A B F H | Tasks by type; where the prospects go is said in the consequence | Yes | tasks.html |
 | 12 | CRM prospects | Bulk delete | A B F H | Prospects, in active sequences, with replies, with notes | Yes | crm-prospects.html |
 | 13 | CRM prospects | Bulk unsubscribe | A B F H | Prospects, in active sequences | Yes | crm-prospects.html |
 | 14 | CRM prospects | Remove tags | A F H | Prospects, tags being removed | Yes | crm-prospects.html |

@@ -265,10 +265,10 @@
     if (key === 'export') {
       if (!wanted || isToday()) return apply(() => { A.exportOn = wanted; if (!wanted) A.exportAdmin = false; });
       return reauth({
-        title: `Let ${TEAM.members} team members export data?`,
+        title: `Allow ${TEAM.members} team members to export data?`,
         sentence: `${TEAM.members} members can download prospects, reports, leads and engagement data as files.`,
         consequence: 'Files that leave Saleshandy can\'t be called back. You can turn this off at any time.',
-        primaryLabel: `Allow ${TEAM.members} members to export`,
+        primaryLabel: `Allow ${TEAM.members} members to export data`,
         onConfirm: () => apply(() => { A.exportOn = true; }, `${TEAM.members} members can now export data`),
       });
     }
@@ -384,7 +384,7 @@
           { label: 'A/B tests that stop', value: 5 },
         ],
         list: { title: 'Sequences that pause', items: PAUSING },
-        consequence: `Sequences pause and A/B tests stop; email tracking and warm-up keep working. Nothing changes until ${BILL.next}. Your bill goes from ${money(before)} to ${money(after)} a month.`,
+        consequence: `Sequences pause and A/B tests stop; email tracking and warm-up keep working. Nothing changes until then. Your bill goes from ${money(before)} to ${money(after)} a month.`,
         primaryLabel: `Downgrade to ${p.name.replace(' (Monthly)', '')}`,
         tone: 'primary', submit: S.result, submitDelay: SD(),
         failMessage: { title: 'Your plan did not change.', body: 'The billing service did not respond. Try again in a minute.' },
