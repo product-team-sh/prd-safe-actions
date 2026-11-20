@@ -816,15 +816,14 @@
     const uses = o.items.reduce((s, i) => s + i.credits, 0);
     const short = Math.max(0, uses - o.have);
     const cr = (n) => `${fmt(n)} ${plural(n, 'credit', 'credits')}`;
-    // an item is { name, qty, rate, credits }; older callers pass { label, credits }
+    // an item is { name, credits }; older callers pass { label, credits }
     const iname = (i) => i.name || i.label;
-    const imath = (i) => (i.qty != null ? `${fmt(i.qty)} × ${fmt(i.rate)}` : '');
     // what it costs reads like a receipt (total last); the balance is one line under it
     const bal = short
       ? `You have ${cr(o.have)}. <b class="nx-cost-short">${fmt(short)} short.</b>`
       : `You have ${cr(o.have)}. <b>${fmt(o.have - uses)}</b> left after this.`;
     const html = o.items.length > 1
-      ? `<dl class="nx-rows nx-receipt">${o.items.map((i) => `<div class="nx-row"><dt>${iname(i)}<span class="nx-math">${imath(i)}</span></dt><dd>${fmt(i.credits)}</dd></div>`).join('')}<div class="nx-row nx-total"><dt>Total</dt><dd>${cr(uses)}</dd></div></dl><p class="nx-balance">${bal}</p>`
+      ? `<dl class="nx-rows nx-receipt">${o.items.map((i) => `<div class="nx-row"><dt>${iname(i)}</dt><dd>${fmt(i.credits)}</dd></div>`).join('')}<div class="nx-row nx-total"><dt>Total</dt><dd>${cr(uses)}</dd></div></dl><p class="nx-balance">${bal}</p>`
       : `<p class="nx-cost-line">This uses <b>${cr(uses)}</b>.</p><p class="nx-balance">${bal}</p>`;
     const body = h(`<div class="nx-impact nx-new nx-cost">${html}${o.consequence ? `<p class="nx-consequence">${o.consequence}</p>` : ''}</div>`);
     const run = (fn) => (c) => {

@@ -182,7 +182,6 @@ body { font-family: Inter, sans-serif; background: #fff; color: var(--nx-text); 
 .nx-rows .nx-row.nx-total dt, .nx-rows .nx-row.nx-total dd { font-weight: 600; }
 .nx-rows .nx-row.nx-short dd { color: var(--nx-red); }
 /* L: spend dialogs */
-.nx-cost .nx-math { margin-left: 8px; color: var(--nx-text-2); font-variant-numeric: tabular-nums; }
 .nx-cost .nx-cost-short { color: var(--nx-red); font-weight: 600; }
 .nx-cost .nx-balance { color: var(--nx-text-2); }
 .nx-cost .nx-balance b { color: var(--nx-text); font-weight: 600; font-variant-numeric: tabular-nums; }

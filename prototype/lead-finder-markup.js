@@ -292,7 +292,7 @@
   window.LF_TODAY_TAG_MODAL = (n) => modalShell({
     cls: 'confirmation-modal-v3 bulk-select-tag-modal', title: `<div class="confirmation-modal-v3--title d-flex align-items-center icon-"><div class="orange-txt-14 d-flex align-items-center" style="color: #1f2937;">${ICON.tag(20)}</div><h2>Add Tag</h2></div>`,
     body: `<div class="confirmation-modal-v3--body"><div class="confirmation-modal-v3--body__content"><div class=""><div><span class="bulk-select-tag-modal-text">${n} leads are selected. Applying tag will help you find them later.</span></div>
-      <div class="tags-autosuggest-container lf-tag-input"><span class="bs-input-affix-wrapper bs-input-affix-wrapper-md input-default"><input placeholder="Enter a tag" class="bs-input-md bs-input" aria-label="Enter a tag"></span></div></div></div></div>`,
+      <div class="tags-autosuggest-container lf-tag-input"><div role="combobox" aria-haspopup="listbox" aria-expanded="false" class="react-autosuggest__container"><input type="text" autocomplete="off" placeholder="Enter a tag" class="bs-input" aria-label="Enter a tag"></div></div></div></div></div>`,
     footer: btnCancel() + btnSubmit('Continue'),
   });
 

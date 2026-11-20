@@ -10,9 +10,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Production stylesheet, verbatim from my.saleshandy.com; icon font repointed to local files beside it. -->
 <link rel="stylesheet" href="prod/index.css">
-<link rel="stylesheet" href="kit/kit.css?v=20261120">
+<link rel="stylesheet" href="kit/kit.css?v=20261120b">
 <style>
 /* page-only rules. Production layout comes from prod/index.css; st- and nx- rules cover the prototype and what is new. */
+/* Delete User popup: wider than production's 27.375rem so each sentence sits on one line at desktop (Hitesh, 20 Nov 2026). */
+.bs-modal-container.confirmation-modal-v3.st-delete-user-modal .modal-dialog { width: 35.5rem !important; max-width: calc(100% - 32px) !important; }
 #st-root { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 #st-root > .setting-container, #st-root > .agency-client-container { flex: 1; min-height: 0; }
 /* production sizes the nav to 100vh minus its 90px chrome; the demo bar takes 44px more */
@@ -69,8 +71,8 @@
 </style>
 </head>
 <body>
-<script src="kit/kit.js?v=20261120"></script>
-<script src="settings-markup.js?v=20261120"></script>
-<script src="settings.js?v=20261120"></script>
+<script src="kit/kit.js?v=20261120b"></script>
+<script src="settings-markup.js?v=20261120b"></script>
+<script src="settings.js?v=20261120b"></script>
 </body>
 </html>

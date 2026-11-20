@@ -308,7 +308,7 @@
   }
   window.ST_TODAY = {
     // users: delete-user-modal.tsx
-    deleteUser: (o) => wire(shell('confirmation-modal-v3 action-modal', `<div class="confirmation-modal-v3--title d-flex align-items-center icon-trash-red"><img src="${IMG('trash-danger.svg')}" alt="empty-data/"><h2>Delete User</h2></div>`,
+    deleteUser: (o) => wire(shell('confirmation-modal-v3 action-modal st-delete-user-modal', `<div class="confirmation-modal-v3--title d-flex align-items-center icon-trash-red"><img src="${IMG('trash-danger.svg')}" alt="empty-data/"><h2>Delete User</h2></div>`,
       '<div class="confirmation-modal-v3--body"><div class="confirmation-modal-v3--body__contents"><p class="">Are you sure you want to delete the selected user permanently?</p><p class="">If You delete this user, User will no longer be a part of a Saleshandy Account.</p></div></div>',
       btn('cancel-btn btn-ghost btn-ghost-outlined btn-ghost-md', 'Cancel', 'data-st-cancel') + btn('delete-btn btn-solid btn-solid-danger btn-solid-md', 'Delete', 'data-st-submit'), false), o),
     // users: change-role-modal.tsx (Select with Member / Admin / Owner when the viewer is the owner)

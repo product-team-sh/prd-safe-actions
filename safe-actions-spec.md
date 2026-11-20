@@ -126,7 +126,7 @@ The password check already exists in the delete-account flow for password users 
 | Part | Rule |
 |---|---|
 | Title | What is bought: "Reveal work emails for 250 leads?" |
-| Breakdown | One cost: a sentence, "This uses 250 credits." Mixed costs: a receipt, one row per type with its count × rate ("Phone numbers 250 × 6 ... 1,500"), total last. The balance sits under it as one line: "You have 4,820 credits. 3,070 left after this." |
+| Breakdown | One cost: a sentence, "This uses 250 credits." Mixed costs: a receipt, one row per type with its credits ("Phone numbers ... 1,500"), total last. No count × rate: the count is already in the title. The balance sits under it as one line: "You have 4,820 credits. 3,070 left after this." |
 | Not enough | The balance line ends with the shortfall in red: "You have 190 credits. 1,560 short." Primary becomes "Buy credits"; a secondary "Reveal 190 emails" spends what is there, if the action supports partial runs |
 | Primary | Verb + count: "Reveal 250 emails", "Verify 1,200 emails", "Run on 480 rows" |
 
