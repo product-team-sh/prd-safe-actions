@@ -44,11 +44,11 @@ About 110 risky actions audited: about 35 unconfirmed, about 35 with a confirmat
 
 **D2 – Typing to confirm stays only where production asks for it today** (typed "delete" on sequence, subsequence, step and variant delete). The Sequence > Prospects dialogs never ask to type. Whether other new red dialogs ask to type is Q5. **Consequence to accept:** on Sequence > Prospects, one click on the red button inside the dialog removes or unsubscribes.
 
-**D3 – Undo lasts 10 seconds; there is no restore after that.** No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). No undo on Unsubscribe: a prospect is shared across sequences, so the system can't tell a user's resubscribe from the recipient's own unsubscribe, a compliance risk. No undo on Mark as finished: undoing would send the remaining steps. Both dialogs say so and give the way back: remove from the sequence and add again (engineering review, 19 Nov 2026). **Consequence to accept:** a mistake noticed later stays unrecoverable; the reported customer noticed after 4 minutes.
+**D3 – Undo lasts 10 seconds; there is no restore after that.** No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). No undo on Remove from sequence: their progress in the sequence is deleted. No undo on Unsubscribe: a prospect is shared across sequences, so the system can't tell a user's resubscribe from the recipient's own unsubscribe, a compliance risk. No undo on Mark as finished: undoing would send the remaining steps. All three dialogs say so and give the way back: add them to the sequence again (engineering review, 19 Nov 2026). **Consequence to accept:** a mistake noticed later stays unrecoverable; on Sequence > Prospects the dialog is the only guard for Remove, Unsubscribe and Mark as finished.
 
 ## 6. Surfaces
 
-Every state below opens from the prototype's demo bar, with a Today / Proposed switch on each screen. To compare all 35 screens side by side, open the [canvas](canvas/index.html).
+Every state below opens from the prototype's demo bar, with a Today / Proposed switch on each screen. To compare every screen side by side, open the [canvas](canvas/index.html).
 
 ### 6.1 Sequence > Prospects (rows 1-4)
 
@@ -64,21 +64,16 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 
 ![Proposed: unsubscribe dialog, can't be undone](screens/03-seqp-unsub.png)
 
-![Proposed: undo after remove](screens/05-seqp-undo.png)
-
 **Dialogs.** Title = the action's name with its bar icon; no count, no breakdown, no routine undo line, no typing. Copy per action is in the [spec](https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md#sequence--prospects-dialogs).
 
 | ID | Case | Expected | P |
 |---|---|---|---|
 | SP-1 | 7 prospects, header checkbox ticked | Banner reads "All 7 prospects in this sequence are selected." | P0 |
-| SP-2 | Remove with all selected | Title "Remove from sequence"; body ends "This leaves the sequence empty."; Cancel / Remove (red); no typed field | P0 |
-| SP-3 | Remove, confirm, then Undo within 10 s | All 7 rows return with the same step, status and outcome; no email went out in between | P0 |
-| SP-4 | Remove, confirm, wait 10 s | Removal commits; Undo gone | P0 |
-| SP-5 | Unsubscribe or Mark as finished, confirm | Dialog said "This can't be undone." and the way back; toast has no Undo | P0 |
-| SP-6 | Selection includes prospects already in the target state (e.g. already unsubscribed) | Dialog adds "Prospects who are already unsubscribed will be skipped."; line absent when nobody is skipped | P1 |
-| SP-7 | Mark as replied, Pause, Resume | Dialog states the consequence; Pause keeps today's duration picker; replied gets the 10 s undo | P1 |
-
-**Sign off by name (owner: QA lead, unassigned):** SP-3. Its failure loses customer data while telling the user it is safe.
+| SP-2 | Remove with all selected | Title "Remove from sequence"; body ends "This leaves the sequence empty."; note "This can't be undone. To email them again, add them to the sequence again."; Cancel / Remove (red); no typed field | P0 |
+| SP-3 | Remove, Unsubscribe or Mark as finished, confirm | Dialog said "This can't be undone." and the way back; toast has no Undo | P0 |
+| SP-4 | Cancel, Esc or the X on any of these dialogs | Nothing changes; selection kept | P0 |
+| SP-5 | Selection includes prospects already in the target state (e.g. already unsubscribed) | Dialog adds "Prospects who are already unsubscribed will be skipped."; line absent when nobody is skipped | P1 |
+| SP-6 | Mark as replied, Pause, Resume | Dialog states the consequence; Pause keeps today's duration picker; replied gets the 10 s undo | P1 |
 
 ### 6.2 Sequence list (rows 5, 37)
 

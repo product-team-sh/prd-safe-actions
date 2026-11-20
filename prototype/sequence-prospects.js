@@ -117,9 +117,9 @@
       { key: 'view', label: 'View', value: S.view, options: [['today', 'Today'], ['proposed', 'Proposed']], onChange: (v) => { S.view = v; render(); } },
     ],
     devNotes: {
-      intro: 'Bulk bar is icon-only with tooltips; each confirmation is short: action name, one sentence, a skipped-prospects line only when some selected prospects will be skipped, and a grey "This can\'t be undone" note row only for Unsubscribe and Mark as finished. No counts, no typing. Direction D, 19 Nov 2026.',
+      intro: 'Bulk bar is icon-only with tooltips; each confirmation is short: action name, one sentence, a skipped-prospects line only when some selected prospects will be skipped, and a grey "This can\'t be undone" note row only for Remove, Unsubscribe and Mark as finished. No counts, no typing. Direction D, 19 Nov 2026.',
       rows: [
-        { n: 1, surface: 'Sequence > Prospects', action: 'Remove from sequence, Unsubscribe', patterns: 'Red icon and button', breakdown: 'None. Remove: "Selected prospects stop getting emails from this sequence and their progress is deleted.", plus "This leaves the sequence empty." when every prospect is selected. Unsubscribe: "Selected prospects will not get emails from any sequence again.", "Prospects who are already unsubscribed will be skipped." (only when it applies), note: "This can\'t be undone. To email them again, remove them from the sequence and add them again."', undo: 'Remove: 10 seconds. Unsubscribe: none, it cannot be reversed',
+        { n: 1, surface: 'Sequence > Prospects', action: 'Remove from sequence, Unsubscribe', patterns: 'Red icon and button', breakdown: 'None. Remove: "Selected prospects stop getting emails from this sequence and their progress is deleted.", plus "This leaves the sequence empty." when every prospect is selected, note: "This can\'t be undone. To email them again, add them to the sequence again." Unsubscribe: "Selected prospects will not get emails from any sequence again.", "Prospects who are already unsubscribed will be skipped." (only when it applies), note: "This can\'t be undone. To email them again, remove them from the sequence and add them again."', undo: 'None. Remove deletes their progress; Unsubscribe cannot be reversed',
           code: [{ label: 'contact-list-header.tsx L119-152', url: HDR + '#L119-L152' }, { label: 'contact-list-content.tsx L542-608', url: CNT + '#L542-L608' }], v3: '' },
         { n: 2, surface: 'Sequence > Prospects', action: 'Mark as replied, Mark as finished, Resume, Pause', patterns: 'Blue icon and button', breakdown: 'None. Replied: "The sequence stops for selected prospects.", skipped line "Prospects who are already marked as replied will be skipped." Finished: same body, "Prospects who are already finished will be skipped.", note: "This can\'t be undone. To bring them back, remove them from the sequence and add them again." Resume: "Selected prospects continue from their current step.", skip "not paused". Pause: "Emails to selected prospects stop until the pause ends or you resume them.", skip "not in progress".', undo: 'Replied: 10 seconds. Finished, Resume, Pause: none',
           code: [{ label: 'contact-list-header.tsx L131-185', url: HDR + '#L131-L185' }, { label: 'contact-list-content.tsx L586-647 (pause keeps its duration picker)', url: CNT + '#L586-L647' }], v3: '' },
@@ -320,16 +320,12 @@
       return shortDialog({
         name: 'Remove from sequence', glyph: GLYPH.remove, danger: true, primaryLabel: 'Remove',
         body: 'Selected prospects stop getting emails from this sequence and their progress is deleted.' + (every ? ' This leaves the sequence empty.' : ''),
-        failTitle: fail('remove'),
+        cant: 'To email them again, add them to the sequence again.', failTitle: fail('remove'),
         onConfirm: () => {
-          const ids = list.map((p) => p.id);
-          ids.forEach((i) => hidden.add(i));
+          const set = new Set(list.map((p) => p.id));
+          DATA = DATA.filter((p) => !set.has(p.id));
           clearSel(); render();
-          nxUndoToast({
-            message: `Removed ${nP(N)} from ${QSEQ}`, undoneMessage: `Undone. ${nP(N)} ${N === 1 ? 'is' : 'are'} back`,
-            onUndo: () => { ids.forEach((i) => hidden.delete(i)); clearSel(); render(); },
-            onCommit: () => { const set = new Set(ids); DATA = DATA.filter((p) => !set.has(p.id)); ids.forEach((i) => hidden.delete(i)); render(); },
-          });
+          nxToast({ message: `Removed ${nP(N)} from ${QSEQ}` });
         },
       });
     }
@@ -440,7 +436,6 @@
       'dialog-unsubscribe': () => { firstN(S.size === '7' ? 7 : 25); openAction('unsubscribe'); },
       'dialog-single': () => { firstN(1); openAction('remove'); },
       'toast': () => { S.all = true; render(); const d = openAction('remove'); setTimeout(() => d.confirm(), (window.SP_BD || 0) + 50); },
-      'undone': () => { S.all = true; render(); const d = openAction('remove'); setTimeout(() => { d.confirm(); setTimeout(() => document.querySelector('.message-undo').click(), 1000); }, (window.SP_BD || 0) + 50); },
       'today': () => { S.view = 'today'; shell.setControl('view', 'today'); firstN(S.size === '7' ? 7 : 3); },
       'today-pause': () => { S.view = 'today'; shell.setControl('view', 'today'); firstN(7); window.SP_TODAY_PAUSE(() => {}); },
     };

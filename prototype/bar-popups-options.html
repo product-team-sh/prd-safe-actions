@@ -45,8 +45,8 @@ p.l { margin: 0 0 8px; color: #4b5563; }
 .opt-dlg .modal-footer { border-top: 0 !important; }
 .opt-dlg .modal-footer .bs-modal-footer-action-buttons { justify-content: flex-end; }
 .opt-dlg .modal-footer .bs-modal-footer-action-buttons button { width: auto; min-width: 88px; }
-.nx-qnote { display: flex; gap: 8px; align-items: flex-start; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 12px; line-height: 16px; color: #4b5563; }
-.nx-qnote i { font-size: 16px; width: 16px; height: 16px; line-height: 16px; color: #4b5563; flex-shrink: 0; }
+.nx-qnote { display: flex; gap: 8px; align-items: flex-start; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 14px; line-height: 20px; color: #4b5563; }
+.nx-qnote i { font-size: 16px; width: 16px; height: 16px; line-height: 16px; margin-top: 2px; color: #4b5563; flex-shrink: 0; }
 .nx-qnote b { font-weight: 600; color: #1f2937; }
 </style>
 </head>
@@ -108,7 +108,7 @@ p.l { margin: 0 0 8px; color: #4b5563; }
     c.el.remove();
     document.activeElement && document.activeElement.blur();
   }
-  card('Remove from sequence. Red, no typing. Undo toast for 10 seconds after. The empty-sequence line shows only when every prospect is selected.', { name: 'Remove from sequence', glyph: 'trash', danger: true, primary: 'Remove', body: 'Selected prospects stop getting emails from this sequence and their progress is deleted. This leaves the sequence empty.' });
+  card('Remove from sequence. Red, no typing, no undo, so the grey note row. The empty-sequence line shows only when every prospect is selected.', { name: 'Remove from sequence', glyph: 'trash', danger: true, primary: 'Remove', body: 'Selected prospects stop getting emails from this sequence and their progress is deleted. This leaves the sequence empty.', cant: 'To email them again, add them to the sequence again.' });
   card('Unsubscribe. Red, no typing, no undo, so the grey note row. Shown with some already unsubscribed.', { name: 'Unsubscribe', glyph: 'unavailable', danger: true, primary: 'Unsubscribe', body: 'Selected prospects will not get emails from any sequence again.', excl: 'Prospects who are already unsubscribed will be skipped.', cant: 'To email them again, remove them from the sequence and add them again.' });
   card('Mark as replied. Undo toast for 10 seconds after.', { name: 'Mark as replied', glyph: 'round-corner-arrow-back', primary: 'Mark as replied', body: 'The sequence stops for selected prospects.', excl: 'Prospects who are already marked as replied will be skipped.' });
   card('Mark as finished. No undo, so the grey note row.', { name: 'Mark as finished', glyph: 'circle-check', primary: 'Mark as finished', body: 'The sequence stops for selected prospects.', excl: 'Prospects who are already finished will be skipped.', cant: 'To bring them back, remove them from the sequence and add them again.' });

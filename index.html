@@ -283,11 +283,11 @@ figure img{width:100%;height:auto}
 
 <p><strong>D1 – The impact dialog appears on every risky action, including a single item.</strong> <strong>Consequence to accept:</strong> one extra step on frequent clean-up work.</p>
 <p><strong>D2 – Typing to confirm stays only where production asks for it today</strong> (typed "delete" on sequence, subsequence, step and variant delete). The Sequence &gt; Prospects dialogs never ask to type. Whether other new red dialogs ask to type is Q5. <strong>Consequence to accept:</strong> on Sequence &gt; Prospects, one click on the red button inside the dialog removes or unsubscribes.</p>
-<p><strong>D3 – Undo lasts 10 seconds; there is no restore after that.</strong> No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). No undo on Unsubscribe: a prospect is shared across sequences, so the system can't tell a user's resubscribe from the recipient's own unsubscribe, a compliance risk. No undo on Mark as finished: undoing would send the remaining steps. Both dialogs say so and give the way back: remove from the sequence and add again (engineering review, 19 Nov 2026). <strong>Consequence to accept:</strong> a mistake noticed later stays unrecoverable; the reported customer noticed after 4 minutes.</p>
+<p><strong>D3 – Undo lasts 10 seconds; there is no restore after that.</strong> No undo on spends, security switches, plan changes, account deletion, or disconnecting integrations and mailboxes (their side effects outside Saleshandy happen at once). No undo on Remove from sequence: their progress in the sequence is deleted. No undo on Unsubscribe: a prospect is shared across sequences, so the system can't tell a user's resubscribe from the recipient's own unsubscribe, a compliance risk. No undo on Mark as finished: undoing would send the remaining steps. All three dialogs say so and give the way back: add them to the sequence again (engineering review, 19 Nov 2026). <strong>Consequence to accept:</strong> a mistake noticed later stays unrecoverable; on Sequence &gt; Prospects the dialog is the only guard for Remove, Unsubscribe and Mark as finished.</p>
 </section>
 <section id="6-surfaces" class="sec"><div class="sec-head"><span class="sec-num">6</span><h2>Surfaces</h2></div>
 
-<p>Every state below opens from the prototype's demo bar, with a Today / Proposed switch on each screen. To compare all 35 screens side by side, open the <a href="canvas/index.html">canvas</a>.</p>
+<p>Every state below opens from the prototype's demo bar, with a Today / Proposed switch on each screen. To compare every screen side by side, open the <a href="canvas/index.html">canvas</a>.</p>
 <h3 id="6-1-sequence-prospects-rows-1-4">6.1 Sequence &gt; Prospects (rows 1-4)</h3>
 <figure><figcaption>Today</figcaption><a class="zoom" href="screens/01-seqp-today.png" aria-label="View larger: Today"><img src="screens/01-seqp-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
 <p><strong>Why.</strong> The remove action is an X among seven similar icons and fires at once; the banner hides that the selection is the whole sequence.</p>
@@ -295,7 +295,6 @@ figure img{width:100%;height:auto}
 <figure><figcaption>Proposed: icon bar and banner</figcaption><a class="zoom" href="screens/02-seqp-bar.png" aria-label="View larger: Proposed: icon bar and banner"><img src="screens/02-seqp-bar.png" style="max-width:885px" alt="Proposed: icon bar and banner" loading="lazy"></a></figure>
 <figure><figcaption>Proposed: remove dialog, whole sequence selected</figcaption><a class="zoom" href="screens/04-seqp-remove.png" aria-label="View larger: Proposed: remove dialog, whole sequence selected"><img src="screens/04-seqp-remove.png" style="max-width:885px" alt="Proposed: remove dialog, whole sequence selected" loading="lazy"></a></figure>
 <figure><figcaption>Proposed: unsubscribe dialog, can't be undone</figcaption><a class="zoom" href="screens/03-seqp-unsub.png" aria-label="View larger: Proposed: unsubscribe dialog, can't be undone"><img src="screens/03-seqp-unsub.png" style="max-width:885px" alt="Proposed: unsubscribe dialog, can't be undone" loading="lazy"></a></figure>
-<figure><figcaption>Proposed: undo after remove</figcaption><a class="zoom" href="screens/05-seqp-undo.png" aria-label="View larger: Proposed: undo after remove"><img src="screens/05-seqp-undo.png" style="max-width:885px" alt="Proposed: undo after remove" loading="lazy"></a></figure>
 <p><strong>Dialogs.</strong> Title = the action's name with its bar icon; no count, no breakdown, no routine undo line, no typing. Copy per action is in the <a href="https://github.com/product-team-sh/prd-safe-actions/blob/main/safe-actions-spec.md#sequence--prospects-dialogs">spec</a>.</p>
 <div class="tbl-wrap"><table>
 <thead>
@@ -316,42 +315,35 @@ figure img{width:100%;height:auto}
 <tr>
 <td>SP-2</td>
 <td>Remove with all selected</td>
-<td>Title "Remove from sequence"; body ends "This leaves the sequence empty."; Cancel / Remove (red); no typed field</td>
+<td>Title "Remove from sequence"; body ends "This leaves the sequence empty."; note "This can't be undone. To email them again, add them to the sequence again."; Cancel / Remove (red); no typed field</td>
 <td>P0</td>
 </tr>
 <tr>
 <td>SP-3</td>
-<td>Remove, confirm, then Undo within 10 s</td>
-<td>All 7 rows return with the same step, status and outcome; no email went out in between</td>
-<td>P0</td>
-</tr>
-<tr>
-<td>SP-4</td>
-<td>Remove, confirm, wait 10 s</td>
-<td>Removal commits; Undo gone</td>
-<td>P0</td>
-</tr>
-<tr>
-<td>SP-5</td>
-<td>Unsubscribe or Mark as finished, confirm</td>
+<td>Remove, Unsubscribe or Mark as finished, confirm</td>
 <td>Dialog said "This can't be undone." and the way back; toast has no Undo</td>
 <td>P0</td>
 </tr>
 <tr>
-<td>SP-6</td>
+<td>SP-4</td>
+<td>Cancel, Esc or the X on any of these dialogs</td>
+<td>Nothing changes; selection kept</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>SP-5</td>
 <td>Selection includes prospects already in the target state (e.g. already unsubscribed)</td>
 <td>Dialog adds "Prospects who are already unsubscribed will be skipped."; line absent when nobody is skipped</td>
 <td>P1</td>
 </tr>
 <tr>
-<td>SP-7</td>
+<td>SP-6</td>
 <td>Mark as replied, Pause, Resume</td>
 <td>Dialog states the consequence; Pause keeps today's duration picker; replied gets the 10 s undo</td>
 <td>P1</td>
 </tr>
 </tbody>
 </table></div>
-<p><strong>Sign off by name (owner: QA lead, unassigned):</strong> SP-3. Its failure loses customer data while telling the user it is safe.</p>
 <h3 id="6-2-sequence-list-rows-5-37">6.2 Sequence list (rows 5, 37)</h3>
 <figure><figcaption>Today</figcaption><a class="zoom" href="screens/06-seql-today.png" aria-label="View larger: Today"><img src="screens/06-seql-today.png" style="max-width:885px" alt="Today" loading="lazy"></a></figure>
 <p><strong>Why.</strong> Bulk pause names neither the sequences nor how many prospects stop; delete says nothing about what is lost.</p>
