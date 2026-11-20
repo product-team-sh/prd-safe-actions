@@ -181,6 +181,15 @@ body { font-family: Inter, sans-serif; background: #fff; color: var(--nx-text); 
 .nx-rows .nx-row.nx-total { background: var(--nx-gray-50); }
 .nx-rows .nx-row.nx-total dt, .nx-rows .nx-row.nx-total dd { font-weight: 600; }
 .nx-rows .nx-row.nx-short dd { color: var(--nx-red); }
+/* L: spend dialogs */
+.nx-cost .nx-math { margin-left: 8px; color: var(--nx-text-2); font-variant-numeric: tabular-nums; }
+.nx-cost .nx-cost-short { color: var(--nx-red); font-weight: 600; }
+.nx-cost .nx-balance { color: var(--nx-text-2); }
+.nx-cost .nx-balance b { color: var(--nx-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.nx-cost .nx-balance b.nx-cost-short { color: var(--nx-red); }
+.nx-cost .nx-cost-line b { font-weight: 600; }
+.nx-cost .nx-receipt .nx-row.nx-total { background: none; border-top: 1px solid var(--nx-border); }
+.nx-cost .nx-receipt + .nx-balance { margin-top: -4px; }
 .nx-rows .react-loading-skeleton { width: 40px; height: 12px; display: block; border-radius: 4px; margin: 4px 0; }
 .nx-rows .nx-row .nx-skel-l { width: 168px; height: 12px; }
 .nx-loadfail { display: flex; gap: 8px; align-items: flex-start; padding: 8px 12px; border: 1px solid var(--nx-border); border-radius: 6px; background: var(--nx-gray-50); color: var(--nx-text-2); font-size: 14px; line-height: 20px; }

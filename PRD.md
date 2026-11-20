@@ -193,7 +193,7 @@ Every state below opens from the prototype's demo bar, with a Today / Proposed s
 
 | ID | Case | Expected | P |
 |---|---|---|---|
-| LF-1 | Reveal emails and phones for 250 | One row per type with its rate; total, balance, left after | P0 |
+| LF-1 | Reveal emails and phones for 250 | One row per type with count × rate, total last; under it one line with the balance and what is left after | P0 |
 | LF-2 | Verify fails | Input kept; cleared only on success | P1 |
 
 ### 6.10 Settings (rows 26-32)

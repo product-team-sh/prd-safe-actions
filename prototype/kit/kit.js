@@ -815,13 +815,18 @@
     o = Object.assign({ items: [], have: 0, submit: 'ok' }, o);
     const uses = o.items.reduce((s, i) => s + i.credits, 0);
     const short = Math.max(0, uses - o.have);
-    const rows = o.items.length > 1
-      ? o.items.map((i) => ({ label: i.label, value: fmt(i.credits) + ' credits' }))
-      : [{ label: 'Credits this uses', value: fmt(uses) }];
-    if (o.items.length > 1) rows.push({ label: 'Credits this uses', value: fmt(uses), cls: 'nx-total' });
-    rows.push({ label: 'You have', value: fmt(o.have) });
-    rows.push(short ? { label: 'Shortfall', value: `${fmt(short)} credits`, cls: 'nx-short' } : { label: 'Left after', value: fmt(o.have - uses) });
-    const body = h(`<div class="nx-impact nx-new"><dl class="nx-rows">${rows.map((r) => `<div class="nx-row ${r.cls || ''}"><dt>${r.label}</dt><dd>${r.value}</dd></div>`).join('')}</dl>${o.consequence ? `<p class="nx-consequence">${o.consequence}</p>` : ''}</div>`);
+    const cr = (n) => `${fmt(n)} ${plural(n, 'credit', 'credits')}`;
+    // an item is { name, qty, rate, credits }; older callers pass { label, credits }
+    const iname = (i) => i.name || i.label;
+    const imath = (i) => (i.qty != null ? `${fmt(i.qty)} × ${fmt(i.rate)}` : '');
+    // what it costs reads like a receipt (total last); the balance is one line under it
+    const bal = short
+      ? `You have ${cr(o.have)}. <b class="nx-cost-short">${fmt(short)} short.</b>`
+      : `You have ${cr(o.have)}. <b>${fmt(o.have - uses)}</b> left after this.`;
+    const html = o.items.length > 1
+      ? `<dl class="nx-rows nx-receipt">${o.items.map((i) => `<div class="nx-row"><dt>${iname(i)}<span class="nx-math">${imath(i)}</span></dt><dd>${fmt(i.credits)}</dd></div>`).join('')}<div class="nx-row nx-total"><dt>Total</dt><dd>${cr(uses)}</dd></div></dl><p class="nx-balance">${bal}</p>`
+      : `<p class="nx-cost-line">This uses <b>${cr(uses)}</b>.</p><p class="nx-balance">${bal}</p>`;
+    const body = h(`<div class="nx-impact nx-new nx-cost">${html}${o.consequence ? `<p class="nx-consequence">${o.consequence}</p>` : ''}</div>`);
     const run = (fn) => (c) => {
       c.setError(null); c.setBusy(true);
       setTimeout(() => {

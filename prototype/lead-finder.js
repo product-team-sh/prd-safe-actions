@@ -109,9 +109,9 @@
     devNotes: {
       intro: 'Spec rows 21 to 25. Credit totals are count x per-lead rate, known before the dialog opens, so L dialogs have no counting state. Remove from list is the only action here with undo; spends never get undo.',
       rows: [
-        { n: 21, surface: 'Lead Finder > People (Total, New)', action: 'Bulk View Work Email, View Phone', patterns: 'A L', breakdown: 'Credits by type: work emails at 1 credit, phone numbers at 6 (View Phone reveals email + phone, 7 per lead). You have, Left after; shortfall replaces Left after. Partial run spends what is there. Today\'s tag picker is kept inside the dialog.', undo: 'No (spend)',
+        { n: 21, surface: 'Lead Finder > People (Total, New)', action: 'Bulk View Work Email, View Phone', patterns: 'A L', breakdown: 'A receipt: work emails 250 × 1, phone numbers 250 × 6 (View Phone reveals email + phone, 7 per lead), total last. One cost alone is a sentence. Under it one balance line: "You have 4,820 credits. 3,070 left after this.", or "60 short." in red. Partial run spends what is there. Today\'s tag picker is kept inside the dialog.', undo: 'No (spend)',
           code: [{ label: 'v2-lead-header.tsx L636-666 (View Work Email, View Phone)', url: V2 + 'header/v2-lead-header.tsx#L636-L666' }, { label: 'useBulkReveal.ts L134-184 (per-lead costs, check only)', url: V2 + 'hooks/useBulkReveal.ts#L134-L184' }, { label: 'bulk-reveal-tag-modal.tsx L52-58 (count, no credit total)', url: V2 + 'modal/bulk-reveal-tag-modal/bulk-reveal-tag-modal.tsx#L52-L58' }, { label: 'credit-not-available-modal.tsx (per-lead price only)', url: V2 + 'modal/credit-not-available-modal/credit-not-available-modal.tsx' }] },
-        { n: 22, surface: 'Lead Finder > People (Total, New)', action: 'Save to List, Add to Sequence with reveal', patterns: 'L', breakdown: 'Credits this uses (by type when Email + Phone is on), You have, Left after. Saved tab spends nothing and skips the cost step.', undo: 'No (spend)',
+        { n: 22, surface: 'Lead Finder > People (Total, New)', action: 'Save to List, Add to Sequence with reveal', patterns: 'L', breakdown: 'Same receipt and balance line as row 21 (one row per type when Email + Phone is on). Saved tab spends nothing and skips the cost step.', undo: 'No (spend)',
           code: [{ label: 'add-to-list-dropdown.tsx L527-616 (per-unit chip, no total)', url: V2 + 'add-to-list-dropdown/add-to-list-dropdown.tsx#L527-L616' }, { label: 'add-to-sequence-reveal-modal.tsx L41-74 (per-unit chip)', url: V2 + 'modal/add-to-sequence-reveal-modal/add-to-sequence-reveal-modal.tsx#L41-L74' }] },
         { n: 23, surface: 'Lead Finder > People > Saved', action: 'Remove From List', patterns: 'A F H', breakdown: 'List named in the title. Rows: also in other lists, only in this list. Several lists picked: one row per list. "This empties the list." when every lead in it is selected.', undo: 'Yes, 10 seconds',
           code: [{ label: 'v2-lead-header.tsx L618-633 (button)', url: V2 + 'header/v2-lead-header.tsx#L618-L633' }, { label: 'remove-from-list-modal.tsx L49-70 (no count, "Apply")', url: V2 + 'remove-from-list-modal/remove-from-list-modal.tsx#L49-L70' }] },
@@ -255,8 +255,8 @@
     const list = selList();
     const needEmail = list.filter((l) => !l.email && !l.emailNotFound).length;
     const needPhone = kind === 'phone' ? list.filter((l) => !l.phone && !l.phoneNotFound).length : 0;
-    const items = [{ label: `${fmt(needEmail)} work ${plural(needEmail, 'email', 'emails')} at 1 credit each`, credits: needEmail * COST.email }];
-    if (kind === 'phone') items.push({ label: `${fmt(needPhone)} phone ${plural(needPhone, 'number', 'numbers')} at 6 credits each`, credits: needPhone * COST.phone });
+    const items = [{ name: 'Work emails', qty: needEmail, rate: COST.email, credits: needEmail * COST.email }];
+    if (kind === 'phone') items.push({ name: 'Phone numbers', qty: needPhone, rate: COST.phone, credits: needPhone * COST.phone });
     return { list, needEmail, needPhone, items: kind === 'phone' ? items : [{ label: 'Credits this uses', credits: needEmail * COST.email }], already: list.length - (kind === 'phone' ? Math.max(needEmail, needPhone) : needEmail) };
   }
   function openReveal(kind) {
@@ -349,7 +349,7 @@
     const go = (count) => () => { const t = list.slice(0, count); clearSel(); revealRows(t.filter((l) => !l.email), phone); nxToast({ message: `Saving ${nL(t.length)} to ${where}. Their ${phone ? 'emails and phones are' : 'emails are'} being revealed.`, delay: 4000 }); };
     return costDialog({
       title: `Reveal ${phone ? 'emails and phones' : 'work emails'} for ${nL(N)} and save them to ${where}?`,
-      items: phone ? [{ label: `${fmt(needE)} work emails at 1 credit each`, credits: needE }, { label: `${fmt(needP)} phone numbers at 6 credits each`, credits: needP * 6 }] : [{ label: 'Credits this uses', credits: needE }],
+      items: phone ? [{ name: 'Work emails', qty: needE, rate: 1, credits: needE }, { name: 'Phone numbers', qty: needP, rate: 6, credits: needP * 6 }] : [{ label: 'Credits this uses', credits: needE }],
       have, primaryLabel: `Save ${nL(N)}`,
       partial: fit > 0 ? { label: `Save ${nL(fit)}`, onConfirm: go(fit) } : null,
       onBuy: () => nxToast({ message: 'Opens Billing > Lead Finder credits. Not part of this prototype' }),
@@ -388,7 +388,7 @@
     const go = (count) => () => { const t = list.slice(0, count); clearSel(); revealRows(t, phone); nxToast({ message: `Adding ${nL(t.length)} to “${SEQ}” as their emails are revealed.`, delay: 4000 }); };
     return costDialog({
       title: `Reveal ${phone ? 'emails and phones' : 'work emails'} for ${nL(N)} and add them to “${SEQ}”?`,
-      items: phone ? [{ label: `${fmt(needE)} work emails at 1 credit each`, credits: needE }, { label: `${fmt(needP)} phone numbers at 6 credits each`, credits: needP * 6 }] : [{ label: 'Credits this uses', credits: needE }],
+      items: phone ? [{ name: 'Work emails', qty: needE, rate: 1, credits: needE }, { name: 'Phone numbers', qty: needP, rate: 6, credits: needP * 6 }] : [{ label: 'Credits this uses', credits: needE }],
       have, primaryLabel: `Add ${nL(N)}`,
       consequence: 'They start at Step 1 of the sequence.',
       partial: fit > 0 ? { label: `Add ${nL(fit)}`, onConfirm: go(fit) } : null,

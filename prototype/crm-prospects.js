@@ -514,8 +514,8 @@
     const body = h('<div class="nx-impact nx-new"><div class="nx-breakdown" aria-live="polite"></div><dl class="nx-rows crm-credit-rows"></dl><p class="nx-consequence"></p></div>');
     const bd = body.querySelector('.nx-breakdown');
     bd.innerHTML = '<dl class="nx-rows" aria-busy="true" aria-label="Counting"><div class="nx-row"><dt><span class="react-loading-skeleton nx-skel-l"></span></dt><dd><span class="react-loading-skeleton"></span></dd></div><div class="nx-row"><dt><span class="react-loading-skeleton nx-skel-l"></span></dt><dd><span class="react-loading-skeleton"></span></dd></div></dl>';
-    body.querySelector('.crm-credit-rows').innerHTML = [['Credits this uses', fmt(uses), ''], ['You have', fmt(have), ''], short ? ['Shortfall', `${fmt(short)} credits`, 'nx-short'] : ['Left after', fmt(have - uses), '']]
-      .map(([a, b, c]) => `<div class="nx-row ${c}"><dt>${a}</dt><dd>${b}</dd></div>`).join('');
+    // same spend lines as nxCostDialog: one sentence for the cost, one for the balance
+    body.querySelector('.crm-credit-rows').outerHTML = `<div class="nx-cost" style="display: contents;"><p class="nx-cost-line">This uses <b>${fmt(uses)} ${plural(uses, 'credit', 'credits')}</b>.</p><p class="nx-balance">You have ${fmt(have)} ${plural(have, 'credit', 'credits')}. ${short ? `<b class="nx-cost-short">${fmt(short)} short.</b>` : `<b>${fmt(have - uses)}</b> left after this.`}</p></div>`;
     body.querySelector('.nx-consequence').textContent = 'Current values in this column are replaced with new ones from the latest prompt. This can\'t be undone.';
     const run = (rows) => (c) => {
       c.setError(null); c.setBusy(true);
